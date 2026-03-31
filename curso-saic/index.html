@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Curso SAIC UNAB — DAC FEN</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#1a1a1a;line-height:1.7;background:#fafaf8}
+.app{max-width:820px;margin:0 auto;padding:1rem}
+header{padding:2rem 0 1.5rem;border-bottom:1px solid #e5e3dc}
+header h1{font-size:22px;font-weight:600;margin-bottom:4px}
+header p{font-size:14px;color:#666}
+.progress-bar{margin-top:12px;height:6px;background:#e5e3dc;border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;background:#7F77DD;border-radius:3px;transition:width 0.4s}
+.progress-text{font-size:11px;color:#888;margin-top:4px}
+nav{display:flex;gap:0;margin:1.5rem 0;border-bottom:1px solid #e5e3dc;overflow-x:auto}
+nav button{font-size:13px;padding:10px 18px;cursor:pointer;color:#888;border:none;border-bottom:2px solid transparent;background:none;font-family:inherit;white-space:nowrap;transition:all 0.2s}
+nav button:hover{color:#1a1a1a}
+nav button.active{color:#1a1a1a;font-weight:600;border-bottom-color:#7F77DD}
+nav button.completed::after{content:" ✓";color:#639922;font-size:11px}
+.module{display:none;padding:1.5rem 0}
+.module.active{display:block}
+.module h2{font-size:18px;font-weight:600;margin-bottom:6px}
+.module .subtitle{font-size:14px;color:#888;margin-bottom:1.5rem}
+.content{margin-bottom:2rem}
+.content h3{font-size:16px;font-weight:600;margin:1.5rem 0 0.75rem;color:#1a1a1a}
+.content h4{font-size:14px;font-weight:600;margin:1.25rem 0 0.5rem;color:#534AB7}
+.content p{font-size:14px;margin-bottom:0.75rem;color:#333}
+.content ul{margin:0.5rem 0 1rem 1.25rem;font-size:14px;color:#333}
+.content li{margin-bottom:0.35rem}
+.highlight{background:#EEEDFE;border-left:3px solid #7F77DD;padding:12px 16px;border-radius:0 8px 8px 0;margin:1rem 0;font-size:13px}
+.highlight strong{color:#3C3489}
+.example{background:#E1F5EE;border-left:3px solid #1D9E75;padding:12px 16px;border-radius:0 8px 8px 0;margin:1rem 0;font-size:13px}
+.example strong{color:#085041}
+.warning{background:#FAEEDA;border-left:3px solid #BA7517;padding:12px 16px;border-radius:0 8px 8px 0;margin:1rem 0;font-size:13px}
+.warning strong{color:#633806}
+.mechanism-card{border:1px solid #e5e3dc;border-radius:10px;padding:14px 16px;margin-bottom:10px}
+.mechanism-card h5{font-size:14px;font-weight:600;margin-bottom:4px}
+.mechanism-card .tag{display:inline-block;font-size:10px;padding:2px 8px;border-radius:4px;font-weight:600;margin-bottom:8px}
+.tag-a{background:#EEEDFE;color:#3C3489}
+.tag-b{background:#E6F1FB;color:#0C447C}
+.tag-c{background:#F1EFE8;color:#5F5E5A}
+.mechanism-card p{font-size:13px;color:#555;margin-bottom:0}
+.quiz-section{border-top:1px solid #e5e3dc;padding-top:1.5rem;margin-top:1rem}
+.quiz-section h3{font-size:16px;font-weight:600;margin-bottom:1rem}
+.q{margin-bottom:1.25rem;padding:14px 16px;border:1px solid #e5e3dc;border-radius:10px;background:#fff}
+.q-num{font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
+.q-text{font-size:14px;font-weight:600;margin-bottom:10px}
+.q-ctx{font-size:13px;color:#666;margin-bottom:10px;padding:8px 10px;background:#fafaf8;border-radius:6px}
+.opts{display:flex;flex-direction:column;gap:5px}
+.opt{padding:8px 12px;border:1px solid #d5d3cc;border-radius:6px;cursor:pointer;font-size:13px;transition:all 0.15s;background:#fff}
+.opt:hover{background:#fafaf8;border-color:#b5b3ac}
+.opt.selected{border-color:#378ADD;background:#E6F1FB;color:#0C447C}
+.opt.correct{border-color:#639922;background:#EAF3DE;color:#27500A}
+.opt.wrong{border-color:#E24B4A;background:#FCEBEB;color:#791F1F}
+.opt.disabled{pointer-events:none;opacity:0.6}
+.opt.disabled.correct{opacity:1}
+.fb{margin-top:8px;padding:10px 12px;border-radius:6px;font-size:12px;display:none;line-height:1.6}
+.fb.show{display:block}
+.fb-ok{background:#EAF3DE;color:#27500A}
+.fb-no{background:#FCEBEB;color:#791F1F}
+.check-btn{margin-top:1rem;padding:10px 24px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;border:1px solid #d5d3cc;border-radius:6px;background:#fff;color:#1a1a1a;transition:all 0.15s}
+.check-btn:hover{background:#fafaf8;border-color:#b5b3ac}
+.score-bar{margin-top:1rem;padding:1rem;background:#fafaf8;border-radius:8px;text-align:center;display:none;border:1px solid #e5e3dc}
+.score-bar.show{display:block}
+.score-num{font-size:28px;font-weight:700}
+.score-label{font-size:13px;color:#666;margin-top:4px}
+.next-btn{margin-top:1rem;padding:10px 24px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;border:none;border-radius:6px;background:#7F77DD;color:#fff;display:none}
+.next-btn.show{display:inline-block}
+.next-btn:hover{background:#534AB7}
+footer{margin-top:2rem;padding:1.5rem 0;border-top:1px solid #e5e3dc;font-size:12px;color:#999;text-align:center}
+@media(max-width:600px){.app{padding:0.75rem}nav button{padding:8px 12px;font-size:12px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+<h1>Curso SAIC UNAB — DAC FEN</h1>
+<p>Sistema de Aseguramiento Interno de la Calidad · 4 módulos · Contextualizado a la Facultad de Economía y Negocios</p>
+<div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+<div class="progress-text" id="progressText">0 de 4 módulos completados</div>
+</header>
+
+<nav id="navTabs"></nav>
+
+<div class="module active" id="mod1">
+<h2>Módulo 1</h2>
+<div class="subtitle">¿Qué es el SAIC? La estructura completa en lenguaje concreto</div>
+<div class="content">
+<p>Imagina que la UNAB es una empresa que vende un producto: formación universitaria. Como cualquier empresa seria, necesita un sistema para asegurarse de que su producto es bueno, que va mejorando con el tiempo, y que puede demostrarlo ante quien se lo pregunte (CNA, AACSB, estudiantes, empleadores). Ese sistema es el <strong>SAIC</strong>.</p>
+<p>El SAIC no es un departamento, no es una persona, no es un documento. Es un <strong>sistema de gestión</strong> — un conjunto organizado de reglas, herramientas y procesos que le dicen a toda la universidad "así medimos si estamos haciendo las cosas bien, y así corregimos cuando no".</p>
+<p>El SAIC tiene <strong>4 capas</strong>, de arriba hacia abajo:</p>
+
+<h3>Capa 1 — La Política de Calidad (el "para qué")</h3>
+<p>Es la declaración de principios. Dice: "para la UNAB, calidad es el cumplimiento progresivo, satisfactorio y demostrable de su misión y propósitos". En simple: no basta con hacerlo bien — hay que poder demostrarlo con evidencia, y hay que ir mejorando.</p>
+<div class="example"><strong>Ejemplo FEN:</strong> cuando preparaste el iSER para AACSB, estabas haciendo exactamente eso — demostrando con evidencia que FEN cumple sus propósitos. Eso es la política de calidad en acción, aunque no lo llames así.</div>
+
+<h3>Capa 2 — El Modelo de Aseguramiento (el "cómo")</h3>
+<p>El modelo tiene 3 componentes que trabajan juntos:</p>
+
+<h4>Componente A — Mapa de Procesos</h4>
+<p>La UNAB identificó 48 procesos organizados en 11 macroprocesos, clasificados en 3 tipos:</p>
+<ul>
+<li><strong>Estratégicos:</strong> gobierno institucional, gestión estratégica, gestión de calidad. Son los que definen el rumbo.</li>
+<li><strong>Misionales:</strong> formación de pregrado y postgrado, investigación e innovación, vinculación con el medio. Son el "negocio" de la universidad.</li>
+<li><strong>De apoyo:</strong> RRHH, finanzas, tecnología, comunicaciones. Son los que sostienen el funcionamiento.</li>
+</ul>
+<div class="example"><strong>Ejemplo FEN:</strong> cuando la Directora ICO (María Elena Arzola) hace la programación académica del semestre, está ejecutando un proceso misional (formación de pregrado). Cuando tú verificas que esa programación es consistente con los criterios de calidad (% de profesores con postgrado), estás ejecutando un proceso estratégico (gestión de calidad). Cuando RRHH contrata al profesor que falta, están ejecutando un proceso de apoyo.</div>
+
+<h4>Componente B — Mecanismos de Aseguramiento de la Calidad</h4>
+<p>Son las herramientas concretas con las que el sistema funciona. Hay <strong>10 internos</strong> y <strong>3 externos</strong>:</p>
+<p>Los 10 mecanismos internos (estos son los que tú operas o monitoreas):</p>
+<ul>
+<li><strong>Planificación estratégica</strong> → el PEI y el PDE FEN.</li>
+<li><strong>Políticas y normativa</strong> → todos los reglamentos.</li>
+<li><strong>Órganos colegiados</strong> → Consejo de Facultad, Consejos de Carrera, Consejos de Escuela.</li>
+<li><strong>Auditorías internas</strong> → revisiones formales de si los procesos se cumplen. Hay de dos tipos: de procesos y académicas.</li>
+<li><strong>Autoevaluación de carreras y programas</strong> → el ejercicio de mirarse al espejo.</li>
+<li><strong>Assessment del Aprendizaje (AoL)</strong> → medir si los estudiantes están aprendiendo lo que el perfil de egreso promete.</li>
+<li><strong>Encuestas institucionales</strong> → satisfacción estudiantil, evaluación docente, percepción de egresados y empleadores.</li>
+<li><strong>Evaluación de desempeño</strong> → la evaluación anual de académicos y colaboradores.</li>
+<li><strong>Gestión y Balance del SAIC</strong> → la revisión anual de cómo está funcionando el sistema completo.</li>
+<li><strong>Gestión de hallazgos</strong> → cuando una auditoría detecta un problema, se abre un proceso formal para resolverlo.</li>
+</ul>
+<p>Los 3 mecanismos externos:</p>
+<ul>
+<li><strong>Acreditación institucional</strong> → UNAB: 6 años CNA (hasta 2028) + MSCHE.</li>
+<li><strong>Acreditación de carreras y programas</strong> → ACBSP (ICO, IAE, CA hasta 2028); CNA (Turismo); AACSB en proceso para toda FEN.</li>
+<li><strong>Auditorías externas</strong> → cuando viene un par evaluador de afuera a verificar.</li>
+</ul>
+<div class="highlight"><strong>Clave:</strong> Estos 13 mecanismos son las "herramientas" del sistema. Tú no operas todos — pero sí monitoreas que todos estén funcionando en la FEN.</div>
+
+<h4>Componente C — Matrices de Calidad</h4>
+<p>Cruzan los <strong>pilares de calidad</strong> (coherencia, pertinencia, homogeneidad, autorregulación) con las <strong>funciones misionales</strong> (formación, investigación, VcM, gestión). Para cada cruce definen: qué medir, quién implementa, quién hace seguimiento, y quién evalúa.</p>
+<div class="highlight"><strong>Clave para ti:</strong> En la columna "responsable de la evaluación" apareces tú (Director de AC de Facultad) en múltiples celdas. La UNAB te está diciendo: "tú eres el que debe mirar estos indicadores y decir si estamos bien o mal". No los ejecutas — los evalúas.</div>
+<div class="example"><strong>Ejemplo concreto:</strong> en la Matriz de Formación, pilar "Eficacia", el indicador es "% de carreras con evaluación del nivel de logro del aprendizaje estudiantil". El responsable de implementación es el Director de Carrera. El de seguimiento es la Dirección de Innovación Curricular. Pero el responsable de evaluación eres tú. Tu trabajo es mirar el dato y decir: "4 de 5 carreras lo hicieron, Turismo no — hay una brecha".</div>
+
+<h3>Capa 3 — Los Ciclos de Calidad (el "cuándo")</h3>
+<p>Todo lo anterior se mueve en un ciclo tipo Deming: <strong>Planificar → Ejecutar → Evaluar → Ajustar</strong>. No es algo que se hace una vez — se repite permanentemente. Cada función misional tiene su propio ciclo.</p>
+<div class="example"><strong>Ejemplo FEN:</strong> el AoL tiene un ciclo semestral — planificas el assessment (Plan AAE), ejecutas (los docentes aplican instrumentos), evalúas (Matrices de Resultados, análisis en Power BI), ajustas (acciones de mejora, ajuste del plan). Y vuelta a empezar.</div>
+
+<h3>Capa 4 — Los Roles de Gestión del SAIC (el "quién")</h3>
+<ul>
+<li><strong>Rol político</strong> → Comité de Rectoría. Definen la política, aprueban recursos.</li>
+<li><strong>Rol estratégico</strong> → VRAC. Planifican el sistema, lo socializan, hacen auditorías.</li>
+<li><strong>Rol táctico</strong> → <strong>TÚ (el DAC)</strong>, junto con el Consejo de Facultad. Definen acciones para implementar el SAIC en la facultad.</li>
+<li><strong>Rol operativo</strong> → Directores de Carrera, docentes. Ejecutan los procesos día a día.</li>
+</ul>
+<div class="highlight"><strong>Tu posición en una frase:</strong> Tú eres el nexo entre el rol estratégico (VRAC) y el rol operativo (carreras). La VRAC te baja los lineamientos; tú los traduces en acciones para la facultad; las carreras las ejecutan; tú verificas que lo hicieron; y reportas de vuelta a la VRAC.</div>
+<div class="example"><strong>Ejemplo de tu acta del 4 de marzo:</strong> cuando pediste que todo CV de candidato te fuera enviado para screening AACSB, estabas ejerciendo tu rol táctico — tomando un lineamiento (estándares AACSB de faculty qualifications) y traduciéndolo en una acción concreta para la facultad.</div>
+</div>
+
+<div class="quiz-section">
+<h3>Test — Módulo 1</h3>
+<div id="quiz1"></div>
+<button class="check-btn" onclick="checkQuiz(1)">Ver resultados</button>
+<div class="score-bar" id="score1"><div class="score-num" id="scoreNum1"></div><div class="score-label" id="scoreLabel1"></div></div>
+<button class="next-btn" id="next1" onclick="goModule(2)">Ir al Módulo 2 →</button>
+</div>
+</div>
+
+<div class="module" id="mod2">
+<h2>Módulo 2</h2>
+<div class="subtitle">Dónde estás tú dentro del SAIC: tu rol, tus interlocutores, y qué se espera de ti</div>
+<div class="content">
+<h3>Tu rol: táctico</h3>
+<p>Ser "táctico" significa que tú no defines las reglas del juego (eso lo hace la VRAC) ni ejecutas las jugadas (eso lo hacen las carreras). Tú eres el <strong>director técnico del equipo local</strong>: recibes la estrategia del club (VRAC), la adaptas a tu plantel (FEN), te aseguras de que los jugadores la ejecuten (carreras), y reportas los resultados de vuelta al club.</p>
+<p>Esto se traduce en 3 verbos:</p>
+<ul>
+<li><strong>Traducir:</strong> la VRAC te dice "hay que hacer assessment en todas las carreras". Tú traduces eso a "María Elena, necesito el Plan AAE de ICO entregado el 31 de marzo".</li>
+<li><strong>Monitorear:</strong> no aplicas la rúbrica de assessment en clase de Contabilidad. Pero verificas que Roberto Carvajal (Director CA) haya entregado la Matriz de Resultados a tiempo.</li>
+<li><strong>Reportar:</strong> en tu reunión trimestral con el Encargado SAIC, deberías poder decir: "de 5 carreras, 4 entregaron a tiempo; Turismo se atrasó pero ya entregó".</li>
+</ul>
+
+<h3>Tu dependencia matricial: 70% VRAC / 30% Decanato</h3>
+<p>El <strong>70% VRAC</strong> significa que la mayor parte de tu trabajo responde a los lineamientos técnicos de la Vicerrectoría. Son ellos quienes te dicen qué mecanismos implementar, qué calendario seguir, qué productos entregar.</p>
+<p>El <strong>30% Decanato</strong> significa que tu trabajo también debe responder a las necesidades de gestión del Decano. Juan Pablo Torres necesita datos para decidir, alertas tempranas, y que lo ayudes con la "carga burocrática" del aseguramiento de calidad.</p>
+<div class="warning"><strong>Tensión típica:</strong> la VRAC te pide el Balance Anual para junio. Pero el Decano te dice "full AACSB esta semana". Tu trabajo es gestionar esa tensión — no elegir un bando, sino proponer cómo hacer ambas cosas.</div>
+
+<h3>Tus interlocutores: quién es quién</h3>
+
+<h4>Hacia arriba (VRAC)</h4>
+<ul>
+<li><strong>Vicerrector/a de AC:</strong> tu autoridad jerárquica principal (70%). Instancias formales: Balance, Jornada de Calidad. Espera que FEN cumpla con el SAIC.</li>
+<li><strong>Encargado del SAIC institucional:</strong> tu contraparte técnica directa. Reuniones trimestrales. Le preguntas "¿cómo se hace X?" cuando no sabes.</li>
+<li><strong>Subdirección de Efectividad Académica:</strong> lidera el Comité AAE. Tu contraparte para todo lo de AoL.</li>
+<li><strong>Dirección de Procesos:</strong> hace las auditorías internas. Cuando vengan a FEN, tú eres su punto de contacto.</li>
+<li><strong>Dirección de Evaluación Institucional:</strong> maneja encuestas e indicadores centrales.</li>
+</ul>
+
+<h4>Hacia el lado (Decanato y pares)</h4>
+<ul>
+<li><strong>Decano (Juan Pablo Torres):</strong> espera datos para decidir, alertas tempranas, y que le resuelvas la operativa de calidad.</li>
+<li><strong>Directores de Escuela (Donoso, Arzola, Carvajal, Cooper):</strong> tus interlocutores operativos. Ellos entregan los productos SAIC; tú los monitoreas y apoyas.</li>
+<li><strong>Directora GOA (María Pía Monreal):</strong> ella maneja procesos operativos; tú verificas consistencia con estándares.</li>
+<li><strong>Director Departamento (Freddy Coronado) / Director IPE (Nicolás Garrido):</strong> cuando tocan investigación o dotación académica.</li>
+<li><strong>Director Postgrado (Luis Felipe Vergara):</strong> tu contraparte para magísteres y futuro doctorado.</li>
+</ul>
+
+<h3>Qué llevas a cada instancia</h3>
+
+<div class="mechanism-card">
+<h5>Reunión trimestral con Encargado SAIC</h5>
+<p>Estado de cumplimiento del calendario AAE, estado de planes de mejora, problemas a escalar, preguntas de inducción. Es tu espacio para preguntar lo que no entiendes.</p>
+</div>
+<div class="mechanism-card">
+<h5>Consejo de Facultad</h5>
+<p>Una sección SAIC explícita con: indicadores clave del periodo, avance de planes de mejora, estado de acreditaciones, próximos hitos del calendario, alertas, y lo que canalizas desde los Consejos de Carrera.</p>
+</div>
+<div class="mechanism-card">
+<h5>Consejos de Carrera</h5>
+<p>Verificar que traten temas SAIC (resultados assessment, planes de mejora). Recoger problemas y propuestas para canalizar al Consejo de Facultad.</p>
+</div>
+<div class="mechanism-card">
+<h5>Balance Anual del SAIC (junio)</h5>
+<p>Informe formal con 10 ítems mínimos: objetivos de calidad, satisfacción, hallazgos, auditorías, FODA, etc.</p>
+</div>
+</div>
+
+<div class="quiz-section">
+<h3>Test — Módulo 2</h3>
+<div id="quiz2"></div>
+<button class="check-btn" onclick="checkQuiz(2)">Ver resultados</button>
+<div class="score-bar" id="score2"><div class="score-num" id="scoreNum2"></div><div class="score-label" id="scoreLabel2"></div></div>
+<button class="next-btn" id="next2" onclick="goModule(3)">Ir al Módulo 3 →</button>
+</div>
+</div>
+
+<div class="module" id="mod3">
+<h2>Módulo 3</h2>
+<div class="subtitle">Los mecanismos del SAIC que operas: cómo funciona cada uno y qué productos genera</div>
+<div class="content">
+<p>Los 13 mecanismos del SAIC no los operas todos de la misma forma. Algunos los <strong>gestionas directamente</strong>, otros los <strong>monitoreas</strong>, y otros simplemente <strong>los conoces</strong> porque te afectan.</p>
+
+<h3>Grupo A — Mecanismos que gestionas directamente</h3>
+
+<div class="mechanism-card">
+<h5>1. Assessment del Aprendizaje (AoL)</h5>
+<span class="tag tag-a">Gestionas directamente</span>
+<p>Cada carrera tiene un Plan AAE trianual. Los docentes aplican instrumentos, se generan resultados, se analizan, se definen acciones de mejora. Ciclo semestral. Tú monitoreas, co-elaboras Matrices de Resultados, cargas evidencias en el Gestor Documental SAIC, e informas al Comité AAE.</p>
+</div>
+<div class="example"><strong>Ejemplo FEN:</strong> acabas de entregar los Planes AAE de todas las carreras. Eso fue "planificación". Ahora viene "ejecución" (docentes aplican instrumentos). Próximo hito duro: 15 abril, carga en Gestor Documental.</div>
+
+<div class="mechanism-card">
+<h5>2. Gestión y Balance del SAIC</h5>
+<span class="tag tag-a">Gestionas directamente</span>
+<p>Una vez al año consolidas 10 ítems mínimos sobre cómo funciona el SAIC en FEN: objetivos, satisfacción, hallazgos, auditorías, FODA, riesgos, comunicaciones, normativas. Lo presentas ante la VRAC.</p>
+</div>
+
+<div class="mechanism-card">
+<h5>3. Jornada de Evaluación de la Calidad</h5>
+<span class="tag tag-a">Gestionas directamente</span>
+<p>Instancia anual con todos los grupos de interés. Tú la organizas, preparas los insumos, y produces el dossier con FODA y plan de acción.</p>
+</div>
+<div class="example"><strong>Ejemplo FEN:</strong> la Jornada dic-2025 tuvo 66 participantes, encuesta (n=50), FODA y plan con 4 ejes. Esa es tu línea base.</div>
+
+<div class="mechanism-card">
+<h5>4. Autoevaluación de carreras y programas</h5>
+<span class="tag tag-a">Gestionas directamente</span>
+<p>Las carreras se miran al espejo. Puede ser con fines de acreditación (CNA, AACSB) o sin fines (autorregulación). Tú coordinas, apoyas en evidencia, y velas por estándares.</p>
+</div>
+<div class="example"><strong>Ejemplo FEN:</strong> el iSER que preparaste para AACSB es una autoevaluación con fines de acreditación internacional. Las del MBA y Gestión de Personas son autoevaluaciones de postgrado.</div>
+
+<div class="mechanism-card">
+<h5>5. Planes de Mejora</h5>
+<span class="tag tag-a">Gestionas directamente</span>
+<p>Cada plan define: objetivos, indicadores, metas, acciones, responsables, plazos y recursos. Tú coordinas la formulación, haces seguimiento, y evalúas eficacia. No ejecutas las mejoras — monitoreas que se hagan.</p>
+</div>
+
+<h3>Grupo B — Mecanismos que monitoreas</h3>
+
+<div class="mechanism-card">
+<h5>6. Planificación Estratégica (PDE FEN)</h5>
+<span class="tag tag-b">Monitoreas</span>
+<p>El Plan de Desarrollo lo define el Decano con el Consejo. Tú monitoreas avance por eje estratégico y alertas cuando hay brechas.</p>
+</div>
+
+<div class="mechanism-card">
+<h5>7. Encuestas Institucionales</h5>
+<span class="tag tag-b">Monitoreas</span>
+<p>La VRAC administra las encuestas centralmente. Tú analizas los resultados de FEN, identificas brechas, y los presentas al Decano y Consejo de Facultad.</p>
+</div>
+<div class="example"><strong>Ejemplo:</strong> si la evaluación docente muestra 3 secciones en Viña bajo el promedio, tú detectas eso y lo comunicas al Director de Escuela correspondiente.</div>
+
+<div class="mechanism-card">
+<h5>8. Vinculación con el Medio</h5>
+<span class="tag tag-b">Monitoreas</span>
+<p>Cada carrera tiene plan de VcM. Tú monitoreas cumplimiento e indicadores de impacto.</p>
+</div>
+
+<div class="mechanism-card">
+<h5>9. Evaluación de Desempeño Académico</h5>
+<span class="tag tag-b">Monitoreas</span>
+<p>Lo gestiona RRHH y las jefaturas. Los resultados son insumo para tu análisis de calidad docente.</p>
+</div>
+
+<div class="mechanism-card">
+<h5>10. Innovación Curricular</h5>
+<span class="tag tag-b">Monitoreas</span>
+<p>La lidera la VRA con los Directores de Carrera. Tú participas velando por estándares de calidad (VRAC, CNA, AACSB).</p>
+</div>
+
+<h3>Grupo C — Mecanismos que te afectan pero no operas</h3>
+
+<div class="mechanism-card">
+<h5>11. Auditorías Internas</h5>
+<span class="tag tag-c">Te afectan</span>
+<p>La Dirección de Procesos las ejecuta. Cuando le toca a FEN, tú facilitas (evidencia ordenada, coordinas entrevistas) y después activas planes de mejora con los hallazgos.</p>
+</div>
+<div class="warning"><strong>Pregunta clave para el 9 de abril:</strong> ¿Hay auditorías programadas para FEN en 2026?</div>
+
+<div class="mechanism-card">
+<h5>12. Gestión de Hallazgos</h5>
+<span class="tag tag-c">Te afectan</span>
+<p>Cuando una auditoría detecta un incumplimiento, se abre un proceso formal. Tú participas en el plan de acción, haces seguimiento, y reportas al cierre.</p>
+</div>
+
+<div class="mechanism-card">
+<h5>13. Acreditación Institucional y Externa</h5>
+<span class="tag tag-c">Te afectan</span>
+<p>CNA, MSCHE, AACSB, ACBSP son mecanismos externos del SAIC. La acreditación no es algo separado del SAIC — es uno de sus mecanismos. Todo lo que haces para AACSB alimenta al SAIC, y viceversa.</p>
+</div>
+</div>
+
+<div class="quiz-section">
+<h3>Test — Módulo 3</h3>
+<div id="quiz3"></div>
+<button class="check-btn" onclick="checkQuiz(3)">Ver resultados</button>
+<div class="score-bar" id="score3"><div class="score-num" id="scoreNum3"></div><div class="score-label" id="scoreLabel3"></div></div>
+<button class="next-btn" id="next3" onclick="goModule(4)">Ir al Módulo 4 →</button>
+</div>
+</div>
+
+<div class="module" id="mod4">
+<h2>Módulo 4</h2>
+<div class="subtitle">El ciclo anual: cómo se conecta todo en el tiempo</div>
+<div class="content">
+<p>El SAIC no es un evento — es un ciclo permanente. Todo lo que vimos en los módulos anteriores se despliega a lo largo del año siguiendo un ritmo.</p>
+
+<h3>El ritmo base: el semestre académico</h3>
+<p>La unidad básica de tiempo en una universidad es el semestre. La mayoría de los mecanismos se sincronizan con este ritmo:</p>
+<ul>
+<li><strong>AoL:</strong> ciclo semestral — planificas antes, ejecutas durante, evalúas al cierre, ajustas para el siguiente.</li>
+<li><strong>Indicadores académicos:</strong> se consolidan al cierre de cada semestre.</li>
+<li><strong>Encuestas:</strong> semestrales (eval. docente) o anuales (satisfacción).</li>
+<li><strong>Consejos de Facultad/Carrera:</strong> sesionan durante el periodo académico.</li>
+</ul>
+
+<h3>El ritmo anual: los hitos que no se mueven</h3>
+<ul>
+<li><strong>Balance Anual del SAIC:</strong> una vez al año, produces el informe de los 10 ítems.</li>
+<li><strong>Jornada de Evaluación de la Calidad:</strong> una vez al año, con todos los grupos de interés.</li>
+<li><strong>Informe Anual AAE:</strong> fecha fija 30 de mayo.</li>
+<li><strong>Revisión del Manual de Calidad:</strong> una vez al año.</li>
+</ul>
+
+<h3>El ritmo del calendario AAE: fechas duras</h3>
+<p>Este es el calendario que más manda en tu día a día. Las fechas clave 2026:</p>
+<div class="highlight"><strong>Primer semestre:</strong> 31 enero (análisis S2-2025) → 14 marzo (rezagados) → 31 marzo (evidencias + ajuste plan) → 15 abril (carga Gestor SAIC) → 30 abril (eval ciclo + verano) → 23 mayo (validar asignaturas) → 30 mayo (informe anual) → 30 junio (planillas + evidencias verano).</div>
+<div class="highlight"><strong>Segundo semestre (espejo):</strong> 31 julio (resultados S1) → 29 agosto (socialización) → 15 septiembre (rezagados) → 30 septiembre (evidencias + ajuste plan 2027) → 15 octubre (planillas) → 30 octubre (carga Gestor) → 14 noviembre (eval ciclo) → 31 diciembre (resultados S2).</div>
+
+<h3>El ritmo CNA: fases de acreditación</h3>
+<p>Para 2026, la VRAC planificó: borradores en marzo-abril, formularios al 70% en julio, actualizaciones en agosto, formularios al 90% en octubre. Concentra trabajo en el segundo semestre.</p>
+
+<h3>Los rituales periódicos</h3>
+<ul>
+<li><strong>Reuniones trimestrales con Encargado SAIC:</strong> Q1 (marzo), Q2 (junio), Q3 (septiembre), Q4 (diciembre).</li>
+<li><strong>Consejos de Facultad:</strong> mensual durante periodo académico.</li>
+<li><strong>Inducción SAIC a profesores nuevos:</strong> inicio de cada semestre (marzo y agosto).</li>
+<li><strong>Checklist de cumplimiento SAIC:</strong> cierre de cada semestre (julio y diciembre).</li>
+</ul>
+
+<h3>La lógica de dependencias</h3>
+<p>Nada existe aislado. Cada producto depende de un insumo anterior:</p>
+<div class="warning"><strong>Cadena del Balance Anual (junio):</strong> necesitas indicadores consolidados (enero) + encuestas analizadas (mayo) + planes de mejora revisados (abril) + estado AoL reportado (abril-mayo). Si no hiciste los pasos previos, el Balance sale incompleto.</div>
+<div class="warning"><strong>Cadena de la carga en Gestor SAIC (15 abril):</strong> necesitas que las carreras hayan entregado evidencias de socialización (31 marzo) y que los planes AAE estén ajustados (31 marzo). Si una carrera no entregó, tú no puedes cargar.</div>
+
+<h3>Tu posición: el controlador de tráfico</h3>
+<p>Piensa en ti como un controlador de tráfico aéreo. Los aviones (carreras, VRAC, Decano) tienen sus rutas. Tu trabajo es:</p>
+<ul>
+<li>Saber qué avión despega cuándo (calendario AAE, hitos CNA, Balance).</li>
+<li>Verificar que no haya choques (cuando dos cosas caen en la misma semana, priorizar).</li>
+<li>Alertar cuando un avión se atrasa (una carrera que no entregó a tiempo).</li>
+<li>Reportar al centro de control (VRAC) cómo está el tráfico.</li>
+</ul>
+<div class="highlight"><strong>No pilotas ningún avión — pero sin ti, se estrellan entre ellos.</strong></div>
+</div>
+
+<div class="quiz-section">
+<h3>Test — Módulo 4</h3>
+<div id="quiz4"></div>
+<button class="check-btn" onclick="checkQuiz(4)">Ver resultados</button>
+<div class="score-bar" id="score4"><div class="score-num" id="scoreNum4"></div><div class="score-label" id="scoreLabel4"></div></div>
+<button class="next-btn" id="next4" onclick="showFinal()">Ver resumen final →</button>
+</div>
+</div>
+
+<div class="module" id="modFinal">
+<h2>Curso completado</h2>
+<div class="subtitle">Resumen de tus resultados</div>
+<div id="finalSummary" style="margin-top:1rem"></div>
+</div>
+
+<footer>
+Curso SAIC UNAB · DAC FEN · Basado en: Política de Calidad y SAIC UNAB (oct 2023), Procedimiento SAIC-UNAB-E-CAL-P07, Manual de Calidad FEN 2023, Rol y Funciones DAC VRAC.
+</footer>
+</div>
+
+<script>
+var quizData = {
+1: [
+{text:"En el Consejo de Facultad del 4 de marzo, pediste que todo CV de candidato a profesor te fuera enviado para screening AACSB antes de la contratación. Eso es un ejemplo de...",
+opts:["Un mecanismo externo del SAIC","Tu rol táctico: traducir un lineamiento (estándar AACSB) en una acción concreta para la facultad","Un proceso de apoyo (gestión de RRHH)","Una auditoría interna académica"],correct:1,
+ok:"Exacto. Tomaste un estándar (AACSB faculty qualifications) y lo convertiste en una regla operativa para FEN. Eso es ejercer el rol táctico del SAIC.",
+no:"Esto es tu rol táctico: tomar un lineamiento externo (AACSB) y traducirlo en una acción concreta para la facultad. No es auditoría ni proceso de RRHH."},
+{text:"La Directora de ICO hace la programación académica. El DAC revisa consistencia con criterios de calidad. RRHH contrata al profesor. ¿Qué tipo de proceso ejecuta cada uno?",
+opts:["Directora ICO: estratégico / DAC: misional / RRHH: apoyo","Directora ICO: misional / DAC: estratégico / RRHH: apoyo","Directora ICO: operativo / DAC: operativo / RRHH: operativo","Los tres ejecutan procesos misionales"],correct:1,
+ok:"Correcto. Programación académica = misional (formación). Verificación de calidad = estratégico (gestión de calidad). Contratación = apoyo (RRHH).",
+no:"Programación académica = proceso misional. Verificación de calidad = proceso estratégico. Contratación = proceso de apoyo. Cada rol opera en una capa distinta."},
+{text:"En las Matrices de Calidad, el DAC aparece como 'responsable de la evaluación'. Eso significa que...",
+opts:["El DAC debe ejecutar las acciones para mejorar esos indicadores","El DAC debe recopilar todos los datos personalmente","El DAC debe mirar los datos, determinar si se cumplen los objetivos, e identificar brechas","El DAC tiene poder de veto sobre los Directores de Carrera"],correct:2,
+ok:"Exacto. En las Matrices hay 3 roles: implementación (quien lo hace), seguimiento (quien verifica que se haga), y evaluación (quien mira el resultado). Tú eres evaluación.",
+no:"El DAC es 'responsable de evaluación', no de implementación. Tu trabajo es mirar el resultado, compararlo con la meta, y reportar si hay brecha."},
+{text:"El AoL tiene un ciclo: Plan AAE → docentes aplican instrumentos → Matrices de Resultados → acciones de mejora → ajuste del plan. Eso es un ejemplo de...",
+opts:["Un ciclo de calidad (Planificar → Ejecutar → Evaluar → Ajustar)","Un mecanismo externo de aseguramiento","Un proceso de apoyo del mapa de procesos","Una auditoría de procesos"],correct:0,
+ok:"Correcto. Es el ciclo de Deming aplicado a la medición del aprendizaje. Planificas, ejecutas, evalúas, ajustas. Y vuelta a empezar cada semestre.",
+no:"Esto es un ciclo de calidad (Deming): Planificar → Ejecutar → Evaluar → Ajustar. Es el corazón del SAIC aplicado a una función específica."},
+{text:"La VRAC te dice: 'necesitamos que FEN cargue evidencias de assessment antes del 15 de abril'. ¿Quién tiene el rol estratégico y quién el táctico?",
+opts:["VRAC: táctico / DAC: operativo","VRAC: estratégico / DAC: táctico","VRAC: político / DAC: estratégico","Ambos tienen rol táctico"],correct:1,
+ok:"Exacto. VRAC define el lineamiento (estratégico). Tú defines acciones para implementarlo en FEN y monitoreas (táctico). Las carreras ejecutan (operativo).",
+no:"VRAC = rol estratégico (lineamientos). DAC = rol táctico (traduce y monitorea). Carreras = rol operativo (ejecutan). Cadena de 3 niveles."},
+{ctx:"Viene alguien de la VRAC a FEN a revisar si el proceso de programación académica se cumple. Revisa documentos, entrevista a la Directora GOA, y emite un informe con 'hallazgos'.",
+text:"¿Qué mecanismo del SAIC se está ejecutando?",
+opts:["Acreditación externa. Los hallazgos se envían a CNA.","Autoevaluación. Los hallazgos se guardan en el Manual de Calidad.","Auditoría interna de procesos. Los hallazgos activan la Gestión de Hallazgos: plan de acción con responsables, plazos y recursos.","Encuesta institucional. Los hallazgos se publican en calidad.unab.cl."],correct:2,
+ok:"Exacto. Es una auditoría interna de procesos. Los hallazgos activan otro mecanismo: la Gestión de Hallazgos, un proceso formal para resolver la brecha.",
+no:"Esto es una auditoría interna de procesos. Los hallazgos activan la Gestión de Hallazgos: plan de acción formal con responsables y plazos."}
+],
+2: [
+{ctx:"La VRAC publica los resultados de evaluación docente. En FEN, 3 secciones de Contabilidad en Viña del Mar están muy bajo el promedio.",
+text:"¿Cuál es tu rol frente a este dato?",
+opts:["Contactar directamente a los 3 profesores para pedirles que mejoren","Detectar la brecha, analizarla, y alertar a Roberto Carvajal (Director CA) y al Decano con el dato concreto","Reportar a la VRAC y esperar instrucciones","No hacer nada — la evaluación docente no es tu responsabilidad"],correct:1,
+ok:"Exacto. Tu rol es detectar, analizar y alertar — no ejecutar la solución. Tú no gestionas profesores (eso es del Director de Carrera). Pero sí pones el dato sobre la mesa.",
+no:"Tu rol en las Matrices es 'responsable de evaluación': detectas la brecha y la comunicas a quien debe actuar. No contactas profesores (rol operativo) ni esperas pasivamente."},
+{ctx:"El Decano te dice 'olvídate del Balance Anual, necesito 100% AACSB esta semana'. Pero la VRAC te pidió un avance del Balance.",
+text:"¿Cómo manejas esto?",
+opts:["Haces lo que dice el Decano — es tu jefe directo","Haces lo que dice la VRAC — representan el 70%","Le explicas al Decano que el Balance es requerimiento institucional con fecha, y propones solución para avanzar en ambos","Pides a la VRAC que postergue el Balance"],correct:2,
+ok:"Correcto. Dependencia matricial = responder a ambos. Proponer una solución viable es lo que se espera del rol táctico.",
+no:"La dependencia matricial no es 'uno manda y el otro no'. Debes gestionar la tensión proponiendo soluciones que satisfagan ambos requerimientos."},
+{text:"Tienes reunión trimestral con el Encargado SAIC el 9 de abril. ¿Qué conjunto de temas es el más apropiado?",
+opts:["El avance del iSER AACSB y las tablas de faculty qualifications","Una queja sobre la carga de trabajo y falta de inducción","Los resultados académicos detallados por carrera","Estado del calendario AAE en FEN, planes de mejora, preguntas de inducción (Comité AAE, auditorías, gestor documental), y problemas a escalar"],correct:3,
+ok:"Exacto. Esta reunión es sobre el SAIC en FEN: ¿está funcionando? ¿qué falta? ¿qué necesitas? Es tu espacio para preguntar todo lo que no entiendes.",
+no:"La reunión trimestral con el Encargado SAIC es sobre el sistema de calidad en tu facultad, no solo AACSB. Lleva: estado SAIC, preguntas de inducción, problemas a escalar."},
+{ctx:"En un Consejo de Carrera de ICO, la Directora menciona que los resultados de assessment en 4to año bajaron y los docentes proponen cambiar el instrumento.",
+text:"¿Qué haces con esta información?",
+opts:["Aprobar el cambio de instrumento inmediatamente","Asegurarte de que quede en el acta y canalizarlo al Consejo de Facultad como elemento SAIC","Reportarlo directamente a la VRAC como hallazgo de no conformidad","No hacer nada — es responsabilidad del Director de Carrera"],correct:1,
+ok:"Exacto. Tu rol como nexo es: recoger elementos SAIC de Consejos de Carrera y canalizarlos al Consejo de Facultad. 'Transmitir y dar fe' según la Política SAIC.",
+no:"Tu función es 'transmitir y dar fe' entre Consejos de Carrera y Consejo de Facultad. No apruebas cambios (rol operativo) ni escalas todo a VRAC. Canalizas."},
+{text:"¿Qué diferencia lo que espera de ti la Subdirección de Efectividad Académica vs. lo que espera el Decano?",
+opts:["Ambos esperan lo mismo: que FEN se acredite","La Subdirección espera que ejecutes el assessment; el Decano espera datos","La Subdirección espera informes de monitoreo AoL y evidencias en Gestor SAIC. El Decano espera datos para decidir y alertas tempranas.","La Subdirección no espera nada de ti"],correct:2,
+ok:"Correcto. Cada interlocutor espera algo distinto. La Subdirección necesita productos operativos del AoL. El Decano necesita datos procesados y alertas. Dos caras del mismo cargo.",
+no:"La Subdirección espera productos concretos de AoL (informes, evidencias). El Decano espera datos para decidir y alertas. Son dos líneas con expectativas distintas."},
+{text:"¿Qué debería incluir la sección SAIC del Consejo de Facultad?",
+opts:["Indicadores clave, avance planes de mejora, estado acreditaciones, próximos hitos, alertas, y elementos de los Consejos de Carrera","Un resumen de la Política de Calidad UNAB","Solo el avance de AACSB","No incluir sección SAIC — el acta ya cubre los temas"],correct:0,
+ok:"Exacto. La sección SAIC es información accionable: datos, estados, hitos, alertas. No es resumen teórico ni solo AACSB.",
+no:"La sección SAIC es tu herramienta de reporte táctico con información accionable. La normativa exige que el DAC 'transmita y dé fe' del SAIC en el acta del Consejo de Facultad."}
+],
+3: [
+{text:"¿Cuál es la diferencia entre un mecanismo del Grupo A (gestionas directamente) y uno del Grupo B (monitoreas)?",
+opts:["Los del Grupo A son más importantes que los del Grupo B","En el Grupo A tú produces el producto final; en el Grupo B verificas que otros lo produzcan y analizas los resultados","Los del Grupo A son internos y los del Grupo B son externos","No hay diferencia real — haces lo mismo en ambos"],correct:1,
+ok:"Exacto. En Grupo A (AoL, Balance, Jornada, Autoevaluación, Planes de Mejora) tú generas el producto. En Grupo B (PDE, encuestas, VcM, innovación curricular) otros lo generan y tú lo monitoreas y analizas.",
+no:"La diferencia es operativa: Grupo A = tú produces (informes, planes, dossier). Grupo B = otros producen y tú verificas que funcione y analizas resultados."},
+{text:"Roberto Carvajal (Director CA) no entregó la Matriz de Resultados de AoL en el plazo. ¿Qué haces?",
+opts:["La elaboras tú para cumplir con el calendario AAE","Le envías un recordatorio formal, registras el atraso, y si persiste lo escalas al Decano y lo informas al Comité AAE","Esperas a que la entregue — no puedes obligarlo","Reportas a la VRAC que Contador Auditor no cumplió"],correct:1,
+ok:"Correcto. Tú no ejecutas el producto (eso es del Director de Carrera). Pero sí monitoreas plazos, alertas cuando hay atraso, y escalas si es necesario. Primero al Decano, después a VRAC si persiste.",
+no:"Tú monitoreas, no ejecutas. Si hay atraso: recordatorio formal → escalar al Decano → informar al Comité AAE si persiste. No haces el trabajo por él, pero tampoco te quedas esperando."},
+{ctx:"Llega la Dirección de Procesos a auditar el proceso de programación académica en FEN.",
+text:"¿Cuál es tu rol durante esta auditoría?",
+opts:["Liderar la auditoría y emitir los hallazgos","Facilitar la auditoría: tener evidencia ordenada, coordinar entrevistas, y después activar planes de mejora con los hallazgos","Decir que no sabías que venían y pedir que vuelvan otro día","Derivar todo a la Directora GOA porque ella maneja la programación"],correct:1,
+ok:"Exacto. Tú no auditas (eso lo hace la Dirección de Procesos). Pero eres el punto de contacto de FEN: facilitas el acceso a evidencia y personas, y después gestionas los hallazgos.",
+no:"Tu rol es facilitar: evidencia ordenada, coordinar entrevistas, y después activar planes de mejora. No lideras la auditoría (eso es de la Dirección de Procesos) ni la delegas."},
+{text:"El plan de acción 2026 que salió de la Jornada de Calidad de diciembre 2025 tiene 4 ejes. ¿Qué deberías estar haciendo con ese plan ahora?",
+opts:["Nada — es del DAC saliente, no mío","Ejecutar las 4 líneas de acción directamente","Hacerle seguimiento: verificar si las acciones se están implementando, reportar avance en Consejo de Facultad, y ajustar si es necesario","Reemplazarlo por uno nuevo que yo defina"],correct:2,
+ok:"Correcto. Los planes de mejora tienen continuidad independiente de quién los hizo. Tu rol es monitorear su cumplimiento, no reescribirlo ni ignorarlo. Es uno de los productos del SAIC que debes mantener vivo.",
+no:"Los planes de mejora no mueren con el cambio de DAC. Tú heredas el seguimiento. Monitoreas avance, reportas en Consejo de Facultad, y ajustas si las acciones no están funcionando."},
+{text:"¿Por qué se dice que 'la acreditación AACSB no es algo separado del SAIC'?",
+opts:["Porque AACSB y CNA son la misma cosa","Porque la acreditación es uno de los 13 mecanismos del SAIC (mecanismo externo), y todo lo que haces para AACSB alimenta al sistema y viceversa","Porque la VRAC controla el proceso AACSB","Porque el SAIC fue creado para AACSB"],correct:1,
+ok:"Exacto. La acreditación (CNA, AACSB, ACBSP) es un mecanismo externo del SAIC. Los datos que levantas para el iSER son los mismos que alimentan el Balance Anual. Los planes de mejora de AACSB son planes de mejora del SAIC. No son mundos paralelos — son el mismo sistema.",
+no:"La acreditación es uno de los 13 mecanismos del SAIC (grupo de mecanismos externos). El iSER alimenta al Balance, los planes de mejora AACSB son planes del SAIC. Todo está conectado."},
+{text:"¿Cuál de estos NO es un producto que tú generas directamente como DAC?",
+opts:["Informe de Balance Anual del SAIC","Dossier de la Jornada de Calidad","Resultados de la encuesta de evaluación docente","Informes de monitoreo de AoL"],correct:2,
+ok:"Correcto. La encuesta de evaluación docente la administra la VRAC centralmente. Tú analizas los resultados de FEN (Grupo B: monitoreas), pero no produces la encuesta ni sus resultados.",
+no:"Los resultados de la encuesta docente los produce la VRAC, no tú. Tú analizas los datos de FEN (monitoreas). Los otros tres (Balance, Dossier, Informes AoL) sí son productos que tú generas directamente."}
+],
+4: [
+{text:"¿Por qué el calendario AAE es el que 'más manda' en el día a día del DAC?",
+opts:["Porque el AoL es el único mecanismo que importa","Porque tiene fechas duras e inamovibles con responsabilidad explícita del DACF, distribuidas a lo largo de todo el año","Porque la VRAC lo obliga pero no es realmente importante","Porque es el único calendario que existe para el DAC"],correct:1,
+ok:"Exacto. El calendario AAE tiene ~20 hitos anuales con fecha fija y responsable explícito (DACF). Es el único calendario del SAIC con ese nivel de detalle para tu cargo. Los otros hitos (Balance, Jornada) son anuales; el AAE es permanente.",
+no:"El calendario AAE tiene ~20 hitos anuales con fechas duras y responsabilidad explícita del DACF. Es el ritmo base de tu trabajo porque tiene la mayor frecuencia de entregas a lo largo del año."},
+{text:"Para hacer el Balance Anual del SAIC en junio, necesitas haber hecho antes varias cosas. ¿Cuál de estas cadenas de dependencia es correcta?",
+opts:["No tiene dependencias — puedes hacerlo cuando quieras con los datos que tengas","Necesitas: indicadores consolidados (enero) + encuestas analizadas (mayo) + planes de mejora revisados (abril) + estado AoL reportado (abril-mayo)","Solo necesitas el dossier de la Jornada de Calidad del año anterior","Solo necesitas los datos de AACSB"],correct:1,
+ok:"Correcto. El Balance es un producto que integra múltiples insumos del año. Si no consolidaste indicadores, ni analizaste encuestas, ni revisaste planes de mejora, el Balance sale incompleto. Las dependencias son reales.",
+no:"El Balance integra 10 ítems que dependen de trabajo previo: indicadores, encuestas, hallazgos, auditorías, FODA. Si no hiciste esos pasos, no tienes con qué llenarlo."},
+{text:"Marzo y abril son los meses más cargados del año para el DAC. ¿Por qué?",
+opts:["Porque es cuando hay más clases","Porque confluyen el cierre de rezagos AAE del semestre anterior, el inicio del nuevo ciclo AAE, las fases iniciales de CNA, la primera reunión trimestral SAIC, y la inducción de profesores nuevos","Porque es cuando viene la auditoría de AACSB","Porque el Decano pone más presión al inicio del año"],correct:1,
+ok:"Exacto. Marzo-abril es la tormenta perfecta: rezagados AAE del S2 anterior + evidencias de socialización + ajuste de planes + carga en Gestor SAIC + CNA Fase Piloto y 1 + reunión SAIC Q1 + inducción profesores. Todo junto.",
+no:"Marzo-abril concentra: cierre de AAE del semestre anterior, inicio del nuevo ciclo, fases tempranas de CNA, reunión trimestral SAIC, e inducción. Es el peak por confluencia de calendarios, no por un solo factor."},
+{ctx:"Una carrera no entregó las evidencias de socialización del AAE al 31 de marzo. El 15 de abril tú tienes que cargar las evidencias en el Gestor Documental SAIC.",
+text:"¿Qué haces?",
+opts:["Cargas lo que tengas y dejas el espacio vacío para esa carrera","Inventas la evidencia para cumplir con el plazo","Alertas al Director de Carrera inmediatamente, le das un plazo máximo de 5 días, y si no cumple lo escalas al Decano. Informas al Comité AAE sobre la situación.","Pides a la VRAC que extienda el plazo del 15 de abril"],correct:2,
+ok:"Correcto. Tu rol es monitorear y escalar. No inventas evidencia ni cargas incompleto sin alertar. Actúas: recordatorio → plazo → escalamiento → reporte. Y lo documentas.",
+no:"No cargas incompleto sin alertar, ni inventas evidencia. Actúas proactivamente: alerta al Director de Carrera, plazo corto, escalamiento si persiste, y reporte al Comité AAE."},
+{text:"¿Cuál es la mejor analogía para tu posición en el ciclo anual del SAIC?",
+opts:["El piloto del avión: tú vuelas la operación","El pasajero: te subes y esperas llegar","El controlador de tráfico aéreo: sabes qué despega cuándo, verificas que no haya choques, alertas atrasos, y reportas al centro de control","El mecánico: arreglas lo que se rompe"],correct:2,
+ok:"Exacto. No pilotas ningún avión (no ejecutas los procesos). No eres pasajero (no eres pasivo). Eres el controlador: visión panorámica, monitoreo en tiempo real, alertas, y reporte. Sin ti, los aviones se estrellan entre ellos.",
+no:"Eres el controlador de tráfico: visión panorámica de todo lo que se mueve, monitoreo de tiempos, alertas cuando algo se atrasa, y reporte al centro de control (VRAC). No pilotas ni arreglas — coordinas."},
+{text:"Si entendieras bien el SAIC, ¿cuál sería la primera acción concreta que harías el lunes al llegar a la oficina?",
+opts:["Leer completa la Política de Calidad de nuevo","Preparar una lista de preguntas sobre el SAIC para la reunión del 9 de abril con el Encargado SAIC, incluyendo: estado del Comité AAE, auditorías programadas para FEN, cómo funciona el Gestor Documental, y qué planes de mejora heredé del DAC anterior","Enviar un correo masivo a todos los profesores explicando qué es el SAIC","Pedir reunión con el Rector para que me explique mi cargo"],correct:1,
+ok:"Exacto. La reunión del 9 de abril es tu punto de inflexión. Llegas preparado con preguntas concretas: Comité AAE (¿existe? ¿cuándo se reúne?), auditorías (¿hay programadas para FEN?), Gestor Documental (¿cómo accedo? ¿qué debo cargar?), planes de mejora heredados (¿cuáles son? ¿dónde están?). Esa reunión te desbloquea todo lo demás.",
+no:"Tu próxima acción más impactante es prepararte para la reunión del 9 de abril. Esa reunión con el Encargado SAIC es tu oportunidad de cerrar las brechas de inducción: preguntar todo, mapear lo pendiente, y salir con un plan claro."}
+]
+};
+
+var moduleCompleted = [false,false,false,false];
+var tabNames = ['Módulo 1','Módulo 2','Módulo 3','Módulo 4'];
+
+function buildNav(){
+var nav = document.getElementById('navTabs');
+var html = '';
+for(var i=0;i<4;i++){
+html += '<button onclick="goModule('+(i+1)+')" id="tab'+(i+1)+'" class="'+(i===0?'active':'')+(moduleCompleted[i]?' completed':'')+'">'+tabNames[i]+'</button>';
+}
+html += '<button onclick="showFinal()" id="tabF" style="display:none">Resumen</button>';
+nav.innerHTML = html;
+}
+
+function buildQuiz(num){
+var container = document.getElementById('quiz'+num);
+var qs = quizData[num];
+var html = '';
+for(var i=0;i<qs.length;i++){
+var q = qs[i];
+html += '<div class="q" id="q'+num+'_'+i+'"><div class="q-num">Pregunta '+(i+1)+' de '+qs.length+'</div>';
+if(q.ctx) html += '<div class="q-ctx">'+q.ctx+'</div>';
+html += '<div class="q-text">'+q.text+'</div><div class="opts" data-correct="'+q.correct+'">';
+for(var j=0;j<q.opts.length;j++){
+html += '<div class="opt" onclick="pickOpt(this)">'+q.opts[j]+'</div>';
+}
+html += '</div><div class="fb fb-ok">'+q.ok+'</div><div class="fb fb-no">'+q.no+'</div></div>';
+}
+container.innerHTML = html;
+}
+
+function pickOpt(el){
+var q = el.closest('.q');
+if(q.dataset.answered) return;
+q.querySelectorAll('.opt').forEach(function(o){o.classList.remove('selected')});
+el.classList.add('selected');
+}
+
+function checkQuiz(num){
+var qs = document.querySelectorAll('#quiz'+num+' .q');
+var score = 0;
+qs.forEach(function(q){
+var opts = q.querySelectorAll('.opt');
+var correct = parseInt(q.querySelector('.opts').dataset.correct);
+var selected = -1;
+opts.forEach(function(o,i){if(o.classList.contains('selected'))selected=i;});
+if(selected===-1)return;
+q.dataset.answered = 'true';
+opts.forEach(function(o,i){
+o.classList.add('disabled');
+if(i===correct) o.classList.add('correct');
+if(i===selected && i!==correct) o.classList.add('wrong');
+});
+if(selected===correct){score++;q.querySelector('.fb-ok').classList.add('show');}
+else{q.querySelector('.fb-no').classList.add('show');}
+});
+var bar = document.getElementById('score'+num);
+bar.classList.add('show');
+document.getElementById('scoreNum'+num).textContent = score+' de '+qs.length;
+var pct = Math.round(score/qs.length*100);
+var msgs = {
+1:{100:'Perfecto. Entiendes la estructura del SAIC.',67:'Buen nivel. Revisa las que fallaste.',0:'Conviene releer el módulo. La clave son las 4 capas.'},
+2:{100:'Perfecto. Tienes claro tu rol y qué llevar a cada instancia.',67:'Buen nivel. La clave: tú traduces, monitoreas y reportas — no ejecutas.',0:'Conviene releer. El punto central: traducir, monitorear, reportar.'},
+3:{100:'Perfecto. Distingues bien qué gestionas, qué monitoreas y qué te afecta.',67:'Buen nivel. Revisa la diferencia entre gestionar directamente y monitorear.',0:'Conviene releer. La clave es saber qué productos generas tú vs. cuáles monitoreas.'},
+4:{100:'Perfecto. Entiendes el ciclo anual y las dependencias.',67:'Buen nivel. Revisa las cadenas de dependencias — son clave para planificar.',0:'Conviene releer. La clave: calendarios, dependencias, y tu rol como controlador de tráfico.'}
+};
+var m = msgs[num];
+var msg = pct>=100?m[100]:pct>=67?m[67]:m[0];
+document.getElementById('scoreLabel'+num).textContent = msg;
+moduleCompleted[num-1] = true;
+document.getElementById('next'+num).classList.add('show');
+updateProgress();
+buildNav();
+}
+
+function goModule(num){
+document.querySelectorAll('.module').forEach(function(m){m.classList.remove('active')});
+document.querySelectorAll('nav button').forEach(function(b){b.classList.remove('active')});
+document.getElementById('mod'+num).classList.add('active');
+document.getElementById('tab'+num).classList.add('active');
+window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function showFinal(){
+document.querySelectorAll('.module').forEach(function(m){m.classList.remove('active')});
+document.querySelectorAll('nav button').forEach(function(b){b.classList.remove('active')});
+document.getElementById('modFinal').classList.add('active');
+document.getElementById('tabF').style.display='';
+document.getElementById('tabF').classList.add('active');
+var html = '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:1.5rem">';
+for(var i=1;i<=4;i++){
+var bar = document.getElementById('scoreNum'+i);
+var result = bar?bar.textContent:'No completado';
+var colors = ['#EEEDFE','#E1F5EE','#E6F1FB','#FAEEDA'];
+var textColors = ['#3C3489','#085041','#0C447C','#633806'];
+html += '<div style="background:'+colors[i-1]+';padding:16px;border-radius:10px;text-align:center"><div style="font-size:12px;font-weight:600;color:'+textColors[i-1]+'">'+tabNames[i-1]+'</div><div style="font-size:22px;font-weight:700;color:'+textColors[i-1]+';margin-top:4px">'+result+'</div></div>';
+}
+html += '</div>';
+html += '<div style="background:#E1F5EE;padding:16px;border-radius:10px;margin-bottom:1rem"><p style="font-size:14px;font-weight:600;color:#085041;margin-bottom:8px">Siguientes pasos</p><ul style="font-size:13px;color:#0F6E56;margin-left:1rem"><li>Preparar preguntas para la reunión del 9 de abril con el Encargado SAIC</li><li>Incluir sección SAIC en tu próxima acta de Consejo de Facultad</li><li>Verificar estado de la carga en Gestor Documental SAIC (hito 15 abril)</li><li>Pedir acceso al Gestor Documental SAIC si no lo tienes</li><li>Revisar los planes de mejora que dejó el DAC saliente</li></ul></div>';
+html += '<p style="font-size:13px;color:#888">Este curso queda como referencia permanente. Puedes volver a cualquier módulo cuando necesites consultar algo.</p>';
+document.getElementById('finalSummary').innerHTML = html;
+window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function updateProgress(){
+var done = moduleCompleted.filter(function(x){return x}).length;
+document.getElementById('progressFill').style.width = (done/4*100)+'%';
+document.getElementById('progressText').textContent = done+' de 4 módulos completados';
+}
+
+buildNav();
+for(var i=1;i<=4;i++) buildQuiz(i);
+</script>
+</body>
+</html>
