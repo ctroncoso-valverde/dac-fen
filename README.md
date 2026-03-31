@@ -14,8 +14,6 @@ Curso interactivo de 4 módulos sobre el Sistema de Aseguramiento Interno de la 
 
 Cada módulo incluye un quiz interactivo con casos reales de FEN.
 
-**Ver en línea:** [https://TU-USUARIO.github.io/dac-fen/curso-saic/](https://TU-USUARIO.github.io/dac-fen/curso-saic/)
-
 ### 2. Dashboard de gestión DAC (`/dashboard`) — Próximamente
 Panel interactivo con dimensiones del cargo, diagnóstico de estado actual, ciclo operativo anual, y plan de acción 2026.
 
