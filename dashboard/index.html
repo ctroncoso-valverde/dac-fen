@@ -4,194 +4,944 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard DAC — FEN UNAB</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#fafaf8;--bg2:#f2f0eb;--bg3:#fff;--tx:#1a1a1a;--tx2:#666;--tx3:#999;--bd:#e5e3dc;--bd2:#d5d3cc;--accent:#7F77DD;--r:10px;--c1:#7F77DD;--c1b:#EEEDFE;--c1t:#3C3489;--c2:#1D9E75;--c2b:#E1F5EE;--c2t:#085041;--c3:#378ADD;--c3b:#E6F1FB;--c3t:#0C447C;--c4:#D85A30;--c4b:#FAECE7;--c4t:#712B13;--c5:#BA7517;--c5b:#FAEEDA;--c5t:#633806;--done:#EAF3DE;--donet:#27500A;--partial:#FAEEDA;--partialt:#633806;--none:#FCEBEB;--nonet:#791F1F;--info:#E6F1FB;--infot:#0C447C;--neutral:#f2f0eb;--neutralt:#666}
-*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:var(--tx);line-height:1.6;background:var(--bg)}.app{max-width:900px;margin:0 auto;padding:1rem}header{padding:1.5rem 0 1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}header h1{font-size:20px;font-weight:600}header p{font-size:13px;color:var(--tx2)}.hdr-actions{display:flex;gap:6px}.hdr-actions button{font-size:11px;padding:4px 10px;border:1px solid var(--bd2);border-radius:6px;background:var(--bg3);cursor:pointer;font-family:inherit;color:var(--tx2)}.hdr-actions button:hover{background:var(--bg2)}nav{display:flex;gap:0;border-bottom:1px solid var(--bd);margin-bottom:1.25rem;overflow-x:auto}nav button{font-size:12px;padding:10px 14px;cursor:pointer;color:var(--tx2);border:none;border-bottom:2.5px solid transparent;background:none;font-family:inherit;white-space:nowrap}nav button:hover{color:var(--tx)}nav button.on{color:var(--tx);font-weight:600;border-bottom-color:var(--accent)}.panel{display:none}.panel.on{display:block}.cards{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:1.25rem}.card{padding:10px;border-radius:8px;text-align:center}.card-d{font-size:10px;font-weight:600;margin-bottom:2px}.card-n{font-size:22px;font-weight:600}.card-l{font-size:10px;margin-top:2px}.dim{margin-bottom:0.75rem;border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;background:var(--bg3)}.dim-h{padding:10px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;user-select:none}.dim-h:hover{background:var(--bg2)}.dim-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}.dim-name{font-size:13px;font-weight:600;flex:1}.dim-badge{font-size:11px;padding:2px 10px;border-radius:6px;font-weight:500}.dim-arrow{font-size:10px;color:var(--tx3);transition:transform 0.2s}.dim.open .dim-arrow{transform:rotate(90deg)}.dim-body{display:none;padding:0 14px 10px}.dim.open .dim-body{display:block}.dim-progress{height:4px;background:var(--bg2);border-radius:2px;margin:6px 0 10px;overflow:hidden}.dim-progress-fill{height:100%;border-radius:2px;transition:width 0.3s}.task{display:grid;grid-template-columns:1fr 100px;gap:8px;padding:6px 0;border-bottom:1px solid var(--bg2);font-size:12px;align-items:start}.task:last-child{border-bottom:none}.task-name{font-weight:500}.task-note{font-size:11px;color:var(--tx2);margin-top:2px}.task-badge{font-size:9px;display:inline-block;padding:1px 6px;border-radius:4px;font-weight:600;margin-left:4px;vertical-align:middle}.badge-vrac{background:var(--c5b);color:var(--c5t)}.badge-ppt{background:var(--c3b);color:var(--c3t)}.badge-acta{background:var(--c2b);color:var(--c2t)}.st-select{font-size:11px;padding:2px 4px;border:1px solid var(--bd);border-radius:4px;background:var(--bg3);font-family:inherit;cursor:pointer;float:right}.st-label{float:right;font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;display:inline-block}.lock-bar{padding:8px 14px;background:var(--bg2);display:flex;align-items:center;gap:8px;font-size:12px;color:var(--tx2);border-bottom:1px solid var(--bd)}.lock-bar button{font-size:11px;padding:3px 10px;border:1px solid var(--bd2);border-radius:4px;background:var(--bg3);cursor:pointer;font-family:inherit}.insight{margin-top:1rem;padding:12px 14px;border-left:3px solid;border-radius:0;font-size:12px;line-height:1.6}.insight-r{background:var(--none);border-color:#E24B4A}.insight-r b{color:var(--nonet)}.insight-g{background:var(--done);border-color:#639922}.insight-g b{color:var(--donet)}.heat-wrap{overflow-x:auto;padding-bottom:0.5rem}.heat{display:grid;grid-template-columns:80px repeat(12,minmax(42px,1fr));gap:2px;min-width:560px}.hh{font-size:10px;color:var(--tx3);text-align:center;padding-bottom:4px}.hl{font-size:10px;font-weight:600;display:flex;align-items:center;height:32px}.hc{height:32px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;cursor:pointer;position:relative;transition:transform 0.1s}.hc:hover{transform:scale(1.08);z-index:2}.hc.h0{background:var(--bg2);color:var(--tx3);cursor:default}.hc.h0:hover{transform:none}.tt{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:6px;background:var(--bg3);border:1px solid var(--bd);border-radius:8px;padding:8px 10px;width:260px;z-index:10;display:none;font-size:11px;font-weight:400;text-align:left;line-height:1.5;box-shadow:0 4px 12px rgba(0,0,0,0.08)}.hc:hover .tt{display:block}.tt-title{font-weight:600;margin-bottom:4px}.tt-item{padding:2px 0;color:var(--tx2)}.htot{height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;background:var(--bg2);color:var(--tx2)}.htot.peak{background:var(--none);color:var(--nonet)}.detail-area{margin-top:1rem;min-height:30px}.no-sel{color:var(--tx3);font-size:12px;font-style:italic}.dit{padding:5px 0;border-bottom:1px solid var(--bg2);font-size:11px;display:flex;gap:6px;align-items:flex-start}.dit:last-child{border-bottom:none}.dit-date{font-weight:600;color:var(--tx2);min-width:36px}.dit-text{flex:1}.tg{font-size:9px;padding:1px 5px;border-radius:4px;display:inline-block;margin-top:2px}.t-aae{background:var(--c3b);color:var(--c3t)}.t-cna{background:var(--c4b);color:var(--c4t)}.t-est{background:var(--c5b);color:var(--c5t)}.t-new{background:var(--c2b);color:var(--c2t)}.leg{margin-top:0.75rem;font-size:10px;color:var(--tx3);display:flex;gap:8px;flex-wrap:wrap}.coming{padding:3rem 1rem;text-align:center;color:var(--tx3)}.coming h3{font-size:16px;font-weight:600;color:var(--tx2);margin-bottom:8px}.coming p{font-size:13px}.strat-table{width:100%;border-collapse:collapse;font-size:12px}.strat-table th{text-align:left;padding:8px 6px;border-bottom:2px solid var(--bd);font-weight:600;font-size:11px;color:var(--tx2)}.strat-table td{padding:6px;border-bottom:1px solid var(--bg2);vertical-align:top}.strat-label{font-size:9px;padding:1px 6px;border-radius:4px;font-weight:600;display:inline-block}.sub-tabs{display:flex;gap:4px;margin-bottom:1rem;flex-wrap:wrap}.sub-tab{font-size:11px;padding:4px 12px;border:1px solid var(--bd);border-radius:6px;background:transparent;cursor:pointer;font-family:inherit;color:var(--tx2)}.sub-tab:hover{background:var(--bg2)}.sub-tab.on{background:var(--tx);color:var(--bg3);border-color:var(--tx)}footer{margin-top:2rem;padding:1rem 0;border-top:1px solid var(--bd);font-size:11px;color:var(--tx3);text-align:center}@media(max-width:700px){.cards{grid-template-columns:repeat(3,1fr)}nav button{padding:8px 10px;font-size:11px}}
+:root{--bg:#fafaf8;--bg2:#f2f0eb;--bg3:#fff;--tx:#1a1a1a;--tx2:#666;--tx3:#999;--bd:#e5e3dc;--bd2:#d5d3cc;--accent:#7F77DD;--r:10px;
+--c1:#7F77DD;--c1b:#EEEDFE;--c1t:#3C3489;
+--c2:#1D9E75;--c2b:#E1F5EE;--c2t:#085041;
+--c3:#378ADD;--c3b:#E6F1FB;--c3t:#0C447C;
+--c4:#D85A30;--c4b:#FAECE7;--c4t:#712B13;
+--c5:#BA7517;--c5b:#FAEEDA;--c5t:#633806;
+--done:#EAF3DE;--donet:#27500A;--partial:#FAEEDA;--partialt:#633806;--none:#FCEBEB;--nonet:#791F1F;--info:#E6F1FB;--infot:#0C447C;--neutral:#f2f0eb;--neutralt:#666;--wait:#F3E8FF;--waitt:#6B21A8}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;color:var(--tx);line-height:1.6;background:var(--bg)}
+.app{max-width:960px;margin:0 auto;padding:1rem 1.25rem}
+header{padding:1.5rem 0 1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+header h1{font-size:20px;font-weight:700;letter-spacing:-0.3px}
+header p{font-size:12px;color:var(--tx2)}
+.hdr-actions{display:flex;gap:6px;flex-wrap:wrap}
+.hdr-actions button{font-size:11px;padding:5px 12px;border:1px solid var(--bd2);border-radius:6px;background:var(--bg3);cursor:pointer;font-family:inherit;color:var(--tx2);transition:all .15s}
+.hdr-actions button:hover{background:var(--bg2);border-color:var(--tx3)}
+nav{display:flex;gap:0;border-bottom:1px solid var(--bd);margin-bottom:1.25rem;overflow-x:auto;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav button{font-size:12px;padding:10px 14px;cursor:pointer;color:var(--tx2);border:none;border-bottom:2.5px solid transparent;background:none;font-family:inherit;white-space:nowrap;transition:color .15s}
+nav button:hover{color:var(--tx)}
+nav button.on{color:var(--tx);font-weight:600;border-bottom-color:var(--accent)}
+.panel{display:none}.panel.on{display:block}
+
+/* === TAB 0: DIMENSIONES === */
+.dim-card{border:1px solid var(--bd);border-radius:12px;overflow:hidden;background:var(--bg3);margin-bottom:10px;transition:box-shadow .2s}
+.dim-card:hover{box-shadow:0 2px 12px rgba(0,0,0,0.04)}
+.dim-card-h{padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:10px;user-select:none}
+.dim-card-h:hover{background:var(--bg2)}
+.dim-card-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.dim-card-title{font-size:14px;font-weight:600;flex:1}
+.dim-card-count{font-size:11px;padding:3px 10px;border-radius:6px;font-weight:600}
+.dim-card-arrow{font-size:10px;color:var(--tx3);transition:transform .2s;display:inline-block}
+.dim-card.open .dim-card-arrow{transform:rotate(90deg)}
+.dim-card-body{display:none;padding:0 16px 16px;font-size:13px;line-height:1.7}
+.dim-card.open .dim-card-body{display:block}
+.dim-card-desc{color:var(--tx2);margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--bg2)}
+.dim-card-section{margin-bottom:10px}
+.dim-card-section h4{font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:var(--tx3);margin-bottom:6px;font-weight:600}
+.dim-card-section ul{list-style:none;padding:0}
+.dim-card-section li{padding:3px 0;font-size:12px;display:flex;align-items:flex-start;gap:6px}
+.dim-card-section li::before{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;margin-top:7px;flex-shrink:0}
+.dim-card-section.gest li::before{background:var(--accent)}
+.dim-card-section.mon li::before{background:var(--tx3)}
+.dim-card-inter{display:flex;flex-wrap:wrap;gap:4px}
+.dim-card-inter span{font-size:11px;padding:2px 8px;border-radius:4px;background:var(--bg2);color:var(--tx2)}
+
+/* === RINGS (Tab 2) === */
+.rings-row{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;justify-content:center}
+.ring-card{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;cursor:pointer;transition:all .2s;flex:1;min-width:100px;max-width:170px}
+.ring-card:hover{background:var(--bg2)}
+.ring-card.selected{box-shadow:inset 0 0 0 2px var(--accent);background:rgba(127,119,221,0.04)}
+.ring-svg{width:80px;height:80px}
+.ring-label{font-size:11px;font-weight:600;text-align:center}
+
+/* === BARS (Tab 2) === */
+.bars-section{margin-bottom:20px;padding:16px;border:1px solid var(--bd);border-radius:10px;background:var(--bg3)}
+.bars-section h3{font-size:13px;font-weight:600;margin-bottom:12px;color:var(--tx2)}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:12px}
+.bar-row:last-child{margin-bottom:0}
+.bar-label{width:100px;font-weight:500;font-size:11px;flex-shrink:0}
+.bar-track{flex:1;height:20px;background:var(--bg2);border-radius:4px;overflow:hidden;position:relative}
+.bar-fill{height:100%;border-radius:4px;transition:width .5s ease}
+.bar-val{font-size:11px;font-weight:600;width:60px;text-align:right;flex-shrink:0}
+
+/* === TASKS LIST === */
+.dim{margin-bottom:8px;border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;background:var(--bg3)}
+.dim-h{padding:10px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;user-select:none}
+.dim-h:hover{background:var(--bg2)}
+.dim-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.dim-name{font-size:13px;font-weight:600;flex:1}
+.dim-badge{font-size:11px;padding:2px 10px;border-radius:6px;font-weight:500}
+.dim-arrow{font-size:10px;color:var(--tx3);transition:transform .2s;display:inline-block}
+.dim.open .dim-arrow{transform:rotate(90deg)}
+.dim-body{display:none;padding:0 14px 10px}.dim.open .dim-body{display:block}
+.dim-progress{height:4px;background:var(--bg2);border-radius:2px;margin:6px 0 10px;overflow:hidden}
+.dim-progress-fill{height:100%;border-radius:2px;transition:width .4s}
+.task{padding:8px 0;border-bottom:1px solid var(--bg2);font-size:12px}
+.task:last-child{border-bottom:none}
+.task-main{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:start;cursor:pointer}
+.task-name{font-weight:500}
+.task-note{font-size:11px;color:var(--tx2);margin-top:2px}
+.task-badge{font-size:9px;display:inline-block;padding:1px 6px;border-radius:4px;font-weight:600;margin-left:4px;vertical-align:middle}
+.badge-vrac{background:var(--c5b);color:var(--c5t)}
+.badge-ppt{background:var(--c3b);color:var(--c3t)}
+.badge-acta{background:var(--c2b);color:var(--c2t)}
+.st-select{font-size:11px;padding:2px 4px;border:1px solid var(--bd);border-radius:4px;background:var(--bg3);font-family:inherit;cursor:pointer}
+.st-label{font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;display:inline-block}
+.task-detail{display:none;margin-top:8px;padding:10px 12px;background:var(--bg2);border-radius:8px;font-size:11px;line-height:1.6}
+.task.expanded .task-detail{display:block}
+.task-detail-row{display:flex;gap:6px;margin-bottom:4px}
+.task-detail-row b{min-width:80px;color:var(--tx2)}
+
+/* === LOCK BAR === */
+.lock-bar{padding:8px 14px;background:var(--bg2);display:flex;align-items:center;gap:8px;font-size:12px;color:var(--tx2);border-bottom:1px solid var(--bd);border-radius:10px 10px 0 0;margin-bottom:-1px}
+.lock-bar button{font-size:11px;padding:3px 10px;border:1px solid var(--bd2);border-radius:4px;background:var(--bg3);cursor:pointer;font-family:inherit}
+
+/* === INSIGHT BOX === */
+.insight{margin-top:1rem;padding:12px 14px;border-left:3px solid;border-radius:0 8px 8px 0;font-size:12px;line-height:1.6}
+.insight-r{background:var(--none);border-color:#E24B4A}
+.insight-r b{color:var(--nonet)}
+.insight-g{background:var(--done);border-color:#639922}
+.insight-g b{color:var(--donet)}
+
+/* === HEATMAP === */
+.heat-wrap{overflow-x:auto;padding-bottom:0.5rem}
+.heat{display:grid;grid-template-columns:90px repeat(12,minmax(42px,1fr));gap:2px;min-width:600px}
+.hh{font-size:10px;color:var(--tx3);text-align:center;padding-bottom:4px}
+.hl{font-size:10px;font-weight:600;display:flex;align-items:center;height:32px}
+.hc{height:32px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;cursor:pointer;position:relative;transition:transform .1s}
+.hc:hover{transform:scale(1.06);z-index:2}
+.hc.h0{background:var(--bg2);color:var(--tx3);cursor:default}
+.hc.h0:hover{transform:none}
+.htot{height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;background:var(--bg2);color:var(--tx2)}
+.htot.peak{background:var(--none);color:var(--nonet)}
+
+/* Tooltip smart positioning */
+.smart-tt{position:fixed;background:var(--bg3);border:1px solid var(--bd);border-radius:10px;padding:10px 12px;width:280px;z-index:999;font-size:11px;font-weight:400;text-align:left;line-height:1.5;box-shadow:0 8px 24px rgba(0,0,0,0.1);pointer-events:none;opacity:0;transition:opacity .15s}
+.smart-tt.visible{opacity:1}
+.smart-tt .tt-title{font-weight:600;margin-bottom:4px}
+.smart-tt .tt-item{padding:2px 0;color:var(--tx2)}
+
+/* Detail panel (Ciclo) */
+.cycle-detail{margin-top:12px;padding:16px;border:1px solid var(--bd);border-radius:10px;background:var(--bg3);min-height:80px}
+.cycle-detail h3{font-size:14px;font-weight:600;margin-bottom:10px}
+.cycle-task{padding:10px 12px;margin-bottom:6px;border:1px solid var(--bg2);border-radius:8px;cursor:pointer;transition:all .15s}
+.cycle-task:hover{background:var(--bg2)}
+.cycle-task.expanded{background:var(--bg2);border-color:var(--bd)}
+.cycle-task-main{display:flex;gap:8px;align-items:center;font-size:12px}
+.cycle-task-date{font-weight:600;color:var(--tx2);min-width:40px;font-size:11px}
+.cycle-task-text{flex:1;font-weight:500}
+.tg{font-size:9px;padding:1px 5px;border-radius:4px;display:inline-block}
+.t-aae{background:var(--c3b);color:var(--c3t)}
+.t-cna{background:var(--c4b);color:var(--c4t)}
+.t-est{background:var(--c5b);color:var(--c5t)}
+.t-new{background:var(--c2b);color:var(--c2t)}
+.cycle-task-panel{display:none;margin-top:8px;padding-top:8px;border-top:1px solid var(--bd);font-size:11px;line-height:1.7}
+.cycle-task.expanded .cycle-task-panel{display:block}
+.cycle-note-input{width:100%;padding:6px 8px;border:1px solid var(--bd);border-radius:6px;font-size:11px;font-family:inherit;margin-top:4px;resize:vertical;min-height:32px}
+.cycle-note-save{font-size:10px;padding:3px 10px;border:1px solid var(--bd2);border-radius:4px;background:var(--bg3);cursor:pointer;font-family:inherit;margin-top:4px}
+.cycle-note-log{margin-top:6px;font-size:10px;color:var(--tx2)}
+.cycle-note-entry{padding:2px 0;border-bottom:1px dashed var(--bg2)}
+.leg{margin-top:0.75rem;font-size:10px;color:var(--tx3);display:flex;gap:8px;flex-wrap:wrap}
+
+/* === TAB 4: STRATEGIC === */
+.strat-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.strat-kpi{padding:14px;border:1px solid var(--bd);border-radius:10px;background:var(--bg3);text-align:center}
+.strat-kpi-val{font-size:24px;font-weight:700}
+.strat-kpi-label{font-size:11px;color:var(--tx2);margin-top:2px}
+.strat-chart{margin-bottom:16px;padding:16px;border:1px solid var(--bd);border-radius:10px;background:var(--bg3)}
+.strat-chart h3{font-size:13px;font-weight:600;margin-bottom:10px;color:var(--tx2)}
+.strat-chart-bar{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:11px}
+.strat-chart-label{width:100px;text-align:right;font-weight:500;flex-shrink:0}
+.strat-chart-track{flex:1;height:18px;background:var(--bg2);border-radius:4px;overflow:hidden}
+.strat-chart-fill{height:100%;border-radius:4px;transition:width .5s}
+.strat-chart-val{width:30px;font-weight:600;font-size:10px}
+.strat-filters{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.strat-filters label{font-size:11px;color:var(--tx2);font-weight:600}
+.strat-filters select{font-size:11px;padding:4px 8px;border:1px solid var(--bd);border-radius:6px;background:var(--bg3);font-family:inherit}
+.strat-table{width:100%;border-collapse:collapse;font-size:12px}
+.strat-table th{text-align:left;padding:8px 6px;border-bottom:2px solid var(--bd);font-weight:600;font-size:11px;color:var(--tx2)}
+.strat-table td{padding:6px;border-bottom:1px solid var(--bg2);vertical-align:top}
+.strat-row{cursor:pointer;transition:background .1s}
+.strat-row:hover{background:var(--bg2)}
+.strat-label{font-size:9px;padding:1px 6px;border-radius:4px;font-weight:600;display:inline-block}
+.strat-expand{display:none;padding:12px;background:var(--bg2);border-radius:8px;margin:4px 6px 8px}
+.strat-expand.open{display:block}
+.strat-notes-log{margin-top:8px;font-size:10px;max-height:150px;overflow-y:auto}
+.strat-note-entry{padding:4px 0;border-bottom:1px dashed var(--bd);line-height:1.5}
+.strat-note-entry b{color:var(--tx2);font-size:9px}
+
+/* === REPORT MODAL === */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.open{opacity:1;pointer-events:auto}
+.modal{background:var(--bg);border-radius:14px;max-width:800px;width:95%;max-height:90vh;overflow-y:auto;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,0.15)}
+.modal h2{font-size:18px;font-weight:700;margin-bottom:4px}
+.modal-sub{font-size:12px;color:var(--tx2);margin-bottom:16px}
+.modal-close{position:absolute;top:16px;right:16px;font-size:18px;border:none;background:none;cursor:pointer;color:var(--tx2)}
+.modal-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.modal-kpi{padding:12px;border:1px solid var(--bd);border-radius:8px;text-align:center;background:var(--bg3)}
+.modal-kpi-val{font-size:20px;font-weight:700}
+.modal-kpi-label{font-size:10px;color:var(--tx2)}
+
+/* === COMING SOON === */
+.coming{padding:3rem 1rem;text-align:center;color:var(--tx3)}
+.coming h3{font-size:16px;font-weight:600;color:var(--tx2);margin-bottom:8px}
+.coming p{font-size:13px;line-height:1.7}
+.coming-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;max-width:500px;margin:1.5rem auto;text-align:left}
+.coming-card{padding:12px;border:1px solid var(--bd);border-radius:8px;background:var(--bg3)}
+.coming-card h4{font-size:12px;font-weight:600;margin-bottom:4px}
+.coming-card p{font-size:11px;color:var(--tx2)}
+
+/* Sub-tabs */
+.sub-tabs{display:flex;gap:4px;margin-bottom:1rem;flex-wrap:wrap}
+.sub-tab{font-size:11px;padding:4px 12px;border:1px solid var(--bd);border-radius:6px;background:transparent;cursor:pointer;font-family:inherit;color:var(--tx2);transition:all .15s}
+.sub-tab:hover{background:var(--bg2)}
+.sub-tab.on{background:var(--tx);color:var(--bg3);border-color:var(--tx)}
+
+footer{margin-top:2rem;padding:1rem 0;border-top:1px solid var(--bd);font-size:11px;color:var(--tx3);text-align:center}
+
+@media(max-width:700px){
+.rings-row{gap:6px}
+.ring-card{min-width:80px;padding:8px 4px}
+.ring-svg{width:60px;height:60px}
+.strat-kpis{grid-template-columns:repeat(2,1fr)}
+.coming-grid{grid-template-columns:1fr}
+nav button{padding:8px 10px;font-size:11px}
+.bar-label{width:70px}
+}
 </style>
 </head>
 <body>
 <div class="app">
 <header>
-<div><h1>Dashboard DAC — FEN UNAB</h1><p>Dirección Académica de Aseguramiento de la Calidad · v1.0 · abril 2026</p></div>
-<div class="hdr-actions"><button onclick="exportState()">Exportar estado</button><button onclick="document.getElementById('importFile').click()">Importar estado</button><input type="file" id="importFile" accept=".json" style="display:none" onchange="importState(event)"></div>
+<div><h1>Dashboard DAC — FEN UNAB</h1><p>Dirección Académica de Aseguramiento de la Calidad · v1.1 · abril 2026</p></div>
+<div class="hdr-actions">
+<button onclick="exportState()">📥 Exportar JSON</button>
+<button onclick="document.getElementById('importFile').click()">📤 Importar JSON</button>
+<button onclick="genContextMD()">📄 Generar CONTEXT.md</button>
+<input type="file" id="importFile" accept=".json" style="display:none" onchange="importState(event)">
+</div>
 </header>
 <nav id="mainNav"></nav>
-<div class="panel on" id="tab0"><div class="lock-bar" id="lockBar"><span id="lockIcon">🔒</span><span>Línea base — abril 2026</span><button onclick="toggleLock()"><span id="lockBtn">Desbloquear</span></button></div><div id="baselineDims"></div><div class="insight insight-r"><b>Foto al asumir:</b> de 62 productos/tareas, 11 con avance (todos en D4). D1/D2/D3/D5 en cero — sin inducción al SAIC.</div></div>
-<div class="panel" id="tab1"><div class="cards" id="currentCards"></div><div id="currentDims"></div><div class="insight insight-g" id="progressInsight"></div></div>
-<div class="panel" id="tab2"><div class="sub-tabs"><button class="sub-tab on" onclick="setCycleView('heat',this)">Heatmap</button><button class="sub-tab" onclick="setCycleView('detail',this)">Detalle por mes</button></div><div id="cycleHeat"><div class="heat-wrap"><div class="heat" id="heatGrid"></div></div><div class="leg"><span>Intensidad = n° tareas</span><span>|</span><span>Hover = detalle</span><span>|</span><span>Click = expandir</span></div><div class="detail-area" id="heatDetail"><div class="no-sel">Haz click en una celda para ver el detalle.</div></div></div><div id="cycleDetail" style="display:none"></div></div>
-<div class="panel" id="tab3"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:8px"><div><span style="font-size:15px;font-weight:600">Iniciativas estratégicas FEN 2026</span><br><span style="font-size:12px;color:var(--tx2)">Fuente: Planner Teams · Seguimiento global por DAC</span></div><button style="font-size:11px;padding:6px 14px;border:1px solid var(--bd2);border-radius:6px;background:var(--bg3);cursor:pointer;font-family:inherit" onclick="alert('Reporte visual interactivo — disponible en v1.1')">Generar reporte visual</button></div><div style="overflow-x:auto"><table class="strat-table" id="stratTable"></table></div></div>
-<div class="panel" id="tab4"><div class="coming"><h3>Reportería — en construcción</h3><p>Vistas por audiencia: Decano, Consejo de Facultad, Directores de Escuela, VRAC.</p><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;max-width:500px;margin:1.5rem auto;text-align:left"><div style="padding:12px;border:1px solid var(--bd);border-radius:8px"><div style="font-size:12px;font-weight:600;margin-bottom:4px">Para el Decano</div><div style="font-size:11px;color:var(--tx2)">KPIs resumen: acreditaciones, assessment, productividad, empleabilidad</div></div><div style="padding:12px;border:1px solid var(--bd);border-radius:8px"><div style="font-size:12px;font-weight:600;margin-bottom:4px">Para Consejo de Facultad</div><div style="font-size:11px;color:var(--tx2)">Sección SAIC: indicadores + planes mejora + hitos + alertas</div></div><div style="padding:12px;border:1px solid var(--bd);border-radius:8px"><div style="font-size:12px;font-weight:600;margin-bottom:4px">Para Directores Escuela</div><div style="font-size:11px;color:var(--tx2)">Estado por carrera: assessment, retención, eval docente</div></div><div style="padding:12px;border:1px solid var(--bd);border-radius:8px"><div style="font-size:12px;font-weight:600;margin-bottom:4px">Para VRAC</div><div style="font-size:11px;color:var(--tx2)">Cumplimiento SAIC, calendario AAE, planes mejora</div></div></div></div></div>
-<div class="panel" id="tab5"><div class="coming"><h3>Asistente DAC — en construcción</h3><p>Chatbot con conocimiento del SAIC, normativa UNAB, tu cargo y ciclo operativo.<br>Requiere API key de Anthropic.</p></div></div>
-<footer>Dashboard DAC · FEN UNAB · v1.0 abril 2026 · Fuentes: Política SAIC, P07, Rol DAC VRAC, Manual FEN, Jornada VRAC, Estrategia FEN, Cal. AAE, Actas CE/CF</footer>
+
+<!-- TAB 0: DIMENSIONES -->
+<div class="panel on" id="tab0">
+<p style="font-size:13px;color:var(--tx2);margin-bottom:14px">Referencia rápida del cargo DAC — 5 dimensiones, sus productos y los interlocutores clave para cada una.</p>
+<div id="dimCards"></div>
 </div>
+
+<!-- TAB 1: LÍNEA BASE -->
+<div class="panel" id="tab1">
+<div class="lock-bar" id="lockBar"><span id="lockIcon">🔒</span><span>Línea base — abril 2026</span><button onclick="toggleLock()"><span id="lockBtn">Desbloquear</span></button></div>
+<div id="baselineDims"></div>
+<div class="insight insight-r"><b>Foto al asumir:</b> de 62 productos/tareas, 11 con avance (todos en D4). D1/D2/D3/D5 en cero — sin inducción al SAIC.</div>
+</div>
+
+<!-- TAB 2: ESTADO ACTUAL -->
+<div class="panel" id="tab2">
+<div class="rings-row" id="ringsRow"></div>
+<div class="bars-section" id="barsSection"><h3>Comparativa: línea base vs. estado actual</h3><div id="barsContainer"></div></div>
+<div id="currentDims"></div>
+<div class="insight insight-g" id="progressInsight"></div>
+</div>
+
+<!-- TAB 3: CICLO 2026 -->
+<div class="panel" id="tab3">
+<div class="sub-tabs"><button class="sub-tab on" onclick="setCycleView('heat',this)">Heatmap</button><button class="sub-tab" onclick="setCycleView('detail',this)">Detalle por mes</button></div>
+<div id="cycleHeat">
+<div class="heat-wrap"><div class="heat" id="heatGrid"></div></div>
+<div class="leg"><span>Intensidad = n° tareas</span><span>·</span><span>Hover = tooltip</span><span>·</span><span>Click = expandir abajo</span></div>
+<div class="cycle-detail" id="heatDetail"><p style="color:var(--tx3);font-size:12px;font-style:italic">Haz click en una celda del heatmap para ver el detalle.</p></div>
+</div>
+<div id="cycleDetail" style="display:none"></div>
+</div>
+
+<!-- TAB 4: SEGUIMIENTO ESTRATÉGICO -->
+<div class="panel" id="tab4">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+<div><span style="font-size:15px;font-weight:600">Iniciativas estratégicas FEN 2026</span><br><span style="font-size:12px;color:var(--tx2)">Fuente: Planner Teams · Seguimiento global por DAC</span></div>
+<button style="font-size:11px;padding:6px 14px;border:1px solid var(--bd2);border-radius:6px;background:var(--bg3);cursor:pointer;font-family:inherit;transition:all .15s" onmouseover="this.style.background='var(--bg2)'" onmouseout="this.style.background='var(--bg3)'" onclick="openReport()">📊 Generar reporte visual</button>
+</div>
+<div class="strat-kpis" id="stratKpis"></div>
+<div class="strat-chart" id="stratChart"><h3>Distribución por área</h3><div id="stratChartBars"></div></div>
+<div class="strat-filters" id="stratFilters"></div>
+<div style="overflow-x:auto"><table class="strat-table" id="stratTable"></table></div>
+</div>
+
+<!-- TAB 5: REPORTERÍA -->
+<div class="panel" id="tab5"><div class="coming"><h3>Reportería — en construcción</h3><p>Vistas filtradas por audiencia: Decano, Consejo de Facultad, Directores de Escuela, VRAC.</p>
+<div class="coming-grid">
+<div class="coming-card"><h4>Para el Decano</h4><p>KPIs resumen: acreditaciones, assessment, productividad, empleabilidad</p></div>
+<div class="coming-card"><h4>Para Consejo de Facultad</h4><p>Sección SAIC: indicadores + planes mejora + hitos + alertas</p></div>
+<div class="coming-card"><h4>Para Directores Escuela</h4><p>Estado por carrera: assessment, retención, eval docente</p></div>
+<div class="coming-card"><h4>Para VRAC</h4><p>Cumplimiento SAIC, calendario AAE, planes mejora</p></div>
+</div></div></div>
+
+<!-- TAB 6: ASISTENTE -->
+<div class="panel" id="tab6"><div class="coming"><h3>Asistente DAC — en construcción</h3><p>Chatbot con conocimiento del SAIC, normativa UNAB, tu cargo y ciclo operativo.<br>Requiere API key de Anthropic. System prompt = CONTEXT.md completo.</p></div></div>
+
+<footer>Dashboard DAC · FEN UNAB · v1.1 abril 2026 · Fuentes: Política SAIC, P07, Rol DAC VRAC, Manual FEN, Jornada VRAC, Estrategia FEN, Cal. AAE, Actas CE/CF</footer>
+</div>
+
+<!-- Tooltip element -->
+<div class="smart-tt" id="smartTT"></div>
+
+<!-- Report Modal -->
+<div class="modal-overlay" id="reportModal"><div class="modal" id="reportContent"></div></div>
+
 <script>
-var TABS=['Línea base','Estado actual','Ciclo 2026','Seg. estratégico','Reportería','Asistente'];
+/* ========== DATA ========== */
+var TABS=['Dimensiones','Línea base','Estado actual','Ciclo 2026','Seg. estratégico','Reportería','Asistente'];
 var DN=['D1 SAIC','D2 Monitoreo','D3 AoL','D4 Acreditación','D5 Articulación'];
 var DC=['var(--c1)','var(--c2)','var(--c3)','var(--c4)','var(--c5)'];
 var DCB=['var(--c1b)','var(--c2b)','var(--c3b)','var(--c4b)','var(--c5b)'];
 var DCT=['var(--c1t)','var(--c2t)','var(--c3t)','var(--c4t)','var(--c5t)'];
+var DCC=['#7F77DD','#1D9E75','#378ADD','#D85A30','#BA7517']; // raw hex for SVG
 var SOPTS=['hecho','en curso','parcial','por iniciar','no hecho','esperar','sin info','DAC ant.'];
-function stColor(s){var m={hecho:['var(--done)','var(--donet)'],'en curso':['var(--info)','var(--infot)'],parcial:['var(--partial)','var(--partialt)'],'por iniciar':['var(--partial)','var(--partialt)'],'no hecho':['var(--none)','var(--nonet)'],esperar:['var(--neutral)','var(--neutralt)'],'sin info':['var(--neutral)','var(--neutralt)'],'DAC ant.':['var(--info)','var(--infot)']};var c=m[s]||m['sin info'];return{bg:c[0],tx:c[1]}}
+
+var DDESC=[
+'Implementar y gestionar el Sistema de Aseguramiento Interno de la Calidad en FEN. Incluye el Manual de Calidad, Balance Anual, Jornada de Calidad, inducción SAIC, y comunicación de la Política de Calidad.',
+'Monitorear indicadores de las Matrices de Calidad, autoevaluaciones, planes de mejora, seguimiento del PDE, innovación curricular, y la autoevaluación institucional CNA+MSCHE.',
+'Ciclo completo de assessment del aprendizaje: planes AAE trianual, monitoreo de implementación, informes, carga en Gestor Documental SAIC, y evaluación con Comité AAE.',
+'Coordinación de acreditaciones externas: AACSB (iSER, mentoras, conferencia), CNA (nueva normativa, muestra intencionada), MSCHE (co-chair steering committee).',
+'Nexo operativo VRAC–Facultad: reuniones trimestrales, coordinación con unidades centrales, participación en Consejos de Carrera, socialización SAIC, y difusión a estudiantes.'
+];
+var DINTER=[
+['Encargado SAIC institucional','Nayadeth (informes)','Directores de Carrera','Decano'],
+['Dir. Carreras','Dir. Escuelas','Dir. Procesos VRAC','Dir. Evaluación Institucional'],
+['Dir. Carreras','Subdirección Efectividad Académica','Comité AAE'],
+['Mentoras AACSB','VRAC','Freddy Coronado (Dir. Depto)','Steering Committee MSCHE'],
+['VRAC','Dir. Escuelas','Consejo de Facultad','Patricia Garnica (Form. Docente)']
+];
+
+function stColor(s){var m={hecho:['var(--done)','var(--donet)'],'en curso':['var(--info)','var(--infot)'],parcial:['var(--partial)','var(--partialt)'],'por iniciar':['var(--partial)','var(--partialt)'],'no hecho':['var(--none)','var(--nonet)'],esperar:['var(--wait)','var(--waitt)'],'sin info':['var(--neutral)','var(--neutralt)'],'DAC ant.':['var(--info)','var(--infot)']};var c=m[s]||m['sin info'];return{bg:c[0],tx:c[1]}}
+
+// role: 'g'=gestionas, 'm'=monitoreas
 var T=[
-{d:0,n:'Manual de Calidad FEN actualizado',nt:'VRAC pide "revitalizar". Esperar nuevo mapa procesos abril',b:'no hecho',s:''},
-{d:0,n:'Actas CF con sección SAIC',nt:'Acta bien hecha pero sin sección SAIC explícita',b:'parcial',s:''},
-{d:0,n:'Evidencias SAIC en Teams/OneDrive',nt:'',b:'sin info',s:''},
-{d:0,n:'Plan comunicación Política Calidad',nt:'',b:'no hecho',s:''},
-{d:0,n:'Inducción SAIC profesores nuevos',nt:'12 nuevos PhD contratados 2026',b:'no hecho',s:''},
-{d:0,n:'Presentaciones resultados SAIC en CF',nt:'',b:'no hecho',s:''},
-{d:0,n:'Balance Anual SAIC FEN',nt:'DAC saliente lo hizo',b:'DAC ant.',s:''},
-{d:0,n:'Jornada de Calidad FEN',nt:'DAC saliente dic 2025',b:'DAC ant.',s:''},
-{d:0,n:'Reuniones trimestrales Encargado SAIC',nt:'Primera reunión 9 abril',b:'por iniciar',s:''},
-{d:0,n:'Checklist cumplimiento SAIC por carrera',nt:'',b:'no hecho',s:''},
-{d:0,n:'Dashboard indicadores para Decano/CF',nt:'iSER + interactivo investigación. No formalizado SAIC',b:'parcial',s:''},
-{d:0,n:'Verificación QM programas online',nt:'Meta VRAC: 30 QM. Meta interna: 60',b:'no hecho',s:'vrac'},
-{d:0,n:'Informes mensuales actividades DAC',nt:'Desde abril. Nayadeth define formato',b:'no hecho',s:'vrac'},
-{d:1,n:'Evaluación periódica indicadores Matrices Calidad',nt:'KPIs: ratio 1:220, 41% no AACSB, productividad 0.81',b:'no hecho',s:''},
-{d:1,n:'Autoevaluaciones carreras/programas',nt:'MBA y Mag. Gestión Personas sí',b:'parcial',s:''},
-{d:1,n:'Participación en auditorías internas',nt:'Preguntar 9 abril',b:'no hecho',s:''},
-{d:1,n:'Planes efectividad experiencia estudiantil',nt:'',b:'no hecho',s:''},
-{d:1,n:'Planes de mejora',nt:'Nueva plataforma VRAC. Heredar plan Jornada 2025',b:'no hecho',s:''},
-{d:1,n:'Gestión de hallazgos',nt:'Inducción hecha, nada más',b:'parcial',s:''},
-{d:1,n:'Seguimiento PDE FEN',nt:'PE 2026-2028 del Decano. VRAC pide cerrar anterior',b:'no hecho',s:''},
-{d:1,n:'Seguimiento planes VcM carreras',nt:'Responsabilidad dir. programa, DAC monitorea',b:'no hecho',s:''},
-{d:1,n:'Participación innovación curricular',nt:'IAE y CA en proceso. Turismo por iniciar',b:'parcial',s:''},
-{d:1,n:'Monitoreo nuevas matrices calidad SAIC',nt:'36 procesos en actualización. Abril',b:'no hecho',s:'vrac'},
-{d:1,n:'Seguimiento autoeval. institucional',nt:'CNA+MSCHE. Borrador mediados 2026',b:'no hecho',s:'vrac'},
-{d:1,n:'Seguimiento iniciativas estratégicas FEN',nt:'24 iniciativas Planner. Cada 2 semanas',b:'no hecho',s:'acta'},
-{d:1,n:'Propuesta sub-comités PDE',nt:'Comprometida acta CF 04-03',b:'no hecho',s:'acta'},
-{d:2,n:'Planes AAE por carrera (trianual)',nt:'Entregados todos incl. Turismo',b:'hecho',s:''},
-{d:2,n:'Monitoreo implementación AoL en carreras',nt:'',b:'no hecho',s:''},
-{d:2,n:'Informes de monitoreo (2/facultad/periodo)',nt:'',b:'no hecho',s:''},
-{d:2,n:'Matrices de Resultados con Dir. Carrera',nt:'',b:'no hecho',s:''},
-{d:2,n:'Carga en Gestor Documental SAIC',nt:'Hito: 15 abril',b:'no hecho',s:''},
-{d:2,n:'Evaluación ciclo AAE con Comité AAE',nt:'Comité desconocido',b:'no hecho',s:''},
-{d:2,n:'Levantamiento necesidades apoyo externo',nt:'',b:'no hecho',s:''},
-{d:2,n:'Socialización resultados AAE en CC',nt:'Solo Turismo',b:'parcial',s:''},
-{d:2,n:'Supervisar assessment postgrado',nt:'DAC supervigila. Meta 2027',b:'no hecho',s:'vrac'},
-{d:2,n:'Revisar matrices tributación uAssessment',nt:'Meta S2: 100% arriba',b:'no hecho',s:'vrac'},
-{d:3,n:'Coordinación documentación acreditación',nt:'Foco principal último mes',b:'hecho',s:''},
-{d:3,n:'Repositorio evidencia organizado',nt:'Falta perfeccionar',b:'parcial',s:''},
-{d:3,n:'AACSB: preparación iSER',nt:'Interno: como si mayo 2026',b:'hecho',s:''},
-{d:3,n:'AACSB: tablas faculty suff./qualif.',nt:'',b:'hecho',s:''},
-{d:3,n:'AACSB: seguimiento mentoras',nt:'',b:'hecho',s:''},
-{d:3,n:'AACSB: lineamientos suf./cualif. FEN',nt:'',b:'hecho',s:''},
-{d:3,n:'AACSB: conferencia anual Seattle',nt:'Decano + Dir. Depto + DAC',b:'por iniciar',s:'ppt'},
-{d:3,n:'AACSB: propuesta visita experto 2026',nt:'',b:'no hecho',s:'ppt'},
-{d:3,n:'CNA: informes nueva normativa',nt:'Planificación entregada',b:'en curso',s:''},
-{d:3,n:'Mapa acreditaciones FEN',nt:'No formalizado',b:'parcial',s:''},
-{d:3,n:'Revisión informes muestra CNA',nt:'Meta oct: 156 con 90%',b:'no hecho',s:'vrac'},
-{d:3,n:'MSCHE: co-chair steering committee',nt:'Liderar acred. MSCHE FEN',b:'en curso',s:'ppt'},
-{d:3,n:'Plan de carrera alineado AACSB',nt:'Lineamientos hechos. Implementa Dir. Depto',b:'hecho',s:'ppt'},
-{d:3,n:'Auditorías internas postgrado',nt:'',b:'no hecho',s:''},
-{d:4,n:'Reuniones trimestrales Encargado SAIC',nt:'Primera 9 abril',b:'por iniciar',s:''},
-{d:4,n:'Coordinación con unidades centrales',nt:'No sabe qué llevar',b:'parcial',s:''},
-{d:4,n:'Participación en Consejos de Carrera',nt:'No invitado',b:'no hecho',s:''},
-{d:4,n:'Puntos SAIC en Consejo de Facultad',nt:'Asiste sin SAIC',b:'parcial',s:''},
-{d:4,n:'Canalización SAIC desde CC hacia CF',nt:'',b:'no hecho',s:''},
-{d:4,n:'Socialización SAIC en unidades',nt:'',b:'no hecho',s:''},
-{d:4,n:'Difusión SAIC a estudiantes',nt:'',b:'no hecho',s:''},
-{d:4,n:'Visitas a sedes',nt:'VRAC paga pasaje',b:'no hecho',s:'vrac'},
-{d:4,n:'Informes mensuales a VRAC',nt:'Formato Nayadeth. Abril',b:'no hecho',s:'vrac'},
-{d:4,n:'Gestión reuniones ampliadas FEN',nt:'Agenda, coordinación, TEAMS',b:'no hecho',s:'acta'},
-{d:4,n:'Seguimiento compromisos actas CE/CF',nt:'Según acta CF 04-03',b:'no hecho',s:'acta'},
-{d:4,n:'Coordinación Dir. Formación Docente',nt:'Patricia Garnica. Reunión 20 abril',b:'no hecho',s:''}
+{d:0,n:'Manual de Calidad FEN actualizado',nt:'VRAC pide "revitalizar". Esperar nuevo mapa procesos abril',b:'no hecho',s:'',role:'g',dep:'Mapa procesos SAIC (VRAC, abril)'},
+{d:0,n:'Actas CF con sección SAIC',nt:'Acta bien hecha pero sin sección SAIC explícita',b:'parcial',s:'',role:'g',dep:''},
+{d:0,n:'Evidencias SAIC en Teams/OneDrive',nt:'',b:'sin info',s:'',role:'g',dep:''},
+{d:0,n:'Plan comunicación Política Calidad',nt:'',b:'no hecho',s:'',role:'g',dep:''},
+{d:0,n:'Inducción SAIC profesores nuevos',nt:'12 nuevos PhD contratados 2026',b:'no hecho',s:'',role:'g',dep:'Curso SAIC (hecho)'},
+{d:0,n:'Presentaciones resultados SAIC en CF',nt:'',b:'no hecho',s:'',role:'g',dep:''},
+{d:0,n:'Balance Anual SAIC FEN',nt:'DAC saliente lo hizo',b:'DAC ant.',s:'',role:'g',dep:''},
+{d:0,n:'Jornada de Calidad FEN',nt:'DAC saliente dic 2025',b:'DAC ant.',s:'',role:'g',dep:''},
+{d:0,n:'Reuniones trimestrales Encargado SAIC',nt:'Primera reunión 9 abril',b:'por iniciar',s:'',role:'g',dep:''},
+{d:0,n:'Checklist cumplimiento SAIC por carrera',nt:'',b:'no hecho',s:'',role:'g',dep:'Nuevos procedimientos SAIC'},
+{d:0,n:'Dashboard indicadores para Decano/CF',nt:'iSER + interactivo investigación. No formalizado SAIC',b:'parcial',s:'',role:'g',dep:''},
+{d:0,n:'Verificación QM programas online',nt:'Meta VRAC: 30 QM. Meta interna: 60',b:'no hecho',s:'vrac',role:'m',dep:'VRAC entrega criterios'},
+{d:0,n:'Informes mensuales actividades DAC',nt:'Desde abril. Nayadeth define formato',b:'no hecho',s:'vrac',role:'g',dep:'Formato Nayadeth (abril)'},
+{d:1,n:'Evaluación periódica indicadores Matrices Calidad',nt:'KPIs: ratio 1:220, 41% no AACSB, productividad 0.81',b:'no hecho',s:'',role:'m',dep:'Nuevas matrices SAIC'},
+{d:1,n:'Autoevaluaciones carreras/programas',nt:'MBA y Mag. Gestión Personas sí',b:'parcial',s:'',role:'m',dep:''},
+{d:1,n:'Participación en auditorías internas',nt:'Preguntar 9 abril',b:'no hecho',s:'',role:'m',dep:'Dir. Procesos VRAC agenda'},
+{d:1,n:'Planes efectividad experiencia estudiantil',nt:'',b:'no hecho',s:'',role:'m',dep:''},
+{d:1,n:'Planes de mejora',nt:'Nueva plataforma VRAC. Heredar plan Jornada 2025',b:'no hecho',s:'',role:'g',dep:'Nueva plataforma VRAC'},
+{d:1,n:'Gestión de hallazgos',nt:'Inducción hecha, nada más',b:'parcial',s:'',role:'g',dep:''},
+{d:1,n:'Seguimiento PDE FEN',nt:'PE 2026-2028 del Decano. VRAC pide cerrar anterior',b:'no hecho',s:'',role:'m',dep:''},
+{d:1,n:'Seguimiento planes VcM carreras',nt:'Responsabilidad dir. programa, DAC monitorea',b:'no hecho',s:'',role:'m',dep:''},
+{d:1,n:'Participación innovación curricular',nt:'IAE y CA en proceso. Turismo por iniciar',b:'parcial',s:'',role:'m',dep:''},
+{d:1,n:'Monitoreo nuevas matrices calidad SAIC',nt:'36 procesos en actualización. Abril',b:'no hecho',s:'vrac',role:'m',dep:'VRAC entrega matrices'},
+{d:1,n:'Seguimiento autoeval. institucional',nt:'CNA+MSCHE. Borrador mediados 2026',b:'no hecho',s:'vrac',role:'m',dep:''},
+{d:1,n:'Seguimiento iniciativas estratégicas FEN',nt:'24 iniciativas Planner. Cada 2 semanas',b:'no hecho',s:'acta',role:'m',dep:''},
+{d:1,n:'Propuesta sub-comités PDE',nt:'Comprometida acta CF 04-03',b:'no hecho',s:'acta',role:'g',dep:''},
+{d:2,n:'Planes AAE por carrera (trianual)',nt:'Entregados todos incl. Turismo',b:'hecho',s:'',role:'g',dep:''},
+{d:2,n:'Monitoreo implementación AoL en carreras',nt:'',b:'no hecho',s:'',role:'m',dep:'Dir. Carreras implementan'},
+{d:2,n:'Informes de monitoreo (2/facultad/periodo)',nt:'',b:'no hecho',s:'',role:'g',dep:''},
+{d:2,n:'Matrices de Resultados con Dir. Carrera',nt:'',b:'no hecho',s:'',role:'g',dep:''},
+{d:2,n:'Carga en Gestor Documental SAIC',nt:'Hito: 15 abril',b:'no hecho',s:'',role:'g',dep:''},
+{d:2,n:'Evaluación ciclo AAE con Comité AAE',nt:'Comité desconocido',b:'no hecho',s:'',role:'g',dep:'Identificar Comité AAE'},
+{d:2,n:'Levantamiento necesidades apoyo externo',nt:'',b:'no hecho',s:'',role:'g',dep:''},
+{d:2,n:'Socialización resultados AAE en CC',nt:'Solo Turismo',b:'parcial',s:'',role:'g',dep:''},
+{d:2,n:'Supervisar assessment postgrado',nt:'DAC supervigila. Meta 2027',b:'no hecho',s:'vrac',role:'m',dep:''},
+{d:2,n:'Revisar matrices tributación uAssessment',nt:'Meta S2: 100% arriba',b:'no hecho',s:'vrac',role:'m',dep:''},
+{d:3,n:'Coordinación documentación acreditación',nt:'Foco principal último mes',b:'hecho',s:'',role:'g',dep:''},
+{d:3,n:'Repositorio evidencia organizado',nt:'Falta perfeccionar',b:'parcial',s:'',role:'g',dep:''},
+{d:3,n:'AACSB: preparación iSER',nt:'Interno: como si mayo 2026',b:'hecho',s:'',role:'g',dep:''},
+{d:3,n:'AACSB: tablas faculty suff./qualif.',nt:'',b:'hecho',s:'',role:'g',dep:''},
+{d:3,n:'AACSB: seguimiento mentoras',nt:'',b:'hecho',s:'',role:'m',dep:''},
+{d:3,n:'AACSB: lineamientos suf./cualif. FEN',nt:'',b:'hecho',s:'',role:'g',dep:''},
+{d:3,n:'AACSB: conferencia anual Seattle',nt:'Decano + Dir. Depto + DAC',b:'por iniciar',s:'ppt',role:'g',dep:''},
+{d:3,n:'AACSB: propuesta visita experto 2026',nt:'',b:'no hecho',s:'ppt',role:'g',dep:''},
+{d:3,n:'CNA: informes nueva normativa',nt:'Planificación entregada',b:'en curso',s:'',role:'g',dep:''},
+{d:3,n:'Mapa acreditaciones FEN',nt:'No formalizado',b:'parcial',s:'',role:'g',dep:''},
+{d:3,n:'Revisión informes muestra CNA',nt:'Meta oct: 156 con 90%',b:'no hecho',s:'vrac',role:'m',dep:'VRAC envía informes'},
+{d:3,n:'MSCHE: co-chair steering committee',nt:'Liderar acred. MSCHE FEN',b:'en curso',s:'ppt',role:'g',dep:''},
+{d:3,n:'Plan de carrera alineado AACSB',nt:'Lineamientos hechos. Implementa Dir. Depto',b:'hecho',s:'ppt',role:'g',dep:''},
+{d:3,n:'Auditorías internas postgrado',nt:'',b:'no hecho',s:'',role:'m',dep:''},
+{d:4,n:'Reuniones trimestrales Encargado SAIC',nt:'Primera 9 abril',b:'por iniciar',s:'',role:'g',dep:''},
+{d:4,n:'Coordinación con unidades centrales',nt:'No sabe qué llevar',b:'parcial',s:'',role:'g',dep:''},
+{d:4,n:'Participación en Consejos de Carrera',nt:'No invitado',b:'no hecho',s:'',role:'g',dep:'Solicitar invitación'},
+{d:4,n:'Puntos SAIC en Consejo de Facultad',nt:'Asiste sin SAIC',b:'parcial',s:'',role:'g',dep:''},
+{d:4,n:'Canalización SAIC desde CC hacia CF',nt:'',b:'no hecho',s:'',role:'g',dep:'Participar en CC primero'},
+{d:4,n:'Socialización SAIC en unidades',nt:'',b:'no hecho',s:'',role:'g',dep:''},
+{d:4,n:'Difusión SAIC a estudiantes',nt:'',b:'no hecho',s:'',role:'g',dep:''},
+{d:4,n:'Visitas a sedes',nt:'VRAC paga pasaje',b:'no hecho',s:'vrac',role:'g',dep:'VRAC autoriza viáticos'},
+{d:4,n:'Informes mensuales a VRAC',nt:'Formato Nayadeth. Abril',b:'no hecho',s:'vrac',role:'g',dep:'Formato Nayadeth'},
+{d:4,n:'Gestión reuniones ampliadas FEN',nt:'Agenda, coordinación, TEAMS',b:'no hecho',s:'acta',role:'g',dep:''},
+{d:4,n:'Seguimiento compromisos actas CE/CF',nt:'Según acta CF 04-03',b:'no hecho',s:'acta',role:'g',dep:''},
+{d:4,n:'Coordinación Dir. Formación Docente',nt:'Patricia Garnica. Reunión 20 abril',b:'no hecho',s:'',role:'g',dep:''}
 ];
+
 var STRAT=[
-{n:'Plan de Internacionalización FEN 2026',o:'Andrés Tolosa',du:'12/31/2026',bk:'Inicio',st:'In progress',pr:'Important',lb:'Internacional'},
-{n:'Plan Empleabilidad y Alumni Escuelas',o:'M.Donoso +2',du:'3/23/2026',bk:'Planificación',st:'In progress',pr:'Medium',lb:'Escuelas'},
-{n:'Plan Anual Hub y propuesta Instituto',o:'Luciana Mitjavila',du:'4/6/2026',bk:'Planificación',st:'In progress',pr:'Medium',lb:'Vinculación'},
-{n:'Gestión Contrataciones 2026',o:'Freddy Coronado',du:'4/20/2026',bk:'Ejecución',st:'In progress',pr:'Medium',lb:'Departamento'},
-{n:'Plan Gestión Procesos Administrativos',o:'María Pía Monreal',du:'—',bk:'Inicio',st:'Not started',pr:'Medium',lb:'GOA'},
-{n:'Propuesta Gobernanza Departamento',o:'Freddy Coronado',du:'3/30/2026',bk:'Planificación',st:'In progress',pr:'Important',lb:'Departamento'},
-{n:'Propuesta Productos Postgrado Internacional',o:'Luis F. Vergara',du:'3/30/2026',bk:'Inicio',st:'In progress',pr:'Important',lb:'Postgrado'},
-{n:'Innovación Curricular Contador Auditor',o:'Roberto Carvajal',du:'3/23/2026',bk:'Cierre',st:'In progress',pr:'Medium',lb:'Escuelas'},
-{n:'Innovación Curricular Ing. en AE',o:'Mauricio Donoso',du:'3/23/2026',bk:'Cierre',st:'Not started',pr:'Medium',lb:'Escuelas'},
-{n:'Desarrollo Web Catálogo de Datos',o:'Nicolás Garrido',du:'6/30/2026',bk:'Inicio',st:'In progress',pr:'Medium',lb:'Investigación'},
-{n:'Award Conference Delito y Economía',o:'Nicolás Garrido',du:'4/10/2026',bk:'Inicio',st:'In progress',pr:'Medium',lb:'Investigación'},
-{n:'Actividades VcM IPE',o:'Nicolás Garrido',du:'6/30/2026',bk:'Inicio',st:'In progress',pr:'Medium',lb:'Investigación'},
-{n:'Revisión nuevo MOU BFI',o:'Nicolás Garrido',du:'5/31/2026',bk:'Planificación',st:'In progress',pr:'Medium',lb:'Investigación'},
-{n:'Crear Consejo Consultivo FEN',o:'Juan Pablo Torres',du:'4/30/2026',bk:'Planificación',st:'In progress',pr:'Important',lb:'Decanato'},
-{n:'Comité Jerarquización FEN',o:'JP Torres + Freddy',du:'12/15/2026',bk:'Planificación',st:'In progress',pr:'Medium',lb:'Departamento'},
-{n:'Economía para todos IPE Advance',o:'Nicolás Garrido',du:'11/27/2026',bk:'Inicio',st:'In progress',pr:'Medium',lb:'Departamento'},
-{n:'Winter School IPE FEN',o:'Nicolás Garrido',du:'7/31/2026',bk:'Inicio',st:'Not started',pr:'Medium',lb:'Postgrado'}
+{id:0,n:'Plan de Internacionalización FEN 2026',o:'Andrés Tolosa',du:'12/31/2026',bk:'Inicio',st:'In progress',pr:'Important',lb:'Internacional'},
+{id:1,n:'Plan Empleabilidad y Alumni Escuelas',o:'M.Donoso +2',du:'3/23/2026',bk:'Planificación',st:'In progress',pr:'Medium',lb:'Escuelas'},
+{id:2,n:'Plan Anual Hub y propuesta Instituto',o:'Luciana Mitjavila',du:'4/6/2026',bk:'Planificación',st:'In progress',pr:'Medium',lb:'Vinculación'},
+{id:3,n:'Gestión Contrataciones 2026',o:'Freddy Coronado',du:'4/20/2026',bk:'Ejecución',st:'In progress',pr:'Medium',lb:'Departamento'},
+{id:4,n:'Plan Gestión Procesos Administrativos',o:'María Pía Monreal',du:'—',bk:'Inicio',st:'Not started',pr:'Medium',lb:'GOA'},
+{id:5,n:'Propuesta Gobernanza Departamento',o:'Freddy Coronado',du:'3/30/2026',bk:'Planificación',st:'In progress',pr:'Important',lb:'Departamento'},
+{id:6,n:'Propuesta Productos Postgrado Internacional',o:'Luis F. Vergara',du:'3/30/2026',bk:'Inicio',st:'In progress',pr:'Important',lb:'Postgrado'},
+{id:7,n:'Innovación Curricular Contador Auditor',o:'Roberto Carvajal',du:'3/23/2026',bk:'Cierre',st:'In progress',pr:'Medium',lb:'Escuelas'},
+{id:8,n:'Innovación Curricular Ing. en AE',o:'Mauricio Donoso',du:'3/23/2026',bk:'Cierre',st:'Not started',pr:'Medium',lb:'Escuelas'},
+{id:9,n:'Desarrollo Web Catálogo de Datos',o:'Nicolás Garrido',du:'6/30/2026',bk:'Inicio',st:'In progress',pr:'Medium',lb:'Investigación'},
+{id:10,n:'Award Conference Delito y Economía',o:'Nicolás Garrido',du:'4/10/2026',bk:'Inicio',st:'In progress',pr:'Medium',lb:'Investigación'},
+{id:11,n:'Actividades VcM IPE',o:'Nicolás Garrido',du:'6/30/2026',bk:'Inicio',st:'In progress',pr:'Medium',lb:'Investigación'},
+{id:12,n:'Revisión nuevo MOU BFI',o:'Nicolás Garrido',du:'5/31/2026',bk:'Planificación',st:'In progress',pr:'Medium',lb:'Investigación'},
+{id:13,n:'Crear Consejo Consultivo FEN',o:'Juan Pablo Torres',du:'4/30/2026',bk:'Planificación',st:'In progress',pr:'Important',lb:'Decanato'},
+{id:14,n:'Comité Jerarquización FEN',o:'JP Torres + Freddy',du:'12/15/2026',bk:'Planificación',st:'In progress',pr:'Medium',lb:'Departamento'},
+{id:15,n:'Economía para todos IPE Advance',o:'Nicolás Garrido',du:'11/27/2026',bk:'Inicio',st:'In progress',pr:'Medium',lb:'Departamento'},
+{id:16,n:'Winter School IPE FEN',o:'Nicolás Garrido',du:'7/31/2026',bk:'Inicio',st:'Not started',pr:'Medium',lb:'Postgrado'}
 ];
+
 var LCOL={Internacional:'#EEEDFE',Escuelas:'#FAECE7',Vinculación:'#E1F5EE',Departamento:'#FAEEDA',GOA:'#f2f0eb',Postgrado:'#FCE4EC',Investigación:'#E6F1FB',Decanato:'#F3E5F5'};
 var LTXT={Internacional:'#3C3489',Escuelas:'#712B13',Vinculación:'#085041',Departamento:'#633806',GOA:'#666',Postgrado:'#880E4F',Investigación:'#0C447C',Decanato:'#6A1B9A'};
+var STRAT_OPTS=['Not started','In progress','Completed','On hold','Cancelled'];
+
 var MN=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 var MF=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 var HD=[[0,1,2,2,2,3,3,3,0,0,1,2],[1,0,0,2,3,1,0,1,2,2,1,1],[2,0,4,5,3,3,2,2,3,2,2,1],[0,1,3,3,1,2,2,2,0,2,1,1],[0,0,1,2,1,1,1,0,2,0,1,2]];
-var HT={"0-0":[{dt:"1-15",t:"IV Encuentro AAE",s:"aae"},{dt:"31",t:"Análisis resultados S2/T3 2025",s:"aae"}],"0-2":[{dt:"31",t:"Consolidar indicadores 2025",s:"est"}],"1-0":[{dt:"28",t:"Plan semestral DAC S1",s:"est"}],"1-1":[{dt:"28",t:"Tablas AACSB cierre 2025",s:"est"}],"2-0":[{dt:"1-15",t:"Inducción SAIC S1",s:"est"},{dt:"mar",t:"Verificar QM online",s:"new"}],"2-2":[{dt:"14",t:"Rezagados S2/T3",s:"aae"},{dt:"sem3",t:"CNA Piloto",s:"cna"},{dt:"31",t:"Evidencias AAE",s:"aae"},{dt:"31",t:"Ajuste Plan AAE",s:"aae"}],"2-4":[{dt:"31",t:"Reunión SAIC Q1",s:"est"}],"3-0":[{dt:"30",t:"Verificar Planes AAE",s:"est"},{dt:"30",t:"Informe mensual DAC",s:"new"}],"3-2":[{dt:"15",t:"Carga Gestor SAIC",s:"aae"},{dt:"30",t:"Eval ciclo AAE",s:"aae"},{dt:"30",t:"Resultados verano",s:"aae"},{dt:"30",t:"Matrices uAssessment",s:"new"},{dt:"abr",t:"CNA Fase 1",s:"cna"}],"3-1":[{dt:"30",t:"Planes mejora",s:"est"},{dt:"15",t:"Procedimientos SAIC",s:"new"}],"3-3":[{dt:"15",t:"CF: indicadores",s:"est"},{dt:"abr",t:"Muestra CNA",s:"new"}],"4-0":[{dt:"30",t:"Balance SAIC",s:"est"},{dt:"30",t:"PDE FEN",s:"est"}],"4-2":[{dt:"23",t:"Validar asignaturas AAE",s:"aae"},{dt:"30",t:"Socialización verano",s:"aae"},{dt:"30",t:"Informe Anual AAE",s:"aae"}],"4-1":[{dt:"30",t:"Encuestas + eval docente",s:"est"},{dt:"30",t:"PDE",s:"est"},{dt:"may",t:"CNA Fase 1 docs",s:"cna"}],"5-0":[{dt:"15",t:"Balance ante VRAC",s:"est"},{dt:"30",t:"Jornada Calidad",s:"est"},{dt:"jun",t:"CNA Fase 2",s:"cna"}],"5-2":[{dt:"30",t:"Evidencias verano",s:"aae"},{dt:"30",t:"Ajuste Plan AAE",s:"aae"},{dt:"30",t:"Planillas S1",s:"aae"}],"5-1":[{dt:"30",t:"VcM S1",s:"est"}],"5-4":[{dt:"15",t:"Reunión SAIC Q2",s:"est"}],"5-3":[{dt:"30",t:"Mentoras AACSB",s:"est"}],"6-0":[{dt:"31",t:"Checklist SAIC S1",s:"est"},{dt:"31",t:"Tablas AACSB S1",s:"est"},{dt:"31",t:"QM avance S1",s:"new"}],"6-2":[{dt:"15",t:"Carga verano Gestor",s:"aae"},{dt:"31",t:"Resultados AAE S1",s:"aae"}],"6-3":[{dt:"jul",t:"CNA 70%",s:"cna"},{dt:"15",t:"CF: Jornada",s:"est"}],"7-0":[{dt:"1-15",t:"Inducción S2",s:"est"},{dt:"15",t:"Plan DAC S2",s:"est"}],"7-2":[{dt:"29",t:"Análisis AAE S1",s:"aae"},{dt:"ago",t:"Assessment postgrado",s:"new"}],"7-1":[{dt:"31",t:"Indicadores S1",s:"est"}],"7-3":[{dt:"ago",t:"CNA formularios",s:"cna"},{dt:"31",t:"iSER AACSB",s:"est"}],"8-2":[{dt:"15",t:"Rezagados S1",s:"aae"},{dt:"30",t:"Evidencias S1",s:"aae"},{dt:"30",t:"Plan AAE 2027",s:"aae"}],"8-1":[{dt:"30",t:"Planes mejora S2",s:"est"},{dt:"30",t:"Autoeval. CNA+MSCHE",s:"new"}],"8-4":[{dt:"15",t:"CF: indicadores S1",s:"est"},{dt:"30",t:"Reunión SAIC Q3",s:"est"}],"9-2":[{dt:"15",t:"Planillas reporte",s:"aae"},{dt:"30",t:"Carga Gestor S1",s:"aae"}],"9-3":[{dt:"oct",t:"CNA 90%",s:"cna"},{dt:"oct",t:"MSCHE borrador",s:"new"}],"9-1":[{dt:"31",t:"Encuestas S1",s:"est"},{dt:"31",t:"PDE + VcM",s:"est"}],"10-2":[{dt:"10",t:"Planillas VRAC",s:"aae"},{dt:"14",t:"Eval Ciclo AAE",s:"aae"}],"10-0":[{dt:"30",t:"Brechas SAIC",s:"est"}],"10-3":[{dt:"30",t:"Mentoras S2",s:"est"}],"10-4":[{dt:"15",t:"CF: reporte anual",s:"est"}],"11-2":[{dt:"31",t:"Resultados AAE S2",s:"aae"}],"11-0":[{dt:"20",t:"Checklist S2",s:"est"},{dt:"31",t:"Plan DAC 2027",s:"est"}],"11-1":[{dt:"20",t:"Planes mejora cierre",s:"est"}],"11-3":[{dt:"20",t:"Tablas AACSB cierre",s:"est"}],"11-4":[{dt:"15",t:"Reunión SAIC Q4",s:"est"},{dt:"dic",t:"Draft MSCHE",s:"new"}]};
+
+var HT={"0-0":[{dt:"1-15",t:"IV Encuentro AAE",s:"aae",desc:"Encuentro institucional de Assessment",dep:""},{dt:"31",t:"Análisis resultados S2/T3 2025",s:"aae",desc:"Análisis de resultados assessment periodo anterior",dep:""}],"0-2":[{dt:"31",t:"Consolidar indicadores 2025",s:"est",desc:"Consolidar indicadores de calidad 2025",dep:""}],"1-0":[{dt:"28",t:"Plan semestral DAC S1",s:"est",desc:"Plan de trabajo DAC primer semestre",dep:""}],"1-1":[{dt:"28",t:"Tablas AACSB cierre 2025",s:"est",desc:"Cierre tablas faculty sufficiency/qualification",dep:""}],"2-0":[{dt:"1-15",t:"Inducción SAIC S1",s:"est",desc:"Inducción al SAIC para profesores nuevos",dep:"Curso SAIC (hecho)"},{dt:"mar",t:"Verificar QM online",s:"new",desc:"Verificar Quality Matters en programas online",dep:"VRAC entrega criterios"}],"2-2":[{dt:"14",t:"Rezagados S2/T3",s:"aae",desc:"Seguimiento rezagados assessment",dep:""},{dt:"sem3",t:"CNA Piloto",s:"cna",desc:"Inicio fase Piloto CNA",dep:""},{dt:"31",t:"Evidencias AAE",s:"aae",desc:"Compilación evidencias assessment",dep:""},{dt:"31",t:"Ajuste Plan AAE",s:"aae",desc:"Ajuste planes assessment trianual",dep:""}],"2-4":[{dt:"31",t:"Reunión SAIC Q1",s:"est",desc:"Primera reunión trimestral con Encargado SAIC",dep:""}],"3-0":[{dt:"30",t:"Verificar Planes AAE",s:"est",desc:"Verificar planes AAE con Dir. Carreras",dep:""},{dt:"30",t:"Informe mensual DAC",s:"new",desc:"Primer informe mensual DAC a VRAC",dep:"Formato Nayadeth"}],"3-2":[{dt:"15",t:"Carga Gestor SAIC",s:"aae",desc:"Carga en Gestor Documental SAIC (S2/T3 2025)",dep:""},{dt:"30",t:"Eval ciclo AAE",s:"aae",desc:"Evaluación ciclo AAE S2/T3 2025 + Comité AAE",dep:"Identificar Comité AAE"},{dt:"30",t:"Resultados verano",s:"aae",desc:"Resultados asignaturas verano 2026",dep:""},{dt:"30",t:"Matrices uAssessment",s:"new",desc:"Revisar matrices tributación uAssessment",dep:""},{dt:"abr",t:"CNA Fase 1",s:"cna",desc:"Inicio Fase 1 CNA",dep:""}],"3-1":[{dt:"30",t:"Planes mejora",s:"est",desc:"Planes de mejora (heredar Jornada 2025)",dep:"Nueva plataforma VRAC"},{dt:"15",t:"Procedimientos SAIC",s:"new",desc:"Nuevos procedimientos SAIC (36 procesos)",dep:"VRAC entrega"}],"3-3":[{dt:"15",t:"CF: indicadores",s:"est",desc:"Presentar indicadores en Consejo de Facultad",dep:""},{dt:"abr",t:"Muestra CNA",s:"new",desc:"Inicio muestra intencionada CNA",dep:"VRAC coordina"}],"4-0":[{dt:"30",t:"Balance SAIC",s:"est",desc:"Balance Anual SAIC FEN",dep:""},{dt:"30",t:"PDE FEN",s:"est",desc:"Seguimiento PDE FEN",dep:""}],"4-2":[{dt:"23",t:"Validar asignaturas AAE",s:"aae",desc:"Validar listado asignaturas AAE S1",dep:""},{dt:"30",t:"Socialización verano",s:"aae",desc:"Socialización resultados verano en CC",dep:""},{dt:"30",t:"Informe Anual AAE",s:"aae",desc:"Informe Anual AAE 2025",dep:""}],"4-1":[{dt:"30",t:"Encuestas + eval docente",s:"est",desc:"Seguimiento encuestas y evaluación docente",dep:""},{dt:"30",t:"PDE",s:"est",desc:"Seguimiento PDE",dep:""},{dt:"may",t:"CNA Fase 1 docs",s:"cna",desc:"Documentación Fase 1 CNA",dep:""}],"5-0":[{dt:"15",t:"Balance ante VRAC",s:"est",desc:"Presentar Balance SAIC ante VRAC",dep:""},{dt:"30",t:"Jornada Calidad",s:"est",desc:"Jornada de Calidad FEN",dep:""},{dt:"jun",t:"CNA Fase 2",s:"cna",desc:"Inicio Fase 2 CNA",dep:""}],"5-2":[{dt:"30",t:"Evidencias verano",s:"aae",desc:"Evidencias assessment verano",dep:""},{dt:"30",t:"Ajuste Plan AAE",s:"aae",desc:"Ajuste plan AAE para S2",dep:""},{dt:"30",t:"Planillas S1",s:"aae",desc:"Planillas assessment S1",dep:""}],"5-1":[{dt:"30",t:"VcM S1",s:"est",desc:"Seguimiento planes VcM S1",dep:""}],"5-4":[{dt:"15",t:"Reunión SAIC Q2",s:"est",desc:"Reunión trimestral SAIC Q2",dep:""}],"5-3":[{dt:"30",t:"Mentoras AACSB",s:"est",desc:"Seguimiento mentoras AACSB",dep:""}],"6-0":[{dt:"31",t:"Checklist SAIC S1",s:"est",desc:"Checklist cumplimiento SAIC por carrera S1",dep:""},{dt:"31",t:"Tablas AACSB S1",s:"est",desc:"Actualizar tablas AACSB S1",dep:""},{dt:"31",t:"QM avance S1",s:"new",desc:"Verificación QM avance S1",dep:""}],"6-2":[{dt:"15",t:"Carga verano Gestor",s:"aae",desc:"Carga verano en Gestor SAIC",dep:""},{dt:"31",t:"Resultados AAE S1",s:"aae",desc:"Resultados assessment S1",dep:""}],"6-3":[{dt:"jul",t:"CNA 70%",s:"cna",desc:"CNA formularios al 70%",dep:""},{dt:"15",t:"CF: Jornada",s:"est",desc:"Presentar Jornada en CF",dep:""}],"7-0":[{dt:"1-15",t:"Inducción S2",s:"est",desc:"Inducción SAIC profesores nuevos S2",dep:""},{dt:"15",t:"Plan DAC S2",s:"est",desc:"Plan DAC segundo semestre",dep:""}],"7-2":[{dt:"29",t:"Análisis AAE S1",s:"aae",desc:"Análisis resultados AAE S1",dep:""},{dt:"ago",t:"Assessment postgrado",s:"new",desc:"Inicio assessment postgrado",dep:""}],"7-1":[{dt:"31",t:"Indicadores S1",s:"est",desc:"Evaluación indicadores S1",dep:""}],"7-3":[{dt:"ago",t:"CNA formularios",s:"cna",desc:"CNA formularios avance",dep:""},{dt:"31",t:"iSER AACSB",s:"est",desc:"Avance iSER AACSB",dep:""}],"8-2":[{dt:"15",t:"Rezagados S1",s:"aae",desc:"Rezagados assessment S1",dep:""},{dt:"30",t:"Evidencias S1",s:"aae",desc:"Compilar evidencias S1",dep:""},{dt:"30",t:"Plan AAE 2027",s:"aae",desc:"Plan AAE 2027",dep:""}],"8-1":[{dt:"30",t:"Planes mejora S2",s:"est",desc:"Planes de mejora S2",dep:""},{dt:"30",t:"Autoeval. CNA+MSCHE",s:"new",desc:"Autoeval. institucional CNA+MSCHE",dep:""}],"8-4":[{dt:"15",t:"CF: indicadores S1",s:"est",desc:"Indicadores S1 en CF",dep:""},{dt:"30",t:"Reunión SAIC Q3",s:"est",desc:"Reunión trimestral SAIC Q3",dep:""}],"9-2":[{dt:"15",t:"Planillas reporte",s:"aae",desc:"Planillas reporte assessment",dep:""},{dt:"30",t:"Carga Gestor S1",s:"aae",desc:"Carga S1 en Gestor SAIC",dep:""}],"9-3":[{dt:"oct",t:"CNA 90%",s:"cna",desc:"CNA formularios al 90% + 156 informes",dep:""},{dt:"oct",t:"MSCHE borrador",s:"new",desc:"Borrador MSCHE",dep:""}],"9-1":[{dt:"31",t:"Encuestas S1",s:"est",desc:"Encuestas S1",dep:""},{dt:"31",t:"PDE + VcM",s:"est",desc:"Seguimiento PDE + VcM",dep:""}],"10-2":[{dt:"10",t:"Planillas VRAC",s:"aae",desc:"Planillas VRAC assessment",dep:""},{dt:"14",t:"Eval Ciclo AAE",s:"aae",desc:"Evaluación ciclo AAE S1",dep:""}],"10-0":[{dt:"30",t:"Brechas SAIC",s:"est",desc:"Identificar brechas SAIC",dep:""}],"10-3":[{dt:"30",t:"Mentoras S2",s:"est",desc:"Seguimiento mentoras S2",dep:""}],"10-4":[{dt:"15",t:"CF: reporte anual",s:"est",desc:"Reporte anual en CF",dep:""}],"11-2":[{dt:"31",t:"Resultados AAE S2",s:"aae",desc:"Resultados assessment S2",dep:""}],"11-0":[{dt:"20",t:"Checklist S2",s:"est",desc:"Checklist SAIC S2",dep:""},{dt:"31",t:"Plan DAC 2027",s:"est",desc:"Plan DAC 2027",dep:""}],"11-1":[{dt:"20",t:"Planes mejora cierre",s:"est",desc:"Cierre planes de mejora anual",dep:""}],"11-3":[{dt:"20",t:"Tablas AACSB cierre",s:"est",desc:"Cierre anual tablas AACSB",dep:""}],"11-4":[{dt:"15",t:"Reunión SAIC Q4",s:"est",desc:"Reunión trimestral SAIC Q4",dep:""},{dt:"dic",t:"Draft MSCHE",s:"new",desc:"Draft completo MSCHE",dep:""}]};
+
 var hcls=[['#EEEDFE','#CECBF6','#AFA9EC'],['#E1F5EE','#9FE1CB','#5DCAA5'],['#E6F1FB','#B5D4F4','#85B7EB'],['#FAECE7','#F5C4B3','#F0997B'],['#FAEEDA','#FAC775','#EF9F27']];
 var hctx=[['#3C3489','#3C3489','#26215C'],['#085041','#085041','#04342C'],['#0C447C','#0C447C','#042C53'],['#712B13','#712B13','#4A1B0C'],['#633806','#633806','#412402']];
-var locked=true,state=null;
-function init(){state=loadState();buildNav();buildBaseline();buildCurrent();buildHeat();buildStrat();}
-function loadState(){try{var s=localStorage.getItem('dac_state');if(s)return JSON.parse(s);}catch(e){}var st={};T.forEach(function(_,i){st[i]=T[i].b;});return st;}
-function saveState(){localStorage.setItem('dac_state',JSON.stringify(state));}
-function exportState(){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(state,null,2)],{type:'application/json'}));a.download='dac_state_'+new Date().toISOString().slice(0,10)+'.json';a.click();}
-function importState(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){try{state=JSON.parse(ev.target.result);saveState();buildCurrent();alert('Estado importado.');}catch(err){alert('Error: '+err.message);}};r.readAsText(f);}
-function buildNav(){document.getElementById('mainNav').innerHTML=TABS.map(function(t,i){return'<button class="'+(i===0?'on':'')+'" onclick="showTab('+i+')">'+t+'</button>';}).join('');}
-function showTab(n){document.querySelectorAll('nav button').forEach(function(b,i){b.classList.toggle('on',i===n);});document.querySelectorAll('.panel').forEach(function(p,i){p.classList.toggle('on',i===n);});}
-function toggleLock(){if(locked){if(!confirm('¿Desbloquear línea base? Editar con cuidado.'))return;locked=false;}else locked=true;document.getElementById('lockIcon').textContent=locked?'🔒':'🔓';document.getElementById('lockBtn').textContent=locked?'Desbloquear':'Bloquear';buildBaseline();}
-function dimStats(gs){var r=[[],[],[],[],[]];T.forEach(function(t,i){r[t.d].push(gs(t,i));});return r.map(function(a){return{done:a.filter(function(s){return s==='hecho'||s==='en curso';}).length,total:a.length};});}
+
+/* ========== STATE ========== */
+var locked=true,state=null,stratState=null,cycleNotes=null;
+
+function loadState(){
+try{var s=localStorage.getItem('dac_state_v11');if(s)return JSON.parse(s);}catch(e){}
+var st={};T.forEach(function(_,i){st[i]=T[i].b;});return st;
+}
+function loadStratState(){
+try{var s=localStorage.getItem('dac_strat_v11');if(s)return JSON.parse(s);}catch(e){}
+var st={};STRAT.forEach(function(s){st[s.id]={status:s.st,notes:[]};});return st;
+}
+function loadCycleNotes(){
+try{var s=localStorage.getItem('dac_cycle_v11');if(s)return JSON.parse(s);}catch(e){}
+return {};
+}
+function saveState(){localStorage.setItem('dac_state_v11',JSON.stringify(state));}
+function saveStratState(){localStorage.setItem('dac_strat_v11',JSON.stringify(stratState));}
+function saveCycleNotes(){localStorage.setItem('dac_cycle_v11',JSON.stringify(cycleNotes));}
+
+function exportState(){
+var bundle={version:'1.1',date:new Date().toISOString(),tasks:state,strat:stratState,cycle:cycleNotes};
+var a=document.createElement('a');
+a.href=URL.createObjectURL(new Blob([JSON.stringify(bundle,null,2)],{type:'application/json'}));
+a.download='dac_state_'+new Date().toISOString().slice(0,10)+'.json';a.click();
+}
+function importState(e){
+var f=e.target.files[0];if(!f)return;
+var r=new FileReader();r.onload=function(ev){
+try{var d=JSON.parse(ev.target.result);
+if(d.tasks)state=d.tasks;
+if(d.strat)stratState=d.strat;
+if(d.cycle)cycleNotes=d.cycle;
+saveState();saveStratState();saveCycleNotes();
+buildCurrent();buildStrat();alert('Estado importado correctamente.');
+}catch(err){alert('Error: '+err.message);}};
+r.readAsText(f);e.target.value='';
+}
+
+/* ========== NAV ========== */
+function buildNav(){
+document.getElementById('mainNav').innerHTML=TABS.map(function(t,i){
+return '<button class="'+(i===0?'on':'')+'" onclick="showTab('+i+')">'+t+'</button>';
+}).join('');
+}
+function showTab(n){
+document.querySelectorAll('nav button').forEach(function(b,i){b.classList.toggle('on',i===n);});
+document.querySelectorAll('.panel').forEach(function(p,i){p.classList.toggle('on',i===n);});
+}
+
+/* ========== TAB 0: DIMENSIONES ========== */
+function buildDimCards(){
+var html='';
+for(var d=0;d<5;d++){
+var gTasks=[],mTasks=[];
+T.forEach(function(t){if(t.d===d){if(t.role==='g')gTasks.push(t.n);else mTasks.push(t.n);}});
+var total=gTasks.length+mTasks.length;
+html+='<div class="dim-card'+(d===0?' open':'')+'">';
+html+='<div class="dim-card-h" onclick="this.parentElement.classList.toggle(\'open\')">';
+html+='<div class="dim-card-dot" style="background:'+DC[d]+'"></div>';
+html+='<div class="dim-card-title">'+DN[d]+'</div>';
+html+='<div class="dim-card-count" style="background:'+DCB[d]+';color:'+DCT[d]+'">'+total+' tareas</div>';
+html+='<span class="dim-card-arrow">&#9654;</span>';
+html+='</div><div class="dim-card-body">';
+html+='<div class="dim-card-desc">'+DDESC[d]+'</div>';
+html+='<div class="dim-card-section gest"><h4>🎯 Gestionas directamente ('+gTasks.length+')</h4><ul>';
+gTasks.forEach(function(t){html+='<li>'+t+'</li>';});
+html+='</ul></div>';
+if(mTasks.length){
+html+='<div class="dim-card-section mon"><h4>👁 Monitoreas / supervisas ('+mTasks.length+')</h4><ul>';
+mTasks.forEach(function(t){html+='<li>'+t+'</li>';});
+html+='</ul></div>';
+}
+html+='<div class="dim-card-section"><h4>🤝 Interlocutores clave</h4><div class="dim-card-inter">';
+DINTER[d].forEach(function(i){html+='<span>'+i+'</span>';});
+html+='</div></div>';
+html+='</div></div>';
+}
+document.getElementById('dimCards').innerHTML=html;
+}
+
+/* ========== TAB 1: LÍNEA BASE ========== */
+function toggleLock(){
+if(locked){if(!confirm('¿Desbloquear línea base? Editar con cuidado.'))return;locked=false;}
+else locked=true;
+document.getElementById('lockIcon').textContent=locked?'🔒':'🔓';
+document.getElementById('lockBtn').textContent=locked?'Desbloquear':'Bloquear';
+buildBaseline();
+}
+function dimStats(gs){
+var r=[[],[],[],[],[]];
+T.forEach(function(t,i){r[t.d].push(gs(t,i));});
+return r.map(function(a){return{done:a.filter(function(s){return s==='hecho'||s==='en curso';}).length,total:a.length};});
+}
 function buildDimHTML(gs,editable,pfx){
 var stats=dimStats(gs);var html='';
-for(var d=0;d<5;d++){var items=[];T.forEach(function(t,i){if(t.d===d)items.push({t:t,i:i});});
+for(var d=0;d<5;d++){
+var items=[];T.forEach(function(t,i){if(t.d===d)items.push({t:t,i:i});});
 var pct=stats[d].total?Math.round(stats[d].done/stats[d].total*100):0;
 var bbg=pct>=60?'var(--done)':pct>=20?'var(--partial)':'var(--none)';
 var btx=pct>=60?'var(--donet)':pct>=20?'var(--partialt)':'var(--nonet)';
-html+='<div class="dim'+(d<1?' open':'')+'" id="'+pfx+d+'"><div class="dim-h" onclick="this.parentElement.classList.toggle(\'open\')"><div class="dim-dot" style="background:'+DC[d]+'"></div><div class="dim-name">'+DN[d]+'</div><div class="dim-badge" style="background:'+bbg+';color:'+btx+'">'+stats[d].done+'/'+stats[d].total+'</div><span class="dim-arrow">&#9654;</span></div><div class="dim-body"><div class="dim-progress"><div class="dim-progress-fill" style="width:'+pct+'%;background:'+DC[d]+'"></div></div>';
-items.forEach(function(it){var st=gs(it.t,it.i);var sc=stColor(st);
-var sb='';if(it.t.s==='vrac')sb='<span class="task-badge badge-vrac">VRAC</span>';else if(it.t.s==='ppt')sb='<span class="task-badge badge-ppt">PPT</span>';else if(it.t.s==='acta')sb='<span class="task-badge badge-acta">Acta</span>';
-html+='<div class="task"><div><div class="task-name">'+it.t.n+sb+'</div>';
+html+='<div class="dim'+(d<2?' open':'')+'" id="'+pfx+d+'">';
+html+='<div class="dim-h" onclick="this.parentElement.classList.toggle(\'open\')">';
+html+='<div class="dim-dot" style="background:'+DC[d]+'"></div>';
+html+='<div class="dim-name">'+DN[d]+'</div>';
+html+='<div class="dim-badge" style="background:'+bbg+';color:'+btx+'">'+stats[d].done+'/'+stats[d].total+'</div>';
+html+='<span class="dim-arrow">&#9654;</span></div>';
+html+='<div class="dim-body"><div class="dim-progress"><div class="dim-progress-fill" style="width:'+pct+'%;background:'+DC[d]+'"></div></div>';
+items.forEach(function(it){
+var st=gs(it.t,it.i);var sc=stColor(st);
+var sb='';if(it.t.s==='vrac')sb='<span class="task-badge badge-vrac">VRAC</span>';
+else if(it.t.s==='ppt')sb='<span class="task-badge badge-ppt">PPT</span>';
+else if(it.t.s==='acta')sb='<span class="task-badge badge-acta">Acta</span>';
+html+='<div class="task" id="'+pfx+'t'+it.i+'">';
+html+='<div class="task-main" onclick="this.parentElement.classList.toggle(\'expanded\')">';
+html+='<div><div class="task-name">'+it.t.n+sb+'</div>';
 if(it.t.nt)html+='<div class="task-note">'+it.t.nt+'</div>';
 html+='</div><div>';
-if(editable)html+='<select class="st-select" onchange="upSt('+it.i+',this.value)">'+SOPTS.map(function(o){return'<option'+(o===st?' selected':'')+'>'+o+'</option>';}).join('')+'</select>';
+if(editable)html+='<select class="st-select" onclick="event.stopPropagation()" onchange="upSt('+it.i+',this.value)">'+SOPTS.map(function(o){return'<option'+(o===st?' selected':'')+'>'+o+'</option>';}).join('')+'</select>';
 else html+='<span class="st-label" style="background:'+sc.bg+';color:'+sc.tx+'">'+st+'</span>';
-html+='</div></div>';});
-html+='</div></div>';}return html;}
+html+='</div></div>';
+// Expandable detail
+html+='<div class="task-detail">';
+html+='<div class="task-detail-row"><b>Dimensión:</b> '+DN[it.t.d]+'</div>';
+html+='<div class="task-detail-row"><b>Rol:</b> '+(it.t.role==='g'?'Gestionas directamente':'Monitoreas / supervisas')+'</div>';
+if(it.t.dep)html+='<div class="task-detail-row"><b>Dependencia:</b> '+it.t.dep+'</div>';
+if(it.t.s)html+='<div class="task-detail-row"><b>Fuente:</b> '+(it.t.s==='vrac'?'Jornada VRAC marzo 2026':it.t.s==='ppt'?'Estrategia FEN (PPT Decano)':'Actas CE/CF')+'</div>';
+html+='<div class="task-detail-row"><b>Línea base:</b> '+it.t.b+'</div>';
+html+='</div></div>';
+});
+html+='</div></div>';
+}
+return html;
+}
 function buildBaseline(){document.getElementById('baselineDims').innerHTML=buildDimHTML(function(t){return t.b;},!locked,'bl');}
+
+/* ========== TAB 2: ESTADO ACTUAL ========== */
+function buildRingSVG(done,total,color,hex){
+var pct=total?done/total:0;
+var r=34,c=2*Math.PI*r;
+var offset=c*(1-pct);
+return '<svg class="ring-svg" viewBox="0 0 80 80">'+
+'<circle cx="40" cy="40" r="'+r+'" fill="none" stroke="#e5e3dc" stroke-width="6"/>'+
+'<circle cx="40" cy="40" r="'+r+'" fill="none" stroke="'+hex+'" stroke-width="6" stroke-linecap="round" stroke-dasharray="'+c+'" stroke-dashoffset="'+offset+'" transform="rotate(-90 40 40)" style="transition:stroke-dashoffset .6s ease"/>'+
+'<text x="40" y="36" text-anchor="middle" font-size="14" font-weight="700" fill="'+hex+'" font-family="DM Sans,sans-serif">'+done+'/'+total+'</text>'+
+'<text x="40" y="50" text-anchor="middle" font-size="10" fill="#999" font-family="DM Sans,sans-serif">'+Math.round(pct*100)+'%</text>'+
+'</svg>';
+}
 function buildCurrent(){
-var stats=dimStats(function(t,i){return state[i]||t.b;});
-var ch='';for(var d=0;d<5;d++){var p=stats[d].total?Math.round(stats[d].done/stats[d].total*100):0;ch+='<div class="card" style="background:'+DCB[d]+'"><div class="card-d" style="color:'+DCT[d]+'">'+DN[d]+'</div><div class="card-n" style="color:'+DCT[d]+'">'+stats[d].done+'/'+stats[d].total+'</div><div class="card-l" style="color:'+DCT[d]+'">'+p+'%</div></div>';}
-document.getElementById('currentCards').innerHTML=ch;
+var statsC=dimStats(function(t,i){return state[i]||t.b;});
+var statsB=dimStats(function(t){return t.b;});
+// Rings
+var rh='';
+for(var d=0;d<5;d++){
+rh+='<div class="ring-card" onclick="scrollToDim('+d+')">';
+rh+=buildRingSVG(statsC[d].done,statsC[d].total,DC[d],DCC[d]);
+rh+='<div class="ring-label" style="color:'+DCT[d]+'">'+DN[d]+'</div></div>';
+}
+document.getElementById('ringsRow').innerHTML=rh;
+// Bars
+var bh='';
+for(var d=0;d<5;d++){
+var pctB=statsB[d].total?Math.round(statsB[d].done/statsB[d].total*100):0;
+var pctC=statsC[d].total?Math.round(statsC[d].done/statsC[d].total*100):0;
+bh+='<div class="bar-row"><div class="bar-label" style="color:'+DCT[d]+'">'+DN[d]+'</div>';
+bh+='<div class="bar-track"><div class="bar-fill" style="width:'+pctC+'%;background:'+DC[d]+'"></div></div>';
+bh+='<div class="bar-val" style="color:'+DCT[d]+'">'+pctC+'%';
+if(pctC>pctB)bh+=' <span style="color:var(--donet);font-size:9px">▲'+(pctC-pctB)+'</span>';
+bh+='</div></div>';
+}
+document.getElementById('barsContainer').innerHTML=bh;
+// Task list
 document.getElementById('currentDims').innerHTML=buildDimHTML(function(t,i){return state[i]||t.b;},true,'cu');
-var td=0,ta=0;stats.forEach(function(s){td+=s.done;ta+=s.total;});
-document.getElementById('progressInsight').innerHTML='<b>Progreso global:</b> '+td+' de '+ta+' ('+Math.round(td/ta*100)+'%). Compara con la línea base para medir avance.';}
+// Insight
+var td=0,ta=0;statsC.forEach(function(s){td+=s.done;ta+=s.total;});
+document.getElementById('progressInsight').innerHTML='<b>Progreso global:</b> '+td+' de '+ta+' ('+Math.round(td/ta*100)+'%). Compara con la línea base para medir avance.';
+}
+function scrollToDim(d){document.getElementById('cu'+d).scrollIntoView({behavior:'smooth',block:'start'});}
 function upSt(i,v){state[i]=v;saveState();buildCurrent();}
+
+/* ========== TAB 3: CICLO 2026 ========== */
+var ttEl=null;
 function buildHeat(){
 var g=document.getElementById('heatGrid');var html='<div class="hh"></div>';
 MN.forEach(function(m){html+='<div class="hh">'+m+'</div>';});
-for(var d=0;d<5;d++){html+='<div class="hl" style="color:'+hctx[d][0]+'">'+DN[d]+'</div>';
-for(var m=0;m<12;m++){var n=HD[d][m];var key=m+'-'+d;var tks=HT[key];
-var tt='';if(tks&&tks.length){tt='<div class="tt"><div class="tt-title">'+MN[m]+' — '+DN[d]+'</div>';tks.forEach(function(tk){var src=tk.s==='aae'?'AAE':tk.s==='cna'?'CNA':tk.s==='new'?'NUEVO':'SAIC est.';tt+='<div class="tt-item">'+tk.dt+': '+tk.t+' ['+src+']</div>';});tt+='</div>';}
-if(n===0)html+='<div class="hc h0">-'+tt+'</div>';
-else html+='<div class="hc" style="background:'+hcls[d][Math.min(n-1,2)]+';color:'+hctx[d][Math.min(n-1,2)]+'" onclick="shD(\''+key+'\')">'+n+tt+'</div>';}}
+for(var d=0;d<5;d++){
+html+='<div class="hl" style="color:'+hctx[d][0]+'">'+DN[d]+'</div>';
+for(var m=0;m<12;m++){
+var n=HD[d][m];var key=m+'-'+d;
+if(n===0)html+='<div class="hc h0" data-key="'+key+'">-</div>';
+else html+='<div class="hc" data-key="'+key+'" style="background:'+hcls[d][Math.min(n-1,2)]+';color:'+hctx[d][Math.min(n-1,2)]+'" onclick="showCycleDetail(\''+key+'\')" onmouseenter="showSmartTT(event,\''+key+'\')" onmouseleave="hideSmartTT()">'+n+'</div>';
+}
+}
 html+='<div class="hl" style="color:var(--tx3);font-size:9px">Total</div>';
 for(var m=0;m<12;m++){var tot=0;for(var d=0;d<5;d++)tot+=HD[d][m];html+='<div class="htot'+(tot>=9?' peak':'')+'">'+tot+'</div>';}
-g.innerHTML=html;}
-function shD(key){
-var da=document.getElementById('heatDetail');var tks=HT[key];
-if(!tks||!tks.length){da.innerHTML='<div class="no-sel">Sin tareas.</div>';return;}
+g.innerHTML=html;
+}
+function showSmartTT(ev,key){
+var tks=HT[key];if(!tks||!tks.length)return;
+var tt=document.getElementById('smartTT');
 var p=key.split('-'),m=+p[0],d=+p[1];
-var html='<div style="font-size:13px;font-weight:600;margin-bottom:6px">'+MF[m]+' — '+DN[d]+'</div>';
-tks.forEach(function(tk){var src=tk.s==='aae'?'t-aae':tk.s==='cna'?'t-cna':tk.s==='new'?'t-new':'t-est';var srcN=tk.s==='aae'?'cal. AAE':tk.s==='cna'?'cal. CNA':tk.s==='new'?'nuevo VRAC':'SAIC estimado';
-html+='<div class="dit"><div class="dit-date">'+tk.dt+'</div><div class="dit-text">'+tk.t+' <span class="tg '+src+'">'+srcN+'</span></div></div>';});
-da.innerHTML=html;}
-function setCycleView(v,btn){document.querySelectorAll('.sub-tab').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');document.getElementById('cycleHeat').style.display=v==='heat'?'block':'none';document.getElementById('cycleDetail').style.display=v==='detail'?'block':'none';if(v==='detail')buildCD();}
-function buildCD(){
+var html='<div class="tt-title">'+MN[m]+' — '+DN[d]+'</div>';
+tks.forEach(function(tk){
+var src=tk.s==='aae'?'AAE':tk.s==='cna'?'CNA':tk.s==='new'?'NUEVO':'SAIC est.';
+html+='<div class="tt-item">'+tk.dt+': '+tk.t+' ['+src+']</div>';
+});
+tt.innerHTML=html;
+// Smart positioning
+var rect=ev.target.getBoundingClientRect();
+var ttW=280,ttH=tt.offsetHeight||120;
+var x=rect.left+rect.width/2-ttW/2;
+var y=rect.bottom+8;
+if(x<8)x=8;
+if(x+ttW>window.innerWidth-8)x=window.innerWidth-ttW-8;
+if(y+ttH>window.innerHeight-8)y=rect.top-ttH-8;
+tt.style.left=x+'px';tt.style.top=y+'px';
+tt.classList.add('visible');
+}
+function hideSmartTT(){document.getElementById('smartTT').classList.remove('visible');}
+
+function showCycleDetail(key){
+var da=document.getElementById('heatDetail');
+var tks=HT[key];
+if(!tks||!tks.length){da.innerHTML='<p style="color:var(--tx3);font-size:12px;font-style:italic">Sin tareas en esta celda.</p>';return;}
+var p=key.split('-'),m=+p[0],d=+p[1];
+var html='<h3>'+MF[m]+' — '+DN[d]+'</h3>';
+tks.forEach(function(tk,ti){
+var src=tk.s==='aae'?'t-aae':tk.s==='cna'?'t-cna':tk.s==='new'?'t-new':'t-est';
+var srcN=tk.s==='aae'?'cal. AAE':tk.s==='cna'?'cal. CNA':tk.s==='new'?'nuevo VRAC':'SAIC estimado';
+var nkey=key+'_'+ti;
+html+='<div class="cycle-task" id="ct_'+nkey+'" onclick="this.classList.toggle(\'expanded\')">';
+html+='<div class="cycle-task-main">';
+html+='<div class="cycle-task-date">'+tk.dt+'</div>';
+html+='<div class="cycle-task-text">'+tk.t+'</div>';
+html+='<span class="tg '+src+'">'+srcN+'</span>';
+html+='</div>';
+html+='<div class="cycle-task-panel" onclick="event.stopPropagation()">';
+if(tk.desc)html+='<div><b>Descripción:</b> '+tk.desc+'</div>';
+html+='<div><b>Fuente:</b> '+srcN+'</div>';
+if(tk.dep)html+='<div><b>Dependencia:</b> '+tk.dep+'</div>';
+html+='<div style="margin-top:8px"><b>Notas:</b></div>';
+html+='<textarea class="cycle-note-input" id="cn_'+nkey+'" placeholder="Agregar nota..."></textarea>';
+html+='<button class="cycle-note-save" onclick="addCycleNote(\''+nkey+'\')">Guardar nota</button>';
+html+='<div class="cycle-note-log" id="cnl_'+nkey+'">'+renderCycleNotes(nkey)+'</div>';
+html+='</div></div>';
+});
+da.innerHTML=html;
+}
+function addCycleNote(nkey){
+var input=document.getElementById('cn_'+nkey);
+var text=input.value.trim();if(!text)return;
+if(!cycleNotes[nkey])cycleNotes[nkey]=[];
+cycleNotes[nkey].push({date:new Date().toLocaleDateString('es-CL'),text:text});
+saveCycleNotes();
+input.value='';
+document.getElementById('cnl_'+nkey).innerHTML=renderCycleNotes(nkey);
+}
+function renderCycleNotes(nkey){
+var notes=cycleNotes[nkey];if(!notes||!notes.length)return '<div style="color:var(--tx3);font-style:italic;padding:2px 0">Sin notas</div>';
+return notes.slice().reverse().map(function(n){return '<div class="cycle-note-entry"><b>'+n.date+'</b> — '+n.text+'</div>';}).join('');
+}
+function setCycleView(v,btn){
+document.querySelectorAll('#tab3 .sub-tab').forEach(function(b){b.classList.remove('on');});
+btn.classList.add('on');
+document.getElementById('cycleHeat').style.display=v==='heat'?'block':'none';
+document.getElementById('cycleDetail').style.display=v==='detail'?'block':'none';
+if(v==='detail')buildCycleDetail();
+}
+function buildCycleDetail(){
 var cd=document.getElementById('cycleDetail');var html='';
-for(var m=0;m<12;m++){var items=[];for(var d=0;d<5;d++){var tks=HT[m+'-'+d];if(tks)tks.forEach(function(tk){items.push({d:d,dt:tk.dt,t:tk.t,s:tk.s});});}
+for(var m=0;m<12;m++){
+var items=[];
+for(var d=0;d<5;d++){var tks=HT[m+'-'+d];if(tks)tks.forEach(function(tk){items.push({d:d,dt:tk.dt,t:tk.t,s:tk.s});});}
 if(!items.length)continue;
-html+='<div style="margin-bottom:1rem"><div style="font-size:14px;font-weight:600;padding-bottom:4px;border-bottom:1px solid var(--bd);margin-bottom:6px">'+MF[m]+'</div>';
-items.forEach(function(it){var src=it.s==='aae'?'t-aae':it.s==='cna'?'t-cna':it.s==='new'?'t-new':'t-est';var srcN=it.s==='aae'?'cal. AAE':it.s==='cna'?'cal. CNA':it.s==='new'?'nuevo VRAC':'SAIC estimado';
-html+='<div class="dit"><div class="dim-dot" style="background:'+DC[it.d]+';min-width:6px;height:6px;margin-top:5px"></div><div class="dit-date">'+it.dt+'</div><div class="dit-text">'+it.t+' <span class="tg '+src+'">'+srcN+'</span></div></div>';});
-html+='</div>';}cd.innerHTML=html;}
+html+='<div style="margin-bottom:1rem"><div style="font-size:14px;font-weight:600;padding-bottom:4px;border-bottom:1px solid var(--bd);margin-bottom:6px">'+MF[m]+' <span style="font-size:11px;color:var(--tx3);font-weight:400">('+items.length+' tareas)</span></div>';
+items.forEach(function(it){
+var src=it.s==='aae'?'t-aae':it.s==='cna'?'t-cna':it.s==='new'?'t-new':'t-est';
+var srcN=it.s==='aae'?'cal. AAE':it.s==='cna'?'cal. CNA':it.s==='new'?'nuevo VRAC':'SAIC estimado';
+html+='<div style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid var(--bg2);font-size:12px;align-items:flex-start">';
+html+='<div class="dim-dot" style="background:'+DC[it.d]+';min-width:8px;height:8px;margin-top:5px"></div>';
+html+='<div style="font-weight:600;color:var(--tx2);min-width:36px;font-size:11px">'+it.dt+'</div>';
+html+='<div style="flex:1">'+it.t+' <span class="tg '+src+'">'+srcN+'</span></div>';
+html+='</div>';
+});
+html+='</div>';
+}
+cd.innerHTML=html;
+}
+
+/* ========== TAB 4: ESTRATÉGICO ========== */
 function buildStrat(){
-var t=document.getElementById('stratTable');
-var html='<thead><tr><th>Iniciativa</th><th>Responsable</th><th>Fecha</th><th>Status</th><th>Label</th></tr></thead><tbody>';
-STRAT.forEach(function(s){var lbg=LCOL[s.lb]||'#f2f0eb';var ltx=LTXT[s.lb]||'#666';var stBg=s.st==='In progress'?'var(--info)':s.st==='Not started'?'var(--none)':'var(--done)';var stTx=s.st==='In progress'?'var(--infot)':s.st==='Not started'?'var(--nonet)':'var(--donet)';
-html+='<tr><td style="font-weight:500">'+s.n+'</td><td style="color:var(--tx2);font-size:11px">'+s.o+'</td><td style="font-size:11px;color:var(--tx2)">'+s.du+'</td><td><span class="strat-label" style="background:'+stBg+';color:'+stTx+'">'+s.st+'</span></td><td><span class="strat-label" style="background:'+lbg+';color:'+ltx+'">'+s.lb+'</span></td></tr>';});
-html+='</tbody>';t.innerHTML=html;}
+buildStratKPIs();
+buildStratChart();
+buildStratFilters();
+buildStratTable('all','all');
+}
+function getStratStatus(id){return stratState[id]?stratState[id].status:STRAT.find(function(s){return s.id===id;}).st;}
+function buildStratKPIs(){
+var total=STRAT.length;
+var prog=STRAT.filter(function(s){return getStratStatus(s.id)==='In progress';}).length;
+var done=STRAT.filter(function(s){return getStratStatus(s.id)==='Completed';}).length;
+var notS=STRAT.filter(function(s){return getStratStatus(s.id)==='Not started';}).length;
+var overdue=STRAT.filter(function(s){
+if(s.du==='—')return false;
+var parts=s.du.split('/');var d=new Date(+parts[2],+parts[0]-1,+parts[1]);
+return d<new Date()&&getStratStatus(s.id)!=='Completed';
+}).length;
+var h='';
+h+='<div class="strat-kpi"><div class="strat-kpi-val">'+total+'</div><div class="strat-kpi-label">Total iniciativas</div></div>';
+h+='<div class="strat-kpi"><div class="strat-kpi-val" style="color:var(--infot)">'+prog+'</div><div class="strat-kpi-label">En progreso</div></div>';
+h+='<div class="strat-kpi"><div class="strat-kpi-val" style="color:var(--donet)">'+done+'</div><div class="strat-kpi-label">Completadas</div></div>';
+h+='<div class="strat-kpi"><div class="strat-kpi-val" style="color:'+(overdue>0?'var(--nonet)':'var(--tx3)')+'">'+overdue+'</div><div class="strat-kpi-label">Con fecha vencida</div></div>';
+document.getElementById('stratKpis').innerHTML=h;
+}
+function buildStratChart(){
+var counts={};
+STRAT.forEach(function(s){counts[s.lb]=(counts[s.lb]||0)+1;});
+var labels=Object.keys(counts).sort(function(a,b){return counts[b]-counts[a];});
+var max=Math.max.apply(null,labels.map(function(l){return counts[l];}));
+var h='';
+labels.forEach(function(lb){
+var pct=max?Math.round(counts[lb]/max*100):0;
+h+='<div class="strat-chart-bar">';
+h+='<div class="strat-chart-label" style="color:'+(LTXT[lb]||'#666')+'">'+lb+'</div>';
+h+='<div class="strat-chart-track"><div class="strat-chart-fill" style="width:'+pct+'%;background:'+(LCOL[lb]||'#ddd')+'"></div></div>';
+h+='<div class="strat-chart-val">'+counts[lb]+'</div></div>';
+});
+document.getElementById('stratChartBars').innerHTML=h;
+}
+function buildStratFilters(){
+var labels=['all'];var statuses=['all'];
+STRAT.forEach(function(s){if(labels.indexOf(s.lb)===-1)labels.push(s.lb);});
+STRAT.forEach(function(s){var st=getStratStatus(s.id);if(statuses.indexOf(st)===-1)statuses.push(st);});
+var h='<label>Filtrar:</label>';
+h+='<select id="fLabel" onchange="applyStratFilter()"><option value="all">Todas las áreas</option>';
+labels.slice(1).sort().forEach(function(l){h+='<option value="'+l+'">'+l+'</option>';});
+h+='</select>';
+h+='<select id="fStatus" onchange="applyStratFilter()"><option value="all">Todos los status</option>';
+STRAT_OPTS.forEach(function(s){h+='<option value="'+s+'">'+s+'</option>';});
+h+='</select>';
+document.getElementById('stratFilters').innerHTML=h;
+}
+function applyStratFilter(){
+var lb=document.getElementById('fLabel').value;
+var st=document.getElementById('fStatus').value;
+buildStratTable(lb,st);
+}
+function buildStratTable(fLabel,fStatus){
+var filtered=STRAT.filter(function(s){
+if(fLabel!=='all'&&s.lb!==fLabel)return false;
+if(fStatus!=='all'&&getStratStatus(s.id)!==fStatus)return false;
+return true;
+});
+var html='<thead><tr><th style="width:35%">Iniciativa</th><th>Responsable</th><th>Fecha</th><th>Status</th><th>Label</th></tr></thead><tbody>';
+filtered.forEach(function(s){
+var curSt=getStratStatus(s.id);
+var lbg=LCOL[s.lb]||'#f2f0eb';var ltx=LTXT[s.lb]||'#666';
+var stBg=curSt==='In progress'?'var(--info)':curSt==='Not started'?'var(--none)':curSt==='Completed'?'var(--done)':curSt==='On hold'?'var(--wait)':'var(--neutral)';
+var stTx=curSt==='In progress'?'var(--infot)':curSt==='Not started'?'var(--nonet)':curSt==='Completed'?'var(--donet)':curSt==='On hold'?'var(--waitt)':'var(--neutralt)';
+var isOverdue=false;
+if(s.du!=='—'){var parts=s.du.split('/');var d=new Date(+parts[2],+parts[0]-1,+parts[1]);isOverdue=d<new Date()&&curSt!=='Completed';}
+html+='<tr class="strat-row" onclick="toggleStratExpand('+s.id+')">';
+html+='<td style="font-weight:500">'+s.n+(isOverdue?' <span style="color:var(--nonet);font-size:9px">⚠ vencida</span>':'')+'</td>';
+html+='<td style="color:var(--tx2);font-size:11px">'+s.o+'</td>';
+html+='<td style="font-size:11px;color:var(--tx2)">'+s.du+'</td>';
+html+='<td><span class="strat-label" style="background:'+stBg+';color:'+stTx+'">'+curSt+'</span></td>';
+html+='<td><span class="strat-label" style="background:'+lbg+';color:'+ltx+'">'+s.lb+'</span></td></tr>';
+// Expand row
+html+='<tr><td colspan="5" style="padding:0;border:none"><div class="strat-expand" id="se_'+s.id+'">';
+html+='<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">';
+html+='<label style="font-size:11px;font-weight:600;color:var(--tx2)">Status:</label>';
+html+='<select style="font-size:11px;padding:3px 6px;border:1px solid var(--bd);border-radius:4px;font-family:inherit" onchange="updateStratStatus('+s.id+',this.value)" onclick="event.stopPropagation()">';
+STRAT_OPTS.forEach(function(opt){html+='<option'+(opt===curSt?' selected':'')+'>'+opt+'</option>';});
+html+='</select>';
+html+='<span style="font-size:10px;color:var(--tx3)">Bucket: '+s.bk+' · Prioridad: '+s.pr+'</span>';
+html+='</div>';
+html+='<div style="font-size:11px;font-weight:600;color:var(--tx2);margin-bottom:4px">Notas de seguimiento:</div>';
+html+='<div style="display:flex;gap:4px"><textarea style="flex:1;padding:6px 8px;border:1px solid var(--bd);border-radius:6px;font-size:11px;font-family:inherit;resize:vertical;min-height:28px" id="sn_'+s.id+'" placeholder="Agregar nota..." onclick="event.stopPropagation()"></textarea>';
+html+='<button style="font-size:10px;padding:4px 10px;border:1px solid var(--bd2);border-radius:4px;background:var(--bg3);cursor:pointer;font-family:inherit;align-self:flex-end" onclick="event.stopPropagation();addStratNote('+s.id+')">Guardar</button></div>';
+html+='<div class="strat-notes-log" id="snl_'+s.id+'">'+renderStratNotes(s.id)+'</div>';
+html+='</div></td></tr>';
+});
+html+='</tbody>';
+document.getElementById('stratTable').innerHTML=html;
+}
+function toggleStratExpand(id){
+var el=document.getElementById('se_'+id);
+el.classList.toggle('open');
+}
+function updateStratStatus(id,val){
+if(!stratState[id])stratState[id]={status:val,notes:[]};
+else stratState[id].status=val;
+saveStratState();
+buildStratKPIs();
+buildStratChart();
+// Refresh table keeping filters
+applyStratFilter();
+}
+function addStratNote(id){
+var input=document.getElementById('sn_'+id);
+var text=input.value.trim();if(!text)return;
+if(!stratState[id])stratState[id]={status:getStratStatus(id),notes:[]};
+if(!stratState[id].notes)stratState[id].notes=[];
+stratState[id].notes.push({date:new Date().toLocaleDateString('es-CL'),text:text});
+saveStratState();
+input.value='';
+document.getElementById('snl_'+id).innerHTML=renderStratNotes(id);
+}
+function renderStratNotes(id){
+var notes=stratState[id]?stratState[id].notes:[];
+if(!notes||!notes.length)return '<div style="color:var(--tx3);font-style:italic;padding:4px 0;font-size:10px">Sin notas aún</div>';
+return notes.slice().reverse().map(function(n){return '<div class="strat-note-entry"><b>'+n.date+'</b> — '+n.text+'</div>';}).join('');
+}
+
+/* ========== REPORT MODAL ========== */
+function openReport(){
+var modal=document.getElementById('reportModal');
+var content=document.getElementById('reportContent');
+var total=STRAT.length;
+var prog=STRAT.filter(function(s){return getStratStatus(s.id)==='In progress';}).length;
+var done=STRAT.filter(function(s){return getStratStatus(s.id)==='Completed';}).length;
+var notS=STRAT.filter(function(s){return getStratStatus(s.id)==='Not started';}).length;
+var overdue=STRAT.filter(function(s){
+if(s.du==='—')return false;
+var parts=s.du.split('/');var d=new Date(+parts[2],+parts[0]-1,+parts[1]);
+return d<new Date()&&getStratStatus(s.id)!=='Completed';
+}).length;
+var h='<div style="position:relative"><button onclick="closeReport()" style="position:absolute;top:0;right:0;font-size:18px;border:none;background:none;cursor:pointer;color:var(--tx2)">✕</button>';
+h+='<h2>Reporte Visual — Iniciativas FEN 2026</h2>';
+h+='<div class="modal-sub">Generado '+new Date().toLocaleDateString('es-CL')+' · Dashboard DAC v1.1</div>';
+h+='<div class="modal-kpis">';
+h+='<div class="modal-kpi"><div class="modal-kpi-val">'+total+'</div><div class="modal-kpi-label">Total</div></div>';
+h+='<div class="modal-kpi"><div class="modal-kpi-val" style="color:var(--donet)">'+done+'</div><div class="modal-kpi-label">Completadas</div></div>';
+h+='<div class="modal-kpi"><div class="modal-kpi-val" style="color:var(--nonet)">'+overdue+'</div><div class="modal-kpi-label">Vencidas</div></div>';
+h+='</div>';
+// Progress bar
+var pctDone=total?Math.round(done/total*100):0;
+var pctProg=total?Math.round(prog/total*100):0;
+h+='<div style="margin-bottom:16px"><div style="font-size:12px;font-weight:600;margin-bottom:6px">Progreso general</div>';
+h+='<div style="height:24px;background:var(--bg2);border-radius:6px;overflow:hidden;display:flex">';
+h+='<div style="width:'+pctDone+'%;background:var(--done);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:var(--donet)">'+pctDone+'%</div>';
+h+='<div style="width:'+pctProg+'%;background:var(--info);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:var(--infot)">'+pctProg+'%</div>';
+h+='</div>';
+h+='<div style="display:flex;gap:12px;margin-top:4px;font-size:10px;color:var(--tx3)"><span>🟢 Completadas</span><span>🔵 En progreso</span><span>⬜ Pendientes</span></div></div>';
+// By area
+h+='<div style="font-size:12px;font-weight:600;margin-bottom:8px">Por área</div>';
+var counts={};
+STRAT.forEach(function(s){
+var lb=s.lb;if(!counts[lb])counts[lb]={total:0,done:0,prog:0};
+counts[lb].total++;
+var st=getStratStatus(s.id);
+if(st==='Completed')counts[lb].done++;
+if(st==='In progress')counts[lb].prog++;
+});
+Object.keys(counts).sort().forEach(function(lb){
+var c=counts[lb];
+var pD=c.total?Math.round(c.done/c.total*100):0;
+var pP=c.total?Math.round(c.prog/c.total*100):0;
+h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:11px">';
+h+='<div style="width:100px;text-align:right;font-weight:500;color:'+(LTXT[lb]||'#666')+'">'+lb+'</div>';
+h+='<div style="flex:1;height:16px;background:var(--bg2);border-radius:4px;overflow:hidden;display:flex">';
+h+='<div style="width:'+pD+'%;background:'+(LCOL[lb]||'#ddd')+';opacity:1"></div>';
+h+='<div style="width:'+pP+'%;background:'+(LCOL[lb]||'#ddd')+';opacity:0.4"></div>';
+h+='</div><div style="width:40px;font-size:10px;font-weight:600">'+c.done+'/'+c.total+'</div></div>';
+});
+// Overdue list
+if(overdue>0){
+h+='<div style="margin-top:16px;padding:12px;background:var(--none);border-radius:8px;font-size:11px">';
+h+='<div style="font-weight:600;color:var(--nonet);margin-bottom:6px">⚠ Iniciativas con fecha vencida ('+overdue+')</div>';
+STRAT.filter(function(s){
+if(s.du==='—')return false;
+var parts=s.du.split('/');var d=new Date(+parts[2],+parts[0]-1,+parts[1]);
+return d<new Date()&&getStratStatus(s.id)!=='Completed';
+}).forEach(function(s){
+h+='<div style="padding:2px 0">• '+s.n+' ('+s.o+') — '+s.du+'</div>';
+});
+h+='</div>';
+}
+h+='</div>';
+content.innerHTML=h;
+modal.classList.add('open');
+}
+function closeReport(){document.getElementById('reportModal').classList.remove('open');}
+document.getElementById('reportModal').addEventListener('click',function(e){if(e.target===this)closeReport();});
+
+/* ========== GENERATE CONTEXT.MD ========== */
+function genContextMD(){
+var lines=['# Estado actual generado desde Dashboard v1.1','','Fecha: '+new Date().toLocaleDateString('es-CL'),'','## Estado de tareas',''];
+for(var d=0;d<5;d++){
+lines.push('### '+DN[d]);
+T.forEach(function(t,i){
+if(t.d===d){
+var st=state[i]||t.b;
+lines.push((i+1)+'. '+t.n+' → '+st+(t.nt?' ('+t.nt+')':''));
+}
+});
+lines.push('');
+}
+lines.push('## Iniciativas estratégicas','');
+STRAT.forEach(function(s){
+var st=getStratStatus(s.id);
+var notes=stratState[s.id]?stratState[s.id].notes:[];
+lines.push('- '+s.n+' ['+s.lb+'] → '+st+(notes.length?' ('+notes.length+' notas)':''));
+});
+var blob=new Blob([lines.join('\n')],{type:'text/markdown'});
+var a=document.createElement('a');
+a.href=URL.createObjectURL(blob);
+a.download='CONTEXT_update_'+new Date().toISOString().slice(0,10)+'.md';
+a.click();
+}
+
+/* ========== INIT ========== */
+function init(){
+state=loadState();
+stratState=loadStratState();
+cycleNotes=loadCycleNotes();
+buildNav();
+buildDimCards();
+buildBaseline();
+buildCurrent();
+buildHeat();
+buildStrat();
+}
 init();
 </script>
 </body>
