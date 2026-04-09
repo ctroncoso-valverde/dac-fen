@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snapshot AACSB — Encriptar para Dashboard</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8fafc;color:#1e293b;padding:24px}
+.wrap{max-width:700px;margin:0 auto}
+h1{font-size:20px;font-weight:700;margin-bottom:4px}
+.sub{font-size:13px;color:#64748b;margin-bottom:24px}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:24px;margin-bottom:16px}
+.card h2{font-size:15px;font-weight:600;margin-bottom:12px}
+.drop{border:2px dashed #cbd5e1;border-radius:12px;padding:48px 24px;text-align:center;cursor:pointer;transition:all .2s}
+.drop:hover,.drop.over{border-color:#3b82f6;background:#eff6ff}
+.drop h3{font-size:16px;font-weight:600;color:#374151;margin-bottom:6px}
+.drop p{font-size:13px;color:#6b7280}
+.loaded{background:#f0fdf4;border-color:#86efac;padding:16px;text-align:center;border-radius:12px;border:2px solid #86efac}
+.loaded h3{color:#166534;font-size:14px;font-weight:600}
+.loaded p{color:#15803d;font-size:12px;margin-top:4px}
+label{font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:4px}
+input[type=text],input[type=password]{width:100%;padding:10px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-size:14px;font-family:inherit}
+input:focus{outline:none;border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+.btn{padding:10px 20px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:all .15s}
+.btn-p{background:#1d4ed8;color:#fff}.btn-p:hover{background:#1e40af}
+.btn-p:disabled{opacity:.4;cursor:not-allowed}
+.row{display:flex;gap:12px;align-items:flex-end;margin-top:12px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:16px}
+.stat{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px;text-align:center}
+.stat-v{font-size:20px;font-weight:700}.stat-l{font-size:10px;color:#6b7280;margin-top:2px}
+.log{background:#f1f5f9;border-radius:8px;padding:12px;font-size:12px;font-family:monospace;max-height:200px;overflow-y:auto;margin-top:12px;line-height:1.6;color:#475569;display:none}
+.ok{color:#166534}.err{color:#dc2626}.info{color:#6b7280}
+.b{display:inline-block;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:700}
+.b-sa{background:#dbeafe;color:#1d4ed8}.b-pa{background:#ede9fe;color:#6d28d9}
+.b-sp{background:#e0f2fe;color:#0369a1}.b-ip{background:#ffedd5;color:#c2410c}.b-a{background:#fee2e2;color:#dc2626}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Snapshot AACSB — Encriptar para Dashboard</h1>
+<p class="sub">Toma el JSON exportado desde la app de gestión local, calcula clasificaciones, y genera un archivo encriptado para el dashboard.</p>
+
+<div class="card">
+<h2>1. Cargar portafolio_data.json</h2>
+<div id="dropZone" class="drop" onclick="document.getElementById('fileIn').click()">
+<h3>Arrastra el archivo aquí</h3>
+<p>o haz click para seleccionar · portafolio_data.json desde "Exportar Portal"</p>
+</div>
+<input type="file" id="fileIn" accept=".json" style="display:none">
+</div>
+
+<div class="card" id="step2" style="opacity:.4;pointer-events:none">
+<h2>2. Clasificar y encriptar</h2>
+<div><label>RUT para encriptación (será requerido para desencriptar en el dashboard)</label>
+<div class="row"><input type="password" id="rutIn" placeholder="Ej: 12345678-9"><button class="btn btn-p" id="goBtn" onclick="doEncrypt()" disabled>Generar snapshot encriptado</button></div></div>
+<div id="statsArea"></div>
+<div class="log" id="logArea"></div>
+</div>
+</div>
+
+<script>
+/* ══════════ CLASSIFICATION ENGINE (from gestión-fen) ══════════ */
+var DISC_KEYS_CORE=[{key:'sch_adm_ni_inn',code:'ADM_NI_INN'},{key:'sch_econ_gp',code:'ECON_GP'},{key:'sch_con_fin_tri',code:'CON_FIN_TRI'},{key:'sch_ad_mkt_tur',code:'AD_MKT_TUR'}];
+var CAT_PARTICIPATING={'part_comite':1,'cargo_academico':1,'coord_multisede':1,'sup_tesis':2,'mentor_equipos':2,'pub_paper':3,'pub_libro':3,'conf_ext':3,'proy_comp':3,'working_paper':3,'colab_fen':3,'editor_revista':3,'peer_review':3,'movilidad_inv':3,'pub_caso_editorial':3,'caso_conf_repos':3,'caso_adoptado':3,'policy_brief':3,'patente_pi':3,'material_ensenanza':4,'rediseno_curso':4,'diseno_programa':4,'proy_innov_doc':4,'extension_com':5,'org_seminario':5,'clase_ed_ejec':5,'panelista_foro':5,'vcm_alumni':5,'movilidad_acad':5,'vcm_proyecto':5,'diseno_ed_ejec':5,'media_regular':5,'podcast_blog':5,'perfeccion_acad':5};
+function classifyLista(ev){var c=ev.codigo;if(c==='pub_paper'){var idx=(ev.indice||'').toUpperCase();if(idx.includes('WOS')||idx.includes('SCOPUS'))return'LISTA_I';return'LISTA_II'}if(c==='pub_libro')return(ev.titulo_capitulo||'').trim()?'LISTA_II':'LISTA_I';if(c==='pub_caso_editorial')return'LISTA_I';if(['proy_comp','movilidad_inv','conf_ext','editor_revista','peer_review','working_paper','policy_brief','caso_conf_repos','caso_adoptado','premio_academico','patente_pi'].includes(c))return'LISTA_II';if(c==='sup_tesis'){var r=(ev.rol_tesis||'').toLowerCase();return(r.includes('miembro')||r.includes('jurado')||r.includes('evaluador'))?'NINGUNA':'LISTA_II'}if(c==='consultoria_alta'){var tc=(ev.tipo_cliente||'').toLowerCase();return(tc.includes('gobierno')||tc.includes('regulat')||tc.includes('público')||tc.includes('publico'))?'LISTA_II':'LISTA_III'}if(c==='asoc_profesional'){var td=(ev.tipo_directorio||'').toLowerCase();return(td.includes('científic')||td.includes('cientific')||td.includes('académic')||td.includes('academic'))?'LISTA_II':'LISTA_III'}if(['clase_ed_ejec','diseno_ed_ejec','comite_tecnico','puesto_directorio','vcm_proyecto','panelista_foro','certificacion_prof','perfeccion_acad','extension_com','org_seminario','premio_sectorial','perito_arbitro'].includes(c))return'LISTA_III';if(c==='media_regular'||c==='podcast_blog')return'LISTA_III_PIEZA';if(c==='pub_pedagogica')return'LISTA_II';return'NINGUNA'}
+function classifyParticipating(ev){if(!ev.fen_colaboracion||ev.fen_colaboracion!=='true')return false;return ev.codigo in CAT_PARTICIPATING}
+function getListaFinal(ev){return ev.lista_final||ev.lista_auto||'NINGUNA'}
+function isParticipating(ev){if(ev.participating_final)return ev.participating_final==='true';return ev.participating_auto==='true'}
+function getDiscDistribution(h){if(!h)return{parts:[],primary:'—',text:'Sin SCH',teachesInDisc:function(){return false}};var total=+(h.sch_total||0);if(total<=0)return{parts:[],primary:'—',text:'Sin SCH',teachesInDisc:function(){return false}};var parts=DISC_KEYS_CORE.map(function(d){return{code:d.code,sch:+(h[d.key]||0)}}).filter(function(p){return p.sch>0}).map(function(p){return{code:p.code,pct:p.sch/total,sch:p.sch}}).sort(function(a,b){return b.pct-a.pct});var primary=parts.length>0?parts[0].code:'—';var dSet=new Set(parts.map(function(p){return p.code}));return{parts:parts,primary:primary,text:parts.map(function(p){return p.code+' '+Math.round(p.pct*100)+'%'}).join(' · '),teachesInDisc:function(c){return dSet.has(c)}}}
+
+function classifyAcademic(acad,evidencias,expLaboral,anioEval,horas){
+var aprobadas=evidencias.filter(function(e){return e.estado==='aprobada'});
+var a6=anioEval-5,a2=anioEval-1;
+var ci1_6=aprobadas.filter(function(e){return getListaFinal(e)==='LISTA_I'&&+e.anio>=a6}).length;
+var ci2_6=aprobadas.filter(function(e){return getListaFinal(e)==='LISTA_II'&&+e.anio>=a6}).length;
+var ci12_24=aprobadas.filter(function(e){return['LISTA_I','LISTA_II'].includes(getListaFinal(e))&&+e.anio>=a2}).length;
+var l3d=aprobadas.filter(function(e){return getListaFinal(e)==='LISTA_III'&&+e.anio>=a2}).length;
+var med=aprobadas.filter(function(e){return getListaFinal(e)==='LISTA_III_PIEZA'&&e.codigo==='media_regular'&&+e.anio>=a2}).length;
+var pod=aprobadas.filter(function(e){return getListaFinal(e)==='LISTA_III_PIEZA'&&e.codigo==='podcast_blog'&&+e.anio>=a2}).length;
+var l3=l3d+(med>=5?1:0)+(pod>=5?1:0);
+var cal=expLaboral.filter(function(e){return e.cargo_califica==='true'});
+var esV=function(v){return(v||'').toLowerCase().trim()==='vigente'};
+var tV=cal.some(function(e){return esV(e.anio_fin)||+e.anio_fin>=anioEval});
+var aA=cal.reduce(function(s,e){var i=+e.anio_inicio||0;var f=esV(e.anio_fin)?anioEval:(+e.anio_fin||0);return s+Math.max(0,f-i)},0);
+var camA=tV&&aA>=2;
+var g=(acad.grado||'').toLowerCase(),gd=(acad.grado_detalle||'').toLowerCase();
+var dd=getDiscDistribution(horas),df=(acad.disciplina||'').toLowerCase();
+var esDoc=g.includes('doctor'),esABD=g.includes('abd'),esMag=g.includes('magíster')||g.includes('magister');
+var gT=gd.includes('tribut')||gd.includes('tax'),gD=gd.includes('derecho')||gd.includes('law')||gd.includes('llm');
+var eT=dd.teachesInDisc('CON_FIN_TRI')||df.includes('con_fin_tri');
+var eD=df.includes('derecho')||df.includes('legal')||df.includes('ética')||df.includes('etica');
+var esGTE=esMag&&((gT&&eT)||(gD&&eD)||(gD&&eT));
+var aDoc=+acad.anio_doctorado||0,aABD=+acad.anio_inicio_abd||0;
+var docRec=esDoc&&!esABD&&aDoc>0&&(anioEval-aDoc)<=5;
+var abdVig=esABD&&aABD>0&&(anioEval-aABD)<=3;
+var tieneGT=(esDoc&&!esABD)||(esABD&&abdVig)||esGTE;
+var esDec=acad.es_decano==='true';
+if(tieneGT){if(docRec||abdVig)return'SA';if(esDec){if((ci1_6>=1||ci2_6>=3)&&ci12_24>=1)return'SA';return'PA'}if((ci1_6>=2&&ci12_24>=1)||(ci1_6>=1&&ci2_6>=3&&ci12_24>=1))return'SA'}
+if((esDoc&&!esABD)||esGTE){if(esDec)return'PA';if(camA)return'PA';if(l3>=3)return'PA'}
+if(esMag||esABD){if((ci1_6>=1&&ci12_24>=1)||(ci2_6>=3&&ci12_24>=1))return'SP';if(camA)return'IP';if(l3>=3)return'IP'}
+return'A'}
+
+function classifySufficiency(acad,evidencias,anioEval){
+if((acad.planta||'').toLowerCase().includes('regular'))return'Participating';
+var a2=anioEval-1;
+var has=evidencias.some(function(e){return e.estado==='aprobada'&&isParticipating(e)&&+e.anio>=a2});
+return has?'Participating':'Supporting'}
+
+/* ══════════ CRYPTO ══════════ */
+async function encryptData(data,password){
+var enc=new TextEncoder();
+var km=await crypto.subtle.importKey('raw',enc.encode(password),'PBKDF2',false,['deriveKey']);
+var salt=crypto.getRandomValues(new Uint8Array(16));
+var key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:100000,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['encrypt']);
+var iv=crypto.getRandomValues(new Uint8Array(12));
+var ct=await crypto.subtle.encrypt({name:'AES-GCM',iv:iv},key,enc.encode(JSON.stringify(data)));
+var buf=new Uint8Array(salt.length+iv.length+ct.byteLength);
+buf.set(salt,0);buf.set(iv,16);buf.set(new Uint8Array(ct),28);
+return buf}
+
+/* ══════════ MAIN LOGIC ══════════ */
+var rawData=null;
+var dz=document.getElementById('dropZone');
+var fi=document.getElementById('fileIn');
+
+function handleFile(file){
+if(!file)return;
+var reader=new FileReader();
+reader.onload=function(e){
+try{
+var d=JSON.parse(e.target.result);
+if(d._formato!=='portafolio_data_v1'){alert('Formato no reconocido. Usa "Exportar Portal" de la app de gestión.');return}
+rawData=d;
+dz.outerHTML='<div class="loaded"><h3>✓ Datos cargados correctamente</h3><p>'+d.academicos.length+' académicos · '+d.evidencias.length+' evidencias · '+d.exp_laboral.length+' exp. laboral · Año eval: '+d.anio_eval+'</p></div>';
+var s2=document.getElementById('step2');s2.style.opacity='1';s2.style.pointerEvents='auto';
+document.getElementById('rutIn').focus();
+document.getElementById('goBtn').disabled=false;
+}catch(err){alert('Error leyendo JSON: '+err.message)}
+};reader.readAsText(file)}
+
+dz.addEventListener('dragover',function(e){e.preventDefault();dz.classList.add('over')});
+dz.addEventListener('dragleave',function(){dz.classList.remove('over')});
+dz.addEventListener('drop',function(e){e.preventDefault();dz.classList.remove('over');handleFile(e.dataTransfer.files[0])});
+fi.addEventListener('change',function(e){handleFile(e.target.files[0])});
+
+function log(msg,cls){var el=document.getElementById('logArea');el.style.display='block';el.innerHTML+='<div class="'+(cls||'info')+'">'+msg+'</div>';el.scrollTop=el.scrollHeight}
+
+async function doEncrypt(){
+var rut=document.getElementById('rutIn').value.trim();
+if(!rut){alert('Ingresa un RUT');return}
+if(!rawData){alert('Carga el JSON primero');return}
+var btn=document.getElementById('goBtn');btn.disabled=true;btn.textContent='Procesando...';
+log('Iniciando clasificación de '+rawData.academicos.length+' académicos...','info');
+
+try{
+var anio=rawData.anio_eval||2025;
+// Build horas map
+var horasMap={};(rawData.horas_contacto||[]).forEach(function(h){horasMap[h.rut]=h});
+// Build evidence map and classify evidences
+var evByRut={};
+rawData.evidencias.forEach(function(ev){
+if(!ev.lista_auto)ev.lista_auto=classifyLista(ev);
+if(!ev.participating_auto)ev.participating_auto=classifyParticipating(ev)?'true':'false';
+if(!evByRut[ev.rut])evByRut[ev.rut]=[];
+evByRut[ev.rut].push(ev);
+});
+// Build exp map
+var expByRut={};
+(rawData.exp_laboral||[]).forEach(function(ex){if(!expByRut[ex.rut])expByRut[ex.rut]=[];expByRut[ex.rut].push(ex)});
+
+var results=[];var counts={SA:0,PA:0,SP:0,IP:0,A:0};var totalPTDM=0;
+var discTotals={};DISC_KEYS_CORE.forEach(function(d){discTotals[d.code]={sa:0,qual:0,total:0,pSCH:0,sSCH:0}});
+
+rawData.academicos.forEach(function(acad){
+var evs=evByRut[acad.rut]||[];
+var exps=expByRut[acad.rut]||[];
+var horas=horasMap[acad.rut];
+var clasif=classifyAcademic(acad,evs,exps,anio,horas);
+var suf=classifySufficiency(acad,evs,anio);
+var dd=getDiscDistribution(horas);
+var planta=(acad.planta||'').toLowerCase();
+var ptdm=planta.includes('regular')?1.0:(horas?Math.min(+(horas.sch_total||0)/40,1):0);
+
+counts[clasif]++;totalPTDM+=ptdm;
+
+// Discipline ratios
+dd.parts.forEach(function(p){
+var dt=discTotals[p.code];if(!dt)return;
+var dPtdm=ptdm*p.pct;
+dt.total+=dPtdm;
+if(clasif==='SA')dt.sa+=dPtdm;
+if(['SA','PA','SP','IP'].includes(clasif))dt.qual+=dPtdm;
+if(suf==='Participating')dt.pSCH+=p.sch;
+else dt.sSCH+=p.sch;
+});
+
+// Approved evidences for detail view
+var aprobadas=evs.filter(function(e){return e.estado==='aprobada'}).map(function(e){
+return{codigo:e.codigo,anio:e.anio||'',titulo:e.titulo_articulo||e.titulo_ponencia||e.cargo_gestion||e.nombre_evento||e.titulo_wp||e.titulo_proyecto||e.nombre_cliente||e.titulo_nota||e.titulo_tesis||e.titulo_libro||e.descripcion||'',lista:getListaFinal(e),revista:e.revista||'',indice:e.indice||''}});
+var expDetail=exps.map(function(e){return{cargo:e.cargo||'',org:e.organizacion||'',inicio:e.anio_inicio||'',fin:e.anio_fin||'',califica:e.cargo_califica==='true'}});
+
+results.push({nombre:acad.nombre||'',planta:acad.planta||'',grado:acad.grado||'',gradoDetalle:acad.grado_detalle||'',disciplina:dd.primary,discText:dd.text,ptdm:Math.round(ptdm*100)/100,sch:horas?+(horas.sch_total||0):0,clasificacion:clasif,suficiencia:suf,evidencias:aprobadas,expLaboral:expDetail});
+});
+
+// Calculate global ratios
+var saPTDM=0,qualPTDM=0;
+results.forEach(function(r){
+if(r.clasificacion==='SA')saPTDM+=r.ptdm;
+if(['SA','PA','SP','IP'].includes(r.clasificacion))qualPTDM+=r.ptdm;
+});
+var totalP=results.filter(function(r){return r.suficiencia==='Participating'}).length;
+var totalWithCI=results.filter(function(r){return r.suficiencia==='Participating'&&r.evidencias.some(function(e){return['LISTA_I','LISTA_II'].includes(e.lista)})}).length;
+
+var discRatios=DISC_KEYS_CORE.map(function(d){
+var dt=discTotals[d.code];
+return{code:d.code,sa:dt.total>0?Math.round(dt.sa/dt.total*1000)/10:0,qual:dt.total>0?Math.round(dt.qual/dt.total*1000)/10:0,part:dt.pSCH+dt.sSCH>0?Math.round(dt.pSCH/(dt.pSCH+dt.sSCH)*1000)/10:0,ptdm:Math.round(dt.total*100)/100}});
+
+var snapshot={
+meta:{fecha:new Date().toISOString(),anioEval:anio,total:results.length,regulares:results.filter(function(r){return(r.planta||'').toLowerCase().includes('regular')}).length,adjuntos:results.filter(function(r){return!(r.planta||'').toLowerCase().includes('regular')}).length},
+ratios:{global:{sa:totalPTDM>0?Math.round(saPTDM/totalPTDM*1000)/10:0,qual:totalPTDM>0?Math.round(qualPTDM/totalPTDM*1000)/10:0,part:0,pci:totalP>0?Math.round(totalWithCI/totalP*1000)/10:0,totalPTDM:Math.round(totalPTDM*100)/100},byDisc:discRatios},
+academicos:results.sort(function(a,b){return a.nombre.localeCompare(b.nombre)})
+};
+
+// Calculate P/(P+S) by SCH
+var totalPSCH=0,totalSSCH=0;
+results.forEach(function(r){if(r.suficiencia==='Participating')totalPSCH+=r.sch;else totalSSCH+=r.sch});
+snapshot.ratios.global.part=(totalPSCH+totalSSCH)>0?Math.round(totalPSCH/(totalPSCH+totalSSCH)*1000)/10:0;
+
+log('Clasificación completada:','ok');
+log('  SA: '+counts.SA+' · PA: '+counts.PA+' · SP: '+counts.SP+' · IP: '+counts.IP+' · A: '+counts.A,'ok');
+log('  SA%: '+snapshot.ratios.global.sa+'% · Qual%: '+snapshot.ratios.global.qual+'% · P/(P+S): '+snapshot.ratios.global.part+'%','ok');
+
+// Show stats
+var sa=document.getElementById('statsArea');
+sa.innerHTML='<div class="stats"><div class="stat"><div class="stat-v">'+snapshot.ratios.global.sa+'%</div><div class="stat-l">SA (PTDM)</div></div><div class="stat"><div class="stat-v">'+snapshot.ratios.global.qual+'%</div><div class="stat-l">Qualified</div></div><div class="stat"><div class="stat-v">'+snapshot.ratios.global.part+'%</div><div class="stat-l">P/(P+S) SCH</div></div><div class="stat"><div class="stat-v">'+results.length+'</div><div class="stat-l">Académicos</div></div></div>';
+
+log('Encriptando con AES-256-GCM...','info');
+var encrypted=await encryptData(snapshot,rut);
+
+// Download
+var blob=new Blob([encrypted],{type:'application/octet-stream'});
+var url=URL.createObjectURL(blob);
+var a=document.createElement('a');a.href=url;a.download='snapshot_aacsb.enc';a.click();
+URL.revokeObjectURL(url);
+
+log('✓ snapshot_aacsb.enc descargado ('+Math.round(encrypted.byteLength/1024)+'KB)','ok');
+log('Copia este archivo a dac-fen/dashboard/ y haz git push.','info');
+btn.textContent='✓ Completado';
+}catch(err){
+log('Error: '+err.message,'err');
+btn.disabled=false;btn.textContent='Generar snapshot encriptado';
+}}
+</script>
+</body>
+</html>
