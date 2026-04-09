@@ -50,8 +50,14 @@ input:focus{outline:none;border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,2
 <input type="file" id="fileIn" accept=".json" style="display:none">
 </div>
 
+<div class="card" id="step1b" style="opacity:.4;pointer-events:none">
+<h2>2. Carpeta de destino</h2>
+<p style="font-size:13px;color:#6b7280;margin-bottom:12px">Elige la carpeta donde guardar el archivo encriptado. Por defecto debería ser <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:12px">dac-fen/dashboard/</code></p>
+<div style="display:flex;gap:8px;align-items:center"><button class="btn" style="background:#f3f4f6;color:#374151;border:1px solid #d1d5db" onclick="pickOutputDir()">📂 Elegir carpeta</button><span id="dirLabel" style="font-size:13px;color:#9ca3af">No configurada — se descargará a Descargas</span></div>
+</div>
+
 <div class="card" id="step2" style="opacity:.4;pointer-events:none">
-<h2>2. Clasificar y encriptar</h2>
+<h2>3. Clasificar y encriptar</h2>
 <div><label>RUT para encriptación (será requerido para desencriptar en el dashboard)</label>
 <div class="row"><input type="password" id="rutIn" placeholder="Ej: 12345678-9"><button class="btn btn-p" id="goBtn" onclick="doEncrypt()" disabled>Generar snapshot encriptado</button></div></div>
 <div id="statsArea"></div>
@@ -121,6 +127,7 @@ return buf}
 
 /* ══════════ MAIN LOGIC ══════════ */
 var rawData=null;
+var outputDir=null;
 var dz=document.getElementById('dropZone');
 var fi=document.getElementById('fileIn');
 
@@ -134,6 +141,7 @@ if(d._formato!=='portafolio_data_v1'){alert('Formato no reconocido. Usa "Exporta
 rawData=d;
 dz.outerHTML='<div class="loaded"><h3>✓ Datos cargados correctamente</h3><p>'+d.academicos.length+' académicos · '+d.evidencias.length+' evidencias · '+d.exp_laboral.length+' exp. laboral · Año eval: '+d.anio_eval+'</p></div>';
 var s2=document.getElementById('step2');s2.style.opacity='1';s2.style.pointerEvents='auto';
+var s1b=document.getElementById('step1b');s1b.style.opacity='1';s1b.style.pointerEvents='auto';
 document.getElementById('rutIn').focus();
 document.getElementById('goBtn').disabled=false;
 }catch(err){alert('Error leyendo JSON: '+err.message)}
@@ -143,6 +151,14 @@ dz.addEventListener('dragover',function(e){e.preventDefault();dz.classList.add('
 dz.addEventListener('dragleave',function(){dz.classList.remove('over')});
 dz.addEventListener('drop',function(e){e.preventDefault();dz.classList.remove('over');handleFile(e.dataTransfer.files[0])});
 fi.addEventListener('change',function(e){handleFile(e.target.files[0])});
+
+function pickOutputDir(){
+if(!window.showDirectoryPicker){alert('Tu navegador no soporta selección de carpetas. Usa Chrome.');return}
+window.showDirectoryPicker({id:'snapshot_dest',mode:'readwrite',startIn:'documents'}).then(function(dir){
+outputDir=dir;
+document.getElementById('dirLabel').innerHTML='<span style="color:#166534">✓ '+dir.name+'/</span>';
+}).catch(function(e){if(e.name!=='AbortError')alert('Error: '+e.message)});
+}
 
 function log(msg,cls){var el=document.getElementById('logArea');el.style.display='block';el.innerHTML+='<div class="'+(cls||'info')+'">'+msg+'</div>';el.scrollTop=el.scrollHeight}
 
@@ -210,7 +226,7 @@ if(r.clasificacion==='SA')saPTDM+=r.ptdm;
 if(['SA','PA','SP','IP'].includes(r.clasificacion))qualPTDM+=r.ptdm;
 });
 var totalP=results.filter(function(r){return r.suficiencia==='Participating'}).length;
-var totalWithCI=results.filter(function(r){return r.suficiencia==='Participating'&&r.evidencias.some(function(e){return['LISTA_I','LISTA_II'].includes(e.lista)})}).length;
+var totalWithCI=results.filter(function(r){return r.suficiencia==='Participating'&&r.evidencias.some(function(e){return['LISTA_I','LISTA_II'].includes(e.lista)&&+e.anio>=(anio-5)})}).length;
 
 var discRatios=DISC_KEYS_CORE.map(function(d){
 var dt=discTotals[d.code];
@@ -238,14 +254,30 @@ sa.innerHTML='<div class="stats"><div class="stat"><div class="stat-v">'+snapsho
 log('Encriptando con AES-256-GCM...','info');
 var encrypted=await encryptData(snapshot,rut);
 
-// Download
+// Save to chosen directory or download
+if(outputDir){
+try{
+var fh=await outputDir.getFileHandle('snapshot_aacsb.enc',{create:true});
+var wr=await fh.createWritable();
+await wr.write(encrypted);
+await wr.close();
+log('✓ snapshot_aacsb.enc guardado en '+outputDir.name+'/ ('+Math.round(encrypted.byteLength/1024)+'KB)','ok');
+log('Ahora haz git add + commit + push.','info');
+}catch(fe){log('Error guardando: '+fe.message+'. Descargando en su lugar...','err');
 var blob=new Blob([encrypted],{type:'application/octet-stream'});
 var url=URL.createObjectURL(blob);
 var a=document.createElement('a');a.href=url;a.download='snapshot_aacsb.enc';a.click();
 URL.revokeObjectURL(url);
-
+log('✓ snapshot_aacsb.enc descargado ('+Math.round(encrypted.byteLength/1024)+'KB)','ok');
+}
+}else{
+var blob=new Blob([encrypted],{type:'application/octet-stream'});
+var url=URL.createObjectURL(blob);
+var a=document.createElement('a');a.href=url;a.download='snapshot_aacsb.enc';a.click();
+URL.revokeObjectURL(url);
 log('✓ snapshot_aacsb.enc descargado ('+Math.round(encrypted.byteLength/1024)+'KB)','ok');
 log('Copia este archivo a dac-fen/dashboard/ y haz git push.','info');
+}
 btn.textContent='✓ Completado';
 }catch(err){
 log('Error: '+err.message,'err');
