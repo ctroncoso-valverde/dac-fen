@@ -198,7 +198,7 @@ var AA=[
 ];
 var AA_BASELINE={sa:15.9,qual:40.5,part:47.5,pci:32.3,aolPre:100,aolPost:29};
 var AA_BASELINE_TARGETS={sa:40,qual:90,part:75,pci:50,aolPre:100,aolPost:100};
-var AA_METRIC_NAMES={sa:'SA ratio (PTDM)',qual:'Qualified ratio (PTDM)',part:'Participating ratio (SCH)',pci:'P con CI',aolPre:'AoL pregrado',aolPost:'AoL postgrado'};
+var AA_METRIC_NAMES={sa:'SA ratio (PTDM)',qual:'Qualified ratio (PTDM)',part:'Participating ratio (SCH)',pci:'Participating con CI',aolPre:'AoL pregrado',aolPost:'AoL postgrado'};
 var AA_AOL_POST_NOTE='2 de 7 programas con AoL funcionando (MBA y Mag. Direcci\u00f3n de Personas). Los 5 restantes (Tributaci\u00f3n, Finanzas, Marketing, Tech MBA, MECD) est\u00e1n planificados pero sin plan AAE ni datos a la fecha.';
 var CRIT_LABELS=['CRÍTICO','IMPORTANTE','MEJORA'];
 var CRIT_BG=['var(--none)','var(--partial)','var(--c2b)'];
@@ -296,6 +296,7 @@ state=loadState();stratState=loadStratState();cycleNotes=loadCycleNotes();aaStat
 buildNav();buildDimCards();buildBaseline();buildCurrent();buildHeat();buildAA();buildStrat();
 </script>
 <script src="aacsb-v2.js"></script>
+<script src="ciclo-v2.js"></script>
 <script src="faculty-inject.js"></script>
 </body>
 </html>
