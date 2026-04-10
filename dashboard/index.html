@@ -57,9 +57,9 @@ footer{margin-top:2rem;padding:1rem 0;border-top:1px solid var(--bd);font-size:1
 <div class="panel" id="tab3"><div class="sub-tabs"><button class="sub-tab on" onclick="setCycleView('heat',this)">Heatmap</button><button class="sub-tab" onclick="setCycleView('detail',this)">Detalle por mes</button></div><div id="cycleHeat"><div class="heat-wrap"><div class="heat" id="heatGrid"></div></div><div class="leg"><span>Intensidad = n° tareas</span><span>·</span><span>Hover = tooltip</span><span>·</span><span>Click = expandir</span></div><div class="cycle-detail" id="heatDetail"><p style="color:var(--tx3);font-size:12px;font-style:italic">Haz click en una celda para ver el detalle.</p></div></div><div id="cycleDetail" style="display:none"></div></div>
 <!-- TAB 4: AACSB -->
 <div class="panel" id="tab4">
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px"><div><span style="font-size:15px;font-weight:600">AACSB — Compromisos iSER</span><br><span style="font-size:12px;color:var(--tx2)">43 compromisos estratégicos · Extraídos de Ch0–Ch9 del iSER</span></div></div>
-<div class="sub-tabs" id="aaSubs"><button class="sub-tab on" onclick="setAAView('baseline',this)">Línea base iSER</button><button class="sub-tab" onclick="setAAView('track',this)">Seguimiento</button><button class="sub-tab" onclick="setAAView('exec',this)">Vista ejecutiva</button></div>
-<div id="aaBaseline"></div><div id="aaTrack" style="display:none"></div><div id="aaExec" style="display:none"></div>
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px"><div><span style="font-size:18px;font-weight:600">AACSB — Compromisos iSER</span><br><span style="font-size:14px;color:var(--tx2)">43 compromisos estratégicos · Extraídos de Ch0–Ch9 del iSER</span></div></div>
+<div class="sub-tabs" id="aaSubs"><button class="sub-tab on" onclick="setAAView('resumen',this)">Resumen</button><button class="sub-tab" onclick="setAAView('track',this)">Seguimiento</button></div>
+<div id="aaResumen"></div><div id="aaTrack" style="display:none"></div>
 </div>
 <!-- TAB 5: STRATEGIC -->
 <div class="panel" id="tab5"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px"><div><span style="font-size:15px;font-weight:600">Iniciativas estratégicas FEN 2026</span><br><span style="font-size:12px;color:var(--tx2)">Fuente: Planner Teams · Seguimiento global por DAC</span></div><button style="font-size:11px;padding:6px 14px;border:1px solid var(--bd2);border-radius:6px;background:var(--bg3);cursor:pointer;font-family:inherit" onclick="openReport()">📊 Generar reporte visual</button></div><div class="strat-kpis" id="stratKpis"></div><div class="strat-chart" id="stratChart"><h3>Distribución por área</h3><div id="stratChartBars"></div></div><div class="strat-filters" id="stratFilters"></div><div style="overflow-x:auto"><table class="strat-table" id="stratTable"></table></div></div>
@@ -194,9 +194,10 @@ var AA=[
 {id:'T4-09',std:4,n:'Cargar evidencias en Gestor Documental SAIC',desc:'',plazo:'15 abril 2026',resp:'DAC',ref:'Ch5',crit:2,tier:3,bst:'pendiente'},
 {id:'T4-10',std:0,n:'Mapa alineación estratégica UNAB–FEN–AACSB mantenido',desc:'',plazo:'Hecho (mantener)',resp:'DAC',ref:'Ch0, Ch1',crit:2,tier:3,bst:'hecho'}
 ];
-var AA_BASELINE={sa:15.9,qual:40.5,part:47.5,pci:32.3,aolPre:100,aolPost:70};
+var AA_BASELINE={sa:15.9,qual:40.5,part:47.5,pci:32.3,aolPre:100,aolPost:29};
 var AA_BASELINE_TARGETS={sa:40,qual:90,part:75,pci:50,aolPre:100,aolPost:100};
-var AA_METRIC_NAMES={sa:'SA ratio',qual:'Qualified ratio',part:'Participating ratio',pci:'P con CI',aolPre:'AoL pregrado',aolPost:'AoL postgrado'};
+var AA_METRIC_NAMES={sa:'SA ratio (PTDM)',qual:'Qualified ratio (PTDM)',part:'Participating ratio (SCH)',pci:'P con CI',aolPre:'AoL pregrado',aolPost:'AoL postgrado'};
+var AA_AOL_POST_NOTE='2 de 7 programas con AoL funcionando (MBA y Mag. Direcci\u00f3n de Personas). Los 5 restantes (Tributaci\u00f3n, Finanzas, Marketing, Tech MBA, MECD) est\u00e1n planificados pero sin plan AAE ni datos a la fecha.';
 var CRIT_LABELS=['CRÍTICO','IMPORTANTE','MEJORA'];
 var CRIT_BG=['var(--none)','var(--partial)','var(--c2b)'];
 var CRIT_TX=['var(--nonet)','var(--partialt)','var(--c2t)'];
@@ -255,7 +256,8 @@ function setCycleView(v,btn){document.querySelectorAll('#tab3 .sub-tab').forEach
 function buildCycleDetail(){var cd=document.getElementById('cycleDetail');var h='';for(var m=0;m<12;m++){var items=[];for(var d=0;d<5;d++){var tks=HT[m+'-'+d];if(tks)tks.forEach(function(tk){items.push({d:d,dt:tk.dt,t:tk.t,s:tk.s})})}if(!items.length)continue;h+='<div style="margin-bottom:1rem"><div style="font-size:14px;font-weight:600;padding-bottom:4px;border-bottom:1px solid var(--bd);margin-bottom:6px">'+MF[m]+' <span style="font-size:11px;color:var(--tx3);font-weight:400">('+items.length+')</span></div>';items.forEach(function(it){var src=it.s==='aae'?'t-aae':it.s==='cna'?'t-cna':it.s==='new'?'t-new':'t-est';var srcN=it.s==='aae'?'cal. AAE':it.s==='cna'?'cal. CNA':it.s==='new'?'nuevo VRAC':'SAIC estimado';h+='<div style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid var(--bg2);font-size:12px"><div class="dim-dot" style="background:'+DC[it.d]+';min-width:8px;height:8px;margin-top:5px"></div><div style="font-weight:600;color:var(--tx2);min-width:36px;font-size:11px">'+it.dt+'</div><div style="flex:1">'+it.t+' <span class="tg '+src+'">'+srcN+'</span></div></div>'});h+='</div>'}cd.innerHTML=h}
 
 /* ===== TAB 4: AACSB ===== */
-function setAAView(v,btn){document.querySelectorAll('#aaSubs .sub-tab').forEach(function(b){b.classList.remove('on')});btn.classList.add('on');document.getElementById('aaBaseline').style.display=v==='baseline'?'block':'none';document.getElementById('aaTrack').style.display=v==='track'?'block':'none';document.getElementById('aaExec').style.display=v==='exec'?'block':'none';if(v==='track')buildAATrack();if(v==='exec')buildAAExec()}
+var aaGroupBy='std';
+function setAAView(v,btn){document.querySelectorAll('#aaSubs .sub-tab').forEach(function(b){b.classList.remove('on')});btn.classList.add('on');document.getElementById('aaResumen').style.display=v==='resumen'?'block':'none';document.getElementById('aaTrack').style.display=v==='track'?'block':'none';if(v==='resumen')buildAAResumen();if(v==='track')buildAATrack()}
 function getAASt(id){return aaState.commits[id]?aaState.commits[id].status:'pendiente'}
 function aaStColor(s){var m={hecho:['var(--done)','var(--donet)'],'en curso':['var(--info)','var(--infot)'],pendiente:['var(--none)','var(--nonet)'],'por confirmar':['var(--partial)','var(--partialt)'],bloqueado:['var(--wait)','var(--waitt)']};return m[s]||m.pendiente}
 function buildAA(){buildAABaseline();buildAATrack();buildAAExec()}
@@ -291,6 +293,7 @@ function genContextMD(){var l=['# Estado generado desde Dashboard v1.1','','Fech
 state=loadState();stratState=loadStratState();cycleNotes=loadCycleNotes();aaState=loadAAState();
 buildNav();buildDimCards();buildBaseline();buildCurrent();buildHeat();buildAA();buildStrat();
 </script>
+<script src="aacsb-v2.js"></script>
 <script src="faculty-inject.js"></script>
 </body>
 </html>
