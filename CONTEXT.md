@@ -1,5 +1,5 @@
 # CONTEXT.md — Asistente DAC FEN UNAB
-**Última actualización:** 01 abril 2026
+**Última actualización:** 11 abril 2026
 **Instrucción para Claude:** Lee este archivo al inicio de cada conversación sobre el cargo DAC. Contiene todo el estado actual del proyecto.
 
 ---
@@ -196,68 +196,80 @@ Ver Pestaña 4 del dashboard para listado completo con responsables, fechas, sta
 - **Ubicación:** `/Repositorio/dac-fen/curso-saic/index.html`
 - **URL:** `https://ctroncoso-valverde.github.io/dac-fen/curso-saic/`
 - **Contenido:** 4 módulos + 4 quizzes interactivos (24 preguntas total)
-  - M1: Qué es el SAIC (4 capas: Política, Modelo, Ciclos, Roles)
-  - M2: Rol del DAC (táctico, interlocutores, qué llevar a cada instancia)
-  - M3: 13 mecanismos clasificados en Grupo A/B/C
-  - M4: Ciclo anual, dependencias, controlador de tráfico
 
-### Dashboard DAC v1.0 (DESPLEGADO, REQUIERE v1.1)
+### Dashboard DAC v1.1 (COMPLETADO Y DESPLEGADO)
 - **Ubicación:** `/Repositorio/dac-fen/dashboard/index.html`
 - **URL:** `https://ctroncoso-valverde.github.io/dac-fen/dashboard/`
-- **Estado:** v1.0 funcional pero con problemas de UX identificados (ver sección 9)
+- **8 pestañas:** Dimensiones, Línea base, Estado actual, Ciclo 2026, AACSB, Seg. estratégico, Reportería, Asistente
+- **Archivos JS modulares:**
+  - `aacsb-v2.js` — Pestaña AACSB completa (Resumen + Seguimiento)
+  - `ciclo-v2.js` — Descripciones y cross-references para tareas del Ciclo 2026
+  - `faculty-inject.js` — Sub-pestaña Faculty data (desencripta snapshot, vista read-only de 330 académicos)
+- **Pestaña AACSB (2+1 sub-pestañas):**
+  - **Resumen:** Métricas Base → A la fecha con tarjetas coloridas, barras de progreso, deltas. Criticidad Base→Pendientes. Anillos por estándar.
+  - **Seguimiento:** 43 compromisos iSER con selector "Agrupar por" (Estándar/Nivel/Criticidad/Estado), barras de progreso por grupo, compromisos hecho en gris tachado, notas cronológicas.
+  - **Faculty data:** Desencripta `snapshot_aacsb.enc` con RUT, muestra KPIs, ratios por disciplina, tabla filtrable de académicos con detalle expandible (evidencias, exp. laboral). Auto-actualiza métricas en Seguimiento.
+- **Líneas base AACSB:** SA 15.9%, Qual 40.5%, Part 47.5%, P con CI 32.3%, AoL pre 100%, AoL post 29%
+- **AoL postgrado (29%):** 2 de 7 programas con AoL funcionando (MBA y Mag. Dirección de Personas). 5 restantes planificados sin plan AAE.
+- **Datos:** localStorage keys `dac_state_v11`, `dac_strat_v11`, `dac_cycle_v11`, `dac_aa_v11`
+
+### Herramienta de encriptación snapshot (COMPLETADO)
+- **Ubicación:** `/Repositorio/dac-fen/dashboard/snapshot-encrypt.html`
+- **Función:** Toma `portafolio_data.json` (de "Exportar Portal" de gestión-fen), calcula clasificaciones AACSB, encripta con AES-256-GCM + PBKDF2 por RUT, genera `snapshot_aacsb.enc`
+- **Motor de clasificación:** Copia del motor de gestión-fen (classifyAcademic, classifyLista, classifySufficiency, PTDM)
+- **Selector de carpeta:** Permite guardar directo en `dac-fen/dashboard/` sin copiar manualmente
+
+### App Gestión FEN (LOCAL, NO TOCAR)
+- **Ubicación:** `/Repositorio/gestion-fen/index.html` (196KB, React+Babel, single-file)
+- **Función:** Gestión de evidencias y clasificación AACSB de 330 académicos. Usa File System Access API (solo Chrome local).
+- **CSVs:** `/Repositorio/gestion-fen/datos/` (academicos.csv, evidencias.csv, exp_laboral.csv, horas_contacto.csv, revistas_predatorias.csv)
+- **Cambio mínimo aplicado (11 abril 2026):** Se agregaron 3 campos al export de "Exportar Portal": `anio_doctorado`, `anio_inicio_abd`, `es_decano` — necesarios para que el snapshot clasifique correctamente.
+
+### Flujo completo Faculty data:
+1. Trabajar en gestión-fen localmente (sin cambios a esa app)
+2. Click "Exportar Portal" → `portafolio_data.json`
+3. Abrir `snapshot-encrypt.html` → cargar JSON → RUT → descarga `snapshot_aacsb.enc`
+4. Copiar `.enc` a `dac-fen/dashboard/` (o usar selector de carpeta) → `git push`
+5. Dashboard → AACSB → Faculty data → RUT → ver todo read-only
 
 ### Interactivo de Investigación FEN (PREVIO, SEPARADO)
 - **Repo:** `ctroncoso-valverde/investigacion-fen` (privado)
 - **URL:** `https://ctroncoso-valverde.github.io/investigacion-fen/`
-- **Contenido:** Dashboard productividad académica 48 profesores, 234 papers, encriptado AES-256-GCM por RUT, 13 RUTs autorizados
-- **README completo:** `/Repositorio/Investigacion-FEN/README.md`
+- **Encriptado AES-256-GCM por RUT, 13 RUTs autorizados**
 
 ---
 
-## 9. SPEC DASHBOARD v1.1 (PENDIENTE DE CONSTRUIR)
+## 9. PENDIENTES DEL DASHBOARD (al 11 abril 2026)
 
-### Pestaña 0 — Dimensiones (NUEVA)
-Tarjeta expandible por cada dimensión con: descripción 2-3 frases, productos/tareas clasificados (gestionas vs. monitoreas), interlocutores clave. Landing page / referencia rápida del cargo.
+### Pendientes originales (puntos 1-6 del usuario)
+1. **Interlocutores por cargo:** Confirmar algunos cargos. Revisar https://calidad.unab.cl/vicerrectoria-de-aseguramiento-de-la-calidad/
+2. **SAIC en actas:** CE para informar periódicamente, CF cada 3 meses. Sugerencia: trimestral en CF coincidiendo con reuniones Encargado SAIC.
+3. **Matrices de calidad:** Explicar qué son y dónde encontrarlas.
+4. **AoL postgrado:** Plan concreto de cómo incorporar los 5 programas faltantes. Ya incluido como T3-04 en compromisos AACSB.
+5. **Gestor Documental SAIC:** Explicar qué es, cómo opera, qué info tiene.
+6. **Fuentes más grandes en todo el dashboard:** Parcialmente hecho (nav, AACSB). Falta aplicar consistentemente a todas las pestañas.
 
-### Pestaña 1 — Línea base (abril 2026)
-Sin cambios respecto a v1.0. Bloqueada con desbloqueo por confirmación.
+### Pendientes de UX identificados en sesión
+- Color/diseño visual del Resumen AACSB: mock aprobado con tarjetas coloridas, pendiente de verificar en producción
+- Ciclo 2026: descripciones + cross-references recién implementados, pendiente de verificar
+- Reportería (tab 6): placeholder, por construir
+- Asistente (tab 7): placeholder, requiere API key Anthropic
 
-### Pestaña 2 — Estado actual
-- **Arriba:** Anillos de progreso (estilo mock B) por dimensión, clickeables para expandir
-- **Debajo:** Barras comparativas (estilo mock A) con ratio y porcentaje
-- **Debajo:** Lista detallada con dropdowns editables (como v1.0)
-- **Cada tarea expandible** para ver detalle completo
-- Estados se guardan en localStorage
+### Futuras pestañas dedicadas (acordado pero no construido)
+- **Pestaña Assessment:** Análisis detallado por programa de postgrado (tabla con Plan AAE, datos, brecha, acciones, closing the loop)
+- **Pestaña Progresión:** Seguimiento progresión estudiantil
+- MSCHE no se incluye como pestaña (tareas fuera del control directo del DAC)
 
-### Pestaña 3 — Ciclo operativo 2026
-- Corregir TODOS los tooltips (que funcionen siempre)
-- Área de detalle al click: mucho más grande, sin scroll horizontal, espacio generoso
-- Cada tarea desplegada: clickeable para panel con descripción, fuente, dependencias, campo de notas
-- Tooltips con posicionamiento inteligente (no cortarse por bordes)
-
-### Pestaña 4 — Seguimiento estratégico
-- **Vista resumen visual (default):** KPIs (total, % progreso, atrasadas, próximos vencimientos) + gráfico por label/área
-- **Tabla con filtros** por label, status, prioridad
-- **Cada iniciativa expandible** con:
-  - Dropdown para actualizar status (editable)
-  - Campo de notas cronológico con fecha automática (log de seguimiento)
-- **Botón "Generar reporte visual":** vista interactiva tipo investigación con KPIs, barras por área, timeline
-
-### Pestaña 5 — Reportería (fase siguiente)
-Vistas filtradas por audiencia: Decano, CF, Directores Escuela, VRAC. Estructura definida, se llena a medida que llegan datos.
-
-### Pestaña 6 — Asistente DAC (fase siguiente)
-Chatbot embebido con API Anthropic. System prompt = este CONTEXT.md. Para consultas rápidas, no modifica nada.
-
-### Arquitectura de datos
-- **localStorage** para persistencia de estados, notas, y cambios
-- **Exportar/Importar JSON** para respaldo y migración entre browsers
-- **Botón "Actualizar CONTEXT.md"** que genera versión descargable desde el estado actual
-
-### Flujo de actualización (3 capas)
-1. **Capa 1 (directa en dashboard):** Cambiar estados, agregar notas, actualizar status de iniciativas
-2. **Capa 2 (chatbot embebido):** Consultas rápidas sobre SAIC, normativa, hitos
-3. **Capa 3 (Claude desktop):** Procesar documentos nuevos, reconstruir HTML, actualizar CONTEXT.md
+### Datos de AoL postgrado verificados (fuente: iSER Ch5 + informes autoevaluación)
+| Programa | Plan AAE | Datos | Closing the loop |
+|----------|----------|-------|-------------------|
+| MBA | Sí (2023) | 2 cohortes (2023, 2024) | Parcial — RA4 mejoró |
+| Mag. Dirección de Personas | Sí (2023) | 1 cohorte (2023/2024) | No aún — acciones propuestas |
+| Mag. Tributación | No | — | — |
+| Mag. Finanzas | No | — | — |
+| Mag. Marketing e Int. Mercados | No | — | — |
+| Tech MBA | No | — | — |
+| Mag. Economía y Ciencias de Datos | No | — | — |
 
 ---
 
@@ -317,18 +329,27 @@ Chatbot embebido con API Anthropic. System prompt = este CONTEXT.md. Para consul
 
 ```
 dac-fen/
+├── CONTEXT.md              ← este archivo
+├── README.md
+├── deploy.sh
 ├── curso-saic/
 │   └── index.html          ← 4 módulos SAIC + quizzes (DESPLEGADO)
-├── dashboard/
-│   └── index.html          ← dashboard DAC v1.0 (REQUIERE v1.1)
-├── CONTEXT.md              ← este archivo
-├── deploy.sh               ← pendiente de crear
-└── README.md               ← documentación del repo
+└── dashboard/
+    ├── index.html          ← dashboard DAC v1.1 (HTML + JS principal)
+    ├── aacsb-v2.js         ← Resumen + Seguimiento AACSB (sobrescribe funciones viejas)
+    ├── ciclo-v2.js         ← Descripciones + cross-refs para Ciclo 2026
+    ├── faculty-inject.js   ← Sub-pestaña Faculty data (desencripta snapshot)
+    ├── snapshot-encrypt.html ← Herramienta encriptación (standalone, abre local)
+    └── snapshot_aacsb.enc  ← Datos encriptados (se regenera con snapshot-encrypt)
 ```
 
 **GitHub Pages:** `https://ctroncoso-valverde.github.io/dac-fen/`
-**Curso:** `https://ctroncoso-valverde.github.io/dac-fen/curso-saic/`
 **Dashboard:** `https://ctroncoso-valverde.github.io/dac-fen/dashboard/`
+
+**Otros repos relevantes:**
+- `gestion-fen/` — App local gestión evidencias AACSB (196KB, NO TOCAR)
+- `investigacion-fen/` — Dashboard productividad académica (encriptado)
+- `AACSB/` — Documentos fuente: iSER (10 capítulos), DUNs postgrado, tablas, lineamientos
 
 ---
 
