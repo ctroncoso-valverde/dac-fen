@@ -1,132 +1,153 @@
-/* aacsb-v2.js — Replaces old AACSB functions in dashboard */
+/* aacsb-v2.js — v2.4: AoL fix + Research clean + Strategic redesign */
 (function(){
 var aaGroupBy='std';
 var AA_COLORS={sa:{bar:'#378ADD',bg:'#E6F1FB'},qual:{bar:'#378ADD',bg:'#E6F1FB'},part:{bar:'#1D9E75',bg:'#E1F5EE'},pci:{bar:'#7F77DD',bg:'#EEEDFE'},aolPre:{bar:'#BA7517',bg:'#FAEEDA'},aolPost:{bar:'#D85A30',bg:'#FAECE7'}};
 var CRIT_BORDER=['#E24B4A','#BA7517','#1D9E75'];
-
-window.setAAView=function(v,btn){
-document.querySelectorAll('#aaSubs .sub-tab').forEach(function(b){b.classList.remove('on')});
-btn.classList.add('on');
-var r=document.getElementById('aaResumen'),t=document.getElementById('aaTrack');
-if(r)r.style.display=v==='resumen'?'block':'none';
-if(t)t.style.display=v==='track'?'block':'none';
-if(v==='resumen')buildAAResumen();
-if(v==='track')buildAATrack2();
+var DES_NAMES=['Faculty gap','AoL maturity','Research impact','Strategic alignment'];
+var DES_IDS={
+faculty:['T1-01','T1-02','T1-03','T1-04','T1-05','T2-03','T3-01','T3-02','T3-13','T4-08'],
+aol:['T3-03','T3-04','T3-08','T4-01','T4-02','T4-03','T4-07','T4-09'],
+research:['T2-04','T2-07','T3-09','T3-11','T3-15'],
+strategy:['T1-06','T2-01','T2-02','T2-06','T4-04','T4-10']
 };
+var curDes=0;
+var SIM={baseSA:26.83,baseTot:168.36,bDone:9};
+var SIM_PROFS='Coronado (Michigan State), Gonz\u00e1lez (Cambridge), Als\u00faa (Arizona State), Voitova (Stankin), Subiabre (Bristol), Juyumaya (U. Chile), Pasten (U. Chile), Orme\u00f1o (Exeter), Ternero (USACH)';
+function injectDesafios(){var subs=document.getElementById('aaSubs');if(subs&&!subs.querySelector('[data-des]')){var btn=document.createElement('button');btn.className='sub-tab';btn.setAttribute('data-des','1');btn.textContent='Desaf\u00edos';btn.onclick=function(){setAAView('desafios',btn)};subs.appendChild(btn)}var track=document.getElementById('aaTrack');if(track&&!document.getElementById('aaDesafios')){var d=document.createElement('div');d.id='aaDesafios';d.style.display='none';track.parentNode.insertBefore(d,track.nextSibling)}}
+window.setAAView=function(v,btn){document.querySelectorAll('#aaSubs .sub-tab').forEach(function(b){b.classList.remove('on')});btn.classList.add('on');['aaResumen','aaTrack','aaDesafios'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none'});if(v==='resumen'){document.getElementById('aaResumen').style.display='block';buildAAResumen()}if(v==='track'){document.getElementById('aaTrack').style.display='block';buildAATrack2()}if(v==='desafios'){document.getElementById('aaDesafios').style.display='block';buildAADesafios()}};
+window.buildAA=function(){injectDesafios();buildAAResumen();buildAATrack2()};
+function commitHTML(c,pfx){var st=getAASt(c.id);var sc=aaStColor(st);var isDone=st==='hecho';var rowSt=isDone?'opacity:0.5;':'';var nameSt=isDone?'text-decoration:line-through;color:var(--tx3);':'';var h='<div class="aa-commit" id="'+pfx+'_'+c.id+'" style="'+rowSt+'"><div class="aa-commit-head" onclick="this.parentElement.classList.toggle(\'expanded\');this.parentElement.style.opacity=\'1\'"><div class="aa-commit-name" style="font-size:13px;'+nameSt+'"><span style="color:var(--tx3);font-size:10px">'+c.id+'</span> '+c.n+'</div><div class="aa-commit-badges"><span style="font-size:9px;padding:2px 6px;border-radius:4px;font-weight:700;background:'+CRIT_BG[c.crit]+';color:'+CRIT_TX[c.crit]+'">'+CRIT_LABELS[c.crit]+'</span><span style="font-size:10px;padding:2px 6px;border-radius:4px;font-weight:600;background:'+sc[0]+';color:'+sc[1]+'">'+st+'</span></div></div><div class="aa-detail" onclick="event.stopPropagation()"><div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:8px;font-size:12px"><div><b style="color:var(--tx2)">Plazo:</b> '+c.plazo+'</div><div><b style="color:var(--tx2)">Responsable:</b> '+c.resp+'</div><div><b style="color:var(--tx2)">iSER ref:</b> '+c.ref+'</div></div>';if(c.desc)h+='<div style="margin-bottom:8px;color:var(--tx2);font-size:12px">'+c.desc+'</div>';h+='<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><b style="color:var(--tx2);font-size:12px">Estado:</b><select class="st-select" style="font-size:12px;padding:4px 8px" onchange="upAASt(\''+c.id+'\',this.value)">';AA_SOPTS.forEach(function(o){h+='<option'+(o===st?' selected':'')+'>'+o+'</option>'});h+='</select></div><div style="font-size:12px;font-weight:600;color:var(--tx2);margin-bottom:4px">Notas de seguimiento:</div><textarea class="aa-note-input" style="font-size:12px" id="'+pfx+'n_'+c.id+'" placeholder="Agregar nota..."></textarea><button class="aa-note-save" style="font-size:11px" onclick="addAANote(\''+c.id+'\')">Guardar nota</button><div class="aa-note-log" id="'+pfx+'nl_'+c.id+'">'+renderAANotes(c.id)+'</div></div></div>';return h}
+function sectionLabel(t){return'<div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--tx3);font-weight:600;margin:16px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--bg2)">'+t+'</div>'}
+function kpiBox(label,val,meta,col,barPct,barCol){var h='<div style="background:var(--bg2);border-radius:8px;padding:12px 14px"><div style="font-size:11px;color:var(--tx3)">'+label+'</div><div style="font-size:22px;font-weight:700;color:'+(col||'var(--tx)')+'">'+val+'</div>';if(meta)h+='<div style="font-size:11px;color:var(--tx2);margin-top:2px">'+meta+'</div>';if(typeof barPct==='number')h+='<div style="height:4px;background:var(--bd);border-radius:2px;margin-top:6px;overflow:hidden"><div style="width:'+Math.min(barPct,100)+'%;height:100%;background:'+(barCol||'var(--accent)')+';border-radius:2px"></div></div>';h+='</div>';return h}
+function pendBox(ids){var items=ids.map(function(id){return AA.find(function(a){return a.id===id})}).filter(Boolean);var h='<div style="border:1px solid var(--bd);border-radius:10px;overflow:hidden;background:var(--bg3);padding:0 14px">';items.forEach(function(c){h+=commitHTML(c,'des')});h+='</div>';return h}
+function dotCell(v){var c=v===1?'#639922':v===0.5?'#BA7517':'#E24B4A';return'<td style="text-align:center;padding:6px 4px;border-bottom:1px solid var(--bg2)"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+c+'"></span></td>'}
+function aolTableHead(){return'<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr><th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--bd);font-size:11px;color:var(--tx2)">Programa</th><th style="text-align:center;padding:6px 4px;border-bottom:1px solid var(--bd);font-size:11px;color:var(--tx2)">Plan</th><th style="text-align:center;padding:6px 4px;border-bottom:1px solid var(--bd);font-size:11px;color:var(--tx2)">Recol.</th><th style="text-align:center;padding:6px 4px;border-bottom:1px solid var(--bd);font-size:11px;color:var(--tx2)">An\u00e1lisis</th><th style="text-align:center;padding:6px 4px;border-bottom:1px solid var(--bd);font-size:11px;color:var(--tx2)">Acciones</th><th style="text-align:center;padding:6px 4px;border-bottom:1px solid var(--bd);font-size:11px;color:var(--tx2)">Social.</th><th style="text-align:center;padding:6px 4px;border-bottom:1px solid var(--bd);font-size:11px;color:var(--tx2)">Nivel</th></tr></thead><tbody>'}
+function aolRow(name,dots,niv,highlight){var h='<tr'+(highlight?' style="background:var(--bg2)"':'')+'><td style="padding:6px 8px;border-bottom:1px solid var(--bg2);font-weight:500'+(dots?'':';color:var(--tx3)')+'">'+name+'</td>';dots.forEach(function(v){h+=dotCell(v)});h+='<td style="text-align:center;padding:6px 4px;border-bottom:1px solid var(--bg2);font-weight:600;color:'+(niv==='—'?'var(--tx3)':niv>=3?'#27500A':'var(--tx)')+'">'+niv+'</td></tr>';return h}
+function aolLegend(){return'<div style="display:flex;gap:12px;margin-top:8px;font-size:11px;color:var(--tx3)"><span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#639922"></span> completo</span><span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#BA7517"></span> parcial</span><span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#E24B4A"></span> ausente</span></div>'}
+function buildAADesafios(){var el=document.getElementById('aaDesafios');if(!el)return;var h='<div style="display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap">';DES_NAMES.forEach(function(n,i){var cls=i===curDes?'background:var(--tx);color:var(--bg3);border-color:var(--tx)':'';h+='<button class="sub-tab" style="'+cls+'" onclick="window._setDes('+i+',this)">'+n+'</button>'});h+='</div><div id="desContent"></div>';el.innerHTML=h;buildDesPanel()}
+window._setDes=function(i,btn){curDes=i;document.querySelectorAll('#aaDesafios .sub-tab').forEach(function(b){b.style.background='transparent';b.style.color='var(--tx2)';b.style.borderColor='var(--bd)'});btn.style.background='var(--tx)';btn.style.color='var(--bg3)';btn.style.borderColor='var(--tx)';buildDesPanel()};
+function buildDesPanel(){var el=document.getElementById('desContent');if(!el)return;if(curDes===0)el.innerHTML=buildFacultyGap();else if(curDes===1)el.innerHTML=buildAoLMaturity();else if(curDes===2)el.innerHTML=buildResearchImpact();else el.innerHTML=buildStratAlignment();if(curDes===0)initSimSliders()}
 
-window.buildAA=function(){buildAAResumen();buildAATrack2()};
+/* ===================== FACULTY GAP ===================== */
+function buildFacultyGap(){
+var h=sectionLabel('D\u00f3nde estamos');
+h+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px">';
+h+=kpiBox('SA (PTDM)',aaState.metrics.sa+'%','umbral 40%','#A32D2D',aaState.metrics.sa/40*100,'#E24B4A');
+h+=kpiBox('Cualificados',aaState.metrics.qual+'%','umbral 90%','#A32D2D',aaState.metrics.qual/90*100,'#BA7517');
+h+=kpiBox('Participating',aaState.metrics.part+'%','umbral 75%','#854F0B',aaState.metrics.part/75*100,'#BA7517');
+h+=kpiBox('Additional',Math.round((100-aaState.metrics.qual)*10)/10+'%','techo <10%','#A32D2D',Math.min((100-aaState.metrics.qual)/10*100,100),'#E24B4A');
+h+='</div>';
+h+=sectionLabel('Simulador de cierre de brecha');
+h+='<div style="border:1px solid var(--bd);border-radius:10px;background:var(--bg3);padding:16px;margin-bottom:8px">';
+h+='<div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">';
+h+='<div style="flex:1;min-width:120px;text-align:center"><div style="font-size:11px;color:var(--tx3)">SA % (ratio)</div><div style="font-size:28px;font-weight:700" id="simProy">15.9%</div></div>';
+h+='<div style="flex:1;min-width:120px;text-align:center"><div style="font-size:11px;color:var(--tx3)">PTDM en SA / Total</div><div style="font-size:28px;font-weight:700" id="simPtdm">26.8</div><div style="font-size:11px;color:var(--tx2)" id="simTot">de 168.4 totales</div></div>';
+h+='<div style="flex:1;min-width:120px;text-align:center"><div style="font-size:11px;color:var(--tx3)">Brecha vs 40%</div><div style="font-size:28px;font-weight:700" id="simGap">-24.1pp</div></div></div>';
+h+='<div style="height:32px;background:var(--bg2);border-radius:6px;overflow:hidden;position:relative;margin-bottom:10px"><div style="display:flex;height:100%" id="simBar"></div><div style="position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--tx)" id="simTh"><div style="position:absolute;top:-16px;font-size:10px;font-weight:600;transform:translateX(-50%)">40%</div></div></div>';
+h+='<div style="display:flex;gap:12px;font-size:11px;color:var(--tx3);margin-bottom:14px;flex-wrap:wrap"><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:3px;background:#85B7EB"></span>Base (15.9%)</span><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:3px;background:#378ADD"></span>Eje A</span><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:3px;background:#1D9E75"></span>Eje B</span><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:3px;background:#7F77DD"></span>Eje C</span><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:3px;background:#D85A30"></span>Eje D</span></div>';
+var ejes=[{id:'A',n:'Eje A \u00b7 Reconversi\u00f3n SA',d:'Regulares con PhD de A\u2192SA (ya son PTDM=1, solo cambian de columna)',min:0,max:6,val:0,col:'#378ADD'},{id:'B',n:'Eje B \u00b7 Contrataciones PhD',d:'9 ingresados ene-2026 \u00b7 6 en reclutamiento',min:9,max:21,val:9,col:'#1D9E75'},{id:'C',n:'Eje C \u00b7 Pipeline doctoral',d:'Regulares en doctorado \u2192 ABD \u2192 SA (ya son PTDM=1)',min:0,max:6,val:0,col:'#7F77DD'},{id:'D',n:'Eje D \u00b7 Reemplazos estrat\u00e9gicos',d:'Regulares A reemplazados por PhD (denominador no cambia)',min:0,max:22,val:0,col:'#D85A30'}];
+h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
+ejes.forEach(function(e){
+h+='<div style="border:1px solid var(--bd);border-left:3px solid '+e.col+';border-radius:0 8px 8px 0;padding:12px 14px"><div style="display:flex;justify-content:space-between;align-items:baseline"><div style="font-size:13px;font-weight:600">'+e.n+'</div><div style="font-size:18px;font-weight:600;color:'+e.col+'" id="simV'+e.id+'">'+e.val+'</div></div><div style="font-size:11px;color:var(--tx3);margin-bottom:6px">'+e.d+'</div>';
+if(e.id==='B'){h+='<div style="font-size:11px;color:var(--tx2);margin-bottom:6px;padding:6px 8px;background:var(--bg2);border-radius:6px;cursor:pointer" onclick="var p=this.lastElementChild;p.style.display=p.style.display===\'none\'?\'block\':\'none\'"><b>9 contratados:</b> <span style="font-size:10px;color:var(--tx3)">(click para ver)</span><div style="display:none;margin-top:4px;font-size:10px;line-height:1.6">'+SIM_PROFS+'</div></div>'}
+h+='<div style="display:flex;align-items:center;gap:6px"><span style="font-size:11px;color:var(--tx3)">'+e.min+'</span><input type="range" min="'+e.min+'" max="'+e.max+'" value="'+e.val+'" step="1" id="simS'+e.id+'" style="flex:1" oninput="window._simCalc()"><span style="font-size:11px;color:var(--tx3)">'+e.max+'</span></div><div style="font-size:11px;color:var(--tx2);margin-top:6px;padding-top:6px;border-top:1px solid var(--bg2)" id="simI'+e.id+'"></div></div>'});
+h+='</div>';
+h+='<div style="font-size:11px;color:var(--tx3);margin-top:10px;line-height:1.5"><b>F\u00f3rmula:</b> SA% = (26.83 + ejeA + ejeB + ejeC + ejeD) / (168.36 + 0.6 \u00d7 contrataciones nuevas). Ejes A, C y D: personas que ya est\u00e1n en el denominador, solo se mueven de columna A a SA \u2192 aportan 1.0 PTDM \u00edntegro. Eje B: cada contrataci\u00f3n nueva agrega 1.0 al numerador SA pero tambi\u00e9n agranda el denominador en 0.6 (porque desplaza ~0.4 PTDM de un adjunto que ense\u00f1aba esas secciones: supuesto 16 SCH/a\u00f1o por nuevo PhD, PTDM adjunto desplazado = 16/40 = 0.4) \u2192 efecto neto sobre el ratio: 0.76 PTDM por contrataci\u00f3n. Fuente: Ch3 iSER, Tabla 3.5 y nota al pie.</div></div>';
+h+=sectionLabel('Pendientes cr\u00edticos');h+=pendBox(DES_IDS.faculty);return h}
+function initSimSliders(){setTimeout(function(){if(document.getElementById('simSA'))window._simCalc()},50)}
+window._simCalc=function(){var a=+(document.getElementById('simSA')||{}).value||0;var bTot=+(document.getElementById('simSB')||{}).value||9;var c=+(document.getElementById('simSC')||{}).value||0;var d=+(document.getElementById('simSD')||{}).value||0;var bNew=bTot-SIM.bDone;var saPtdm=SIM.baseSA+a+bTot+c+d;var totPtdm=SIM.baseTot+(bNew*0.6);var saPct=saPtdm/totPtdm*100;var gap=saPct-40;var pCol=saPct>=40?'#27500A':saPct>=30?'#854F0B':'#A32D2D';var el=function(id){return document.getElementById(id)};if(el('simVA'))el('simVA').textContent=a;if(el('simVB'))el('simVB').textContent=bTot;if(el('simVC'))el('simVC').textContent=c;if(el('simVD'))el('simVD').textContent=d;if(el('simProy')){el('simProy').textContent=Math.round(saPct*10)/10+'%';el('simProy').style.color=pCol}if(el('simPtdm'))el('simPtdm').textContent=Math.round(saPtdm*10)/10;if(el('simTot'))el('simTot').textContent='de '+Math.round(totPtdm*10)/10+' totales';if(el('simGap')){el('simGap').textContent=(gap>=0?'+':'')+Math.round(gap*10)/10+'pp';el('simGap').style.color=gap>=0?'#27500A':'#A32D2D'}var scale=100/Math.max(saPct+5,50);var segs=[{w:SIM.baseSA/totPtdm*100*scale,bg:'#85B7EB',tx:'#0C447C',t:'base'},{w:a/totPtdm*100*scale,bg:'#378ADD',tx:'#E6F1FB',t:a>0?'+'+a:''},{w:bTot/totPtdm*100*scale,bg:'#1D9E75',tx:'#E1F5EE',t:bTot>0?'+'+bTot:''},{w:c/totPtdm*100*scale,bg:'#7F77DD',tx:'#EEEDFE',t:c>0?'+'+c:''},{w:d/totPtdm*100*scale,bg:'#D85A30',tx:'#FAECE7',t:d>0?'+'+d:''}];if(el('simBar')){el('simBar').innerHTML=segs.map(function(s){return'<div style="width:'+s.w+'%;height:100%;background:'+s.bg+';display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:'+s.tx+';overflow:hidden;transition:width .3s">'+s.t+'</div>'}).join('')}if(el('simTh'))el('simTh').style.left=Math.min(40/Math.max(saPct+5,50)*100,98)+'%';if(el('simIA'))el('simIA').textContent='+'+a+'.0 PTDM SA \u00b7 ya son regulares, solo cambian de A\u2192SA';if(el('simIB'))el('simIB').textContent=bTot+' contratados ('+SIM.bDone+' ingresados + '+bNew+' nuevos) \u00b7 +'+Math.round(bNew*0.76*10)/10+' PTDM neto (0.76 c/u)';if(el('simIC'))el('simIC').textContent='+'+c+'.0 PTDM SA \u00b7 ya son regulares, ABD los mueve de A\u2192SA';if(el('simID'))el('simID').textContent='+'+d+'.0 PTDM SA \u00b7 reemplazo: denominador no cambia'};
 
-function buildAAResumen(){
-var el=document.getElementById('aaResumen');if(!el)return;
-var h='<div style="font-size:16px;font-weight:600;margin-bottom:14px">M\u00e9tricas clave</div>';
-h+='<div style="display:grid;gap:10px;margin-bottom:24px">';
-var keys=['sa','qual','part','pci','aolPre','aolPost'];
-keys.forEach(function(k){
-var base=AA_BASELINE[k],cur=aaState.metrics[k],tgt=AA_BASELINE_TARGETS[k];
-var delta=Math.round((cur-base)*10)/10;
-var dTxt=delta>0?'+'+delta+'pp':delta<0?delta+'pp':'';
-var curCol=cur>=tgt?'#27500A':cur>=tgt*0.5?'#854F0B':'#A32D2D';
-var pct=Math.min(Math.round(cur/tgt*100),100);
-var c=AA_COLORS[k];
-h+='<div style="display:flex;align-items:center;gap:16px;padding:14px 18px;background:var(--bg3);border:1px solid var(--bd);border-left:4px solid '+c.bar+';border-radius:0 10px 10px 0">';
-h+='<div style="flex:1"><div style="font-size:15px;font-weight:600">'+AA_METRIC_NAMES[k]+'</div>';
-h+='<div style="display:flex;align-items:center;gap:8px;margin-top:6px"><div style="flex:1;height:8px;background:'+c.bg+';border-radius:4px;overflow:hidden;max-width:200px"><div style="width:'+pct+'%;height:100%;background:'+c.bar+';border-radius:4px"></div></div>';
-h+='<span style="font-size:12px;color:var(--tx3)">meta '+tgt+'%</span></div></div>';
-h+='<div style="text-align:right"><div style="font-size:12px;color:var(--tx3)">Base</div><div style="font-size:16px;color:var(--tx2)">'+base+'%</div></div>';
-h+='<div style="color:var(--tx3);font-size:16px">\u2192</div>';
-h+='<div style="text-align:right;min-width:70px"><div style="font-size:12px;color:var(--tx3)">Actual</div><div style="font-size:22px;font-weight:700;color:'+curCol+'">'+cur+'%</div>';
-if(dTxt)h+='<div style="font-size:11px;color:'+(delta>0?'#27500A':'#A32D2D')+'">'+dTxt+'</div>';
-h+='</div></div>';
+/* ===================== AOL MATURITY ===================== */
+function buildAoLMaturity(){
+var h=sectionLabel('D\u00f3nde estamos');
+h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">';
+h+=kpiBox('Cobertura pregrado','100%','5 carreras con plan AAE','#27500A');
+h+=kpiBox('Cobertura postgrado',aaState.metrics.aolPost+'%','2 de 7 programas \u00b7 meta 100%',(aaState.metrics.aolPost>=100?'#27500A':'#854F0B'),aaState.metrics.aolPost,'#BA7517');
+h+='</div>';
+h+=sectionLabel('Calidad del ciclo \u2014 pregrado (r\u00fabrica VRAC)');
+h+='<div style="border:1px solid var(--bd);border-radius:10px;background:var(--bg3);padding:14px;margin-bottom:8px;overflow-x:auto">';
+h+=aolTableHead();
+h+=aolRow('Ing. Comercial',[1,1,.5,.5,.5],2,false);
+h+=aolRow('IC Advance',[1,1,.5,.5,.5],2,false);
+h+=aolRow('Contador Auditor',[1,1,.5,1,.5],2,false);
+h+=aolRow('IAE',[1,1,.5,.5,.5],2,false);
+h+=aolRow('Ing. Turismo y Hoteler\u00eda',[1,1,1,1,.5],3,true);
+h+='</tbody></table>';
+h+=aolLegend()+'</div>';
+h+=sectionLabel('Calidad del ciclo \u2014 postgrado');
+h+='<div style="border:1px solid var(--bd);border-radius:10px;background:var(--bg3);padding:14px;margin-bottom:8px;overflow-x:auto">';
+h+=aolTableHead();
+h+=aolRow('Mag. Dir. Personas',[1,1,1,1,.5],'\u2014',false);
+h+=aolRow('MBA',[1,1,.5,.5,.5],'\u2014',false);
+h+=aolRow('Mag. Tributaci\u00f3n',[.5,0,0,0,0],'\u2014',false);
+h+=aolRow('Mag. Finanzas',[.5,0,0,0,0],'\u2014',false);
+h+=aolRow('MMIM (Marketing)',[.5,0,0,0,0],'\u2014',false);
+h+=aolRow('Tech MBA',[.5,0,0,0,0],'\u2014',false);
+h+=aolRow('MECD',[0,0,0,0,0],'\u2014',false);
+h+='</tbody></table>';
+h+='<div style="font-size:11px;color:var(--tx3);margin-top:6px;font-style:italic">Nivel r\u00fabrica VRAC pendiente para todos los programas de postgrado. Los dots reflejan el estado del ciclo seg\u00fan Ch5 iSER.</div>';
+h+=aolLegend()+'</div>';
+h+=sectionLabel('Pendientes cr\u00edticos');h+=pendBox(DES_IDS.aol);return h}
+
+/* ===================== RESEARCH IMPACT ===================== */
+function buildResearchImpact(){
+var h=sectionLabel('D\u00f3nde estamos');
+h+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px">';
+h+=kpiBox('CIs v\u00e1lidas 2020\u20132025','181','Portafolio iSER completo','var(--tx)');
+h+=kpiBox('Participating con CI',aaState.metrics.pci+'%','meta 45\u201350%','#854F0B',aaState.metrics.pci/50*100,'#BA7517');
+h+=kpiBox('Alto impacto','36','ABS 3+ y Q1/Q2','#0C447C');
+h+='</div>';
+h+='<div style="margin-bottom:14px"><a href="https://ctroncoso-valverde.github.io/investigacion-fen/" target="_blank" style="font-size:12px;color:#185FA5;text-decoration:none">Ver diagn\u00f3stico interactivo completo (matriz ABS \u00d7 IF, tabla acad\u00e9micos) \u2197</a></div>';
+h+=sectionLabel('Liderazgo intelectual');
+h+='<div style="font-size:13px;color:var(--tx2);line-height:1.6;margin-bottom:6px">3 \u00e1reas definidas en Ch8 \u00a78.1.5 (compromiso T2-04, pendiente de formalizar):</div>';
+h+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">';
+['Pol\u00edticas econ\u00f3micas y desarrollo','Sostenibilidad y RSE','Tecnolog\u00eda, innovaci\u00f3n y emprendimiento'].forEach(function(a){
+h+='<span style="font-size:12px;padding:4px 10px;border-radius:6px;background:var(--bg2);color:var(--tx);font-weight:600">'+a+'</span>'});
+h+='</div>';
+h+=sectionLabel('Pendientes cr\u00edticos');h+=pendBox(DES_IDS.research);return h}
+
+/* ===================== STRATEGIC ALIGNMENT ===================== */
+function buildStratAlignment(){
+var checks=[
+{q:'\u00bfExiste un plan estrat\u00e9gico con KPIs medibles?',tid:null,yes:true,detail:'PDE 2026\u20132028 aprobado \u00b7 24 KPIs definidos en Power BI + Planner'},
+{q:'\u00bfSe monitorea formalmente?',tid:'T2-02',detail:'3 de 5 sub-comit\u00e9s activos \u00b7 primera evaluaci\u00f3n formal de KPIs pendiente (T2-02)'},
+{q:'\u00bfHubo revisi\u00f3n con participaci\u00f3n de stakeholders?',tid:'T2-01',detail:'Talleres tres sedes + empleadores + egresados + estudiantes \u2014 comprometido S1 2026 (T2-01)'},
+{q:'\u00bfLa misi\u00f3n incorpora engagement, innovation e impact?',tid:'T1-06',detail:'Mentoras pidieron revisi\u00f3n expl\u00edcita (T1-06)'},
+{q:'\u00bfExiste line of sight documentada UNAB \u2192 FEN \u2192 AACSB?',tid:'T4-10',detail:'Mapa de alineaci\u00f3n estrat\u00e9gica mantenido (T4-10)'},
+{q:'\u00bfSe puede demostrar que los recursos siguen la estrategia?',tid:'T2-09',detail:'Contrataciones alineadas con \u00e1reas de liderazgo intelectual \u2014 falta referir KPIs en negociaci\u00f3n presupuestaria (T2-09)'}
+];
+var h=sectionLabel('\u00bfEstamos listos para la visita PRT?');
+h+='<div style="border:1px solid var(--bd);border-radius:10px;background:var(--bg3);padding:14px;margin-bottom:8px">';
+var cntY=0,cntP=0,cntN=0;
+checks.forEach(function(ck,i){
+var st=ck.tid?getAASt(ck.tid):null;
+var icon,icCls;
+if(ck.yes||(st&&st==='hecho')){icon='\u2713';icCls='background:var(--done);color:var(--donet)';cntY++}
+else if(st&&(st==='en curso'||st==='por confirmar')){icon='~';icCls='background:var(--partial);color:var(--partialt)';cntP++}
+else{icon='\u2717';icCls='background:var(--none);color:var(--nonet)';cntN++}
+h+='<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:'+(i<checks.length-1?'1px solid var(--bg2)':'none')+';font-size:13px">';
+h+='<div style="width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;margin-top:1px;'+icCls+'">'+icon+'</div>';
+h+='<div><div style="font-weight:600">'+ck.q+'</div>';
+h+='<div style="font-size:12px;color:var(--tx2);margin-top:2px">'+ck.detail+'</div></div></div>';
 });
 h+='</div>';
-h+='<div style="padding:12px 16px;background:var(--bg2);border-radius:8px;font-size:13px;color:var(--tx2);line-height:1.6;margin-bottom:24px"><b>AoL postgrado ('+AA_BASELINE.aolPost+'%):</b> '+AA_AOL_POST_NOTE+'<br>SA, Qualified, Participating y Participating con CI se actualizan desde el snapshot Faculty data. AoL se actualiza manualmente.</div>';
-
-// Criticality cards
-h+='<div style="font-size:16px;font-weight:600;margin-bottom:14px">Compromisos por criticidad</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px">';
-[0,1,2].forEach(function(c){
-var total=AA.filter(function(a){return a.crit===c}).length;
-var done=AA.filter(function(a){return a.crit===c&&getAASt(a.id)==='hecho'}).length;
-var pend=total-done;var pct=total?Math.round(done/total*100):0;
-h+='<div style="background:var(--bg3);border:1px solid var(--bd);border-top:4px solid '+CRIT_BORDER[c]+';border-radius:0 0 10px 10px;padding:16px"><div style="font-size:14px;font-weight:600;color:'+CRIT_TX[c]+';margin-bottom:12px">'+CRIT_LABELS[c]+'</div>';
-h+='<div style="display:flex;justify-content:space-between;align-items:baseline"><div><div style="font-size:12px;color:var(--tx3)">Base</div><div style="font-size:26px;font-weight:700">'+total+'</div></div><div style="font-size:18px;color:var(--tx3)">\u2192</div><div style="text-align:right"><div style="font-size:12px;color:var(--tx3)">Pendientes</div><div style="font-size:26px;font-weight:700;color:'+CRIT_TX[c]+'">'+pend+'</div></div></div>';
-h+='<div style="margin-top:10px;height:8px;background:'+CRIT_BG[c]+';border-radius:4px;overflow:hidden"><div style="width:'+pct+'%;height:100%;background:#639922;border-radius:4px"></div></div>';
-h+='<div style="font-size:12px;color:var(--tx3);margin-top:4px">'+done+' de '+total+' completados</div></div>';
-});
+h+=sectionLabel('Resumen de preparaci\u00f3n');
+h+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px">';
+h+=kpiBox('Listos',''+cntY,'de 6 preguntas clave','#27500A');
+h+=kpiBox('Parciales',''+cntP,'en progreso','#854F0B');
+h+=kpiBox('Pendientes',''+cntN,'sin ejecutar','#A32D2D');
 h+='</div>';
+h+=sectionLabel('Pendientes cr\u00edticos');h+=pendBox(DES_IDS.strategy);return h}
 
-// Rings by standard
-h+='<div style="font-size:16px;font-weight:600;margin-bottom:14px">Avance por est\u00e1ndar</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px">';
-for(var s=0;s<9;s++){
-var si=AA.filter(function(c){return c.std===s});if(!si.length)continue;
-var sd=si.filter(function(c){return getAASt(c.id)==='hecho'}).length;
-var sp=si.length?sd/si.length:0;var r=28,circ=2*Math.PI*r,off=circ*(1-sp);
-h+='<div style="background:var(--bg3);border:1px solid var(--bd);border-radius:10px;padding:14px;text-align:center"><svg viewBox="0 0 70 70" style="width:60px;height:60px"><circle cx="35" cy="35" r="'+r+'" fill="none" stroke="var(--bg2)" stroke-width="5"/><circle cx="35" cy="35" r="'+r+'" fill="none" stroke="'+AA_STDC[s]+'" stroke-width="5" stroke-linecap="round" stroke-dasharray="'+circ.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'" transform="rotate(-90 35 35)"/><text x="35" y="38" text-anchor="middle" font-size="13" font-weight="700" fill="'+AA_STDC[s]+'" font-family="DM Sans,sans-serif">'+sd+'/'+si.length+'</text></svg><div style="font-size:13px;font-weight:600;margin-top:4px">'+AA_STDN[s]+'</div></div>';
-}
-h+='</div>';
-el.innerHTML=h;
-}
+/* ===================== RESUMEN ===================== */
+function buildAAResumen(){var el=document.getElementById('aaResumen');if(!el)return;var h='<div style="font-size:16px;font-weight:600;margin-bottom:14px">M\u00e9tricas clave</div><div style="display:grid;gap:10px;margin-bottom:24px">';['sa','qual','part','pci','aolPre','aolPost'].forEach(function(k){var base=AA_BASELINE[k],cur=aaState.metrics[k],tgt=AA_BASELINE_TARGETS[k];var delta=Math.round((cur-base)*10)/10;var dTxt=delta>0?'+'+delta+'pp':delta<0?delta+'pp':'';var curCol=cur>=tgt?'#27500A':cur>=tgt*0.5?'#854F0B':'#A32D2D';var pct=Math.min(Math.round(cur/tgt*100),100);var c=AA_COLORS[k];h+='<div style="display:flex;align-items:center;gap:16px;padding:14px 18px;background:var(--bg3);border:1px solid var(--bd);border-left:4px solid '+c.bar+';border-radius:0 10px 10px 0"><div style="flex:1"><div style="font-size:15px;font-weight:600">'+AA_METRIC_NAMES[k]+'</div><div style="display:flex;align-items:center;gap:8px;margin-top:6px"><div style="flex:1;height:8px;background:'+c.bg+';border-radius:4px;overflow:hidden;max-width:200px"><div style="width:'+pct+'%;height:100%;background:'+c.bar+';border-radius:4px"></div></div><span style="font-size:12px;color:var(--tx3)">meta '+tgt+'%</span></div></div><div style="text-align:right"><div style="font-size:12px;color:var(--tx3)">Base</div><div style="font-size:16px;color:var(--tx2)">'+base+'%</div></div><div style="color:var(--tx3);font-size:16px">\u2192</div><div style="text-align:right;min-width:70px"><div style="font-size:12px;color:var(--tx3)">Actual</div><div style="font-size:22px;font-weight:700;color:'+curCol+'">'+cur+'%</div>';if(dTxt)h+='<div style="font-size:11px;color:'+(delta>0?'#27500A':'#A32D2D')+'">'+dTxt+'</div>';h+='</div></div>'});h+='</div>';h+='<div style="padding:12px 16px;background:var(--bg2);border-radius:8px;font-size:13px;color:var(--tx2);line-height:1.6;margin-bottom:24px"><b>AoL postgrado ('+AA_BASELINE.aolPost+'%):</b> '+AA_AOL_POST_NOTE+'</div>';h+='<div style="font-size:16px;font-weight:600;margin-bottom:14px">Compromisos por criticidad</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px">';[0,1,2].forEach(function(c){var total=AA.filter(function(a){return a.crit===c}).length;var done=AA.filter(function(a){return a.crit===c&&getAASt(a.id)==='hecho'}).length;var pct=total?Math.round(done/total*100):0;h+='<div style="background:var(--bg3);border:1px solid var(--bd);border-top:4px solid '+CRIT_BORDER[c]+';border-radius:0 0 10px 10px;padding:16px"><div style="font-size:14px;font-weight:600;color:'+CRIT_TX[c]+';margin-bottom:12px">'+CRIT_LABELS[c]+'</div><div style="display:flex;justify-content:space-between;align-items:baseline"><div><div style="font-size:12px;color:var(--tx3)">Total</div><div style="font-size:26px;font-weight:700">'+total+'</div></div><div style="text-align:right"><div style="font-size:12px;color:var(--tx3)">Pendientes</div><div style="font-size:26px;font-weight:700;color:'+CRIT_TX[c]+'">'+(total-done)+'</div></div></div><div style="margin-top:10px;height:8px;background:'+CRIT_BG[c]+';border-radius:4px;overflow:hidden"><div style="width:'+pct+'%;height:100%;background:#639922;border-radius:4px"></div></div><div style="font-size:12px;color:var(--tx3);margin-top:4px">'+done+' de '+total+' completados</div></div>'});h+='</div>';h+='<div style="font-size:16px;font-weight:600;margin-bottom:14px">Avance por est\u00e1ndar</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px">';for(var s=0;s<9;s++){var si=AA.filter(function(c){return c.std===s});if(!si.length)continue;var sd=si.filter(function(c){return getAASt(c.id)==='hecho'}).length;var sp=si.length?sd/si.length:0;var r=28,circ=2*Math.PI*r,off=circ*(1-sp);h+='<div style="background:var(--bg3);border:1px solid var(--bd);border-radius:10px;padding:14px;text-align:center"><svg viewBox="0 0 70 70" style="width:60px;height:60px"><circle cx="35" cy="35" r="'+r+'" fill="none" stroke="var(--bg2)" stroke-width="5"/><circle cx="35" cy="35" r="'+r+'" fill="none" stroke="'+AA_STDC[s]+'" stroke-width="5" stroke-linecap="round" stroke-dasharray="'+circ.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'" transform="rotate(-90 35 35)"/><text x="35" y="38" text-anchor="middle" font-size="13" font-weight="700" fill="'+AA_STDC[s]+'" font-family="DM Sans,sans-serif">'+sd+'/'+si.length+'</text></svg><div style="font-size:13px;font-weight:600;margin-top:4px">'+AA_STDN[s]+'</div></div>'}h+='</div>';el.innerHTML=h}
 
-/* -- Seguimiento -- */
-function buildAATrack2(){
-var el=document.getElementById('aaTrack');if(!el)return;
-var h='<div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center"><span style="font-size:14px;font-weight:600;color:var(--tx2)">Agrupar por:</span>';
-['std','tier','crit','status'].forEach(function(g){
-var labels={std:'Est\u00e1ndar',tier:'Nivel',crit:'Criticidad',status:'Estado'};
-var active=aaGroupBy===g;
-var cls=active?'background:var(--tx);color:var(--bg3);border-color:var(--tx)':'background:transparent;color:var(--tx2)';
-h+='<button style="font-size:13px;padding:6px 14px;border:1px solid var(--bd);border-radius:6px;cursor:pointer;font-family:inherit;'+cls+'" onclick="window._aaSetGroup(\''+g+'\')">'+labels[g]+'</button>';
-});
-h+='</div>';
-var groups=[],gLabels=[],gColors=[];
-if(aaGroupBy==='std'){for(var s=0;s<9;s++){var it=AA.filter(function(c){return c.std===s});if(it.length){groups.push(it);gLabels.push(AA_STDN[s]);gColors.push(AA_STDC[s])}}}
-else if(aaGroupBy==='tier'){[0,1,2,3].forEach(function(t){var it=AA.filter(function(c){return c.tier===t});if(it.length){groups.push(it);gLabels.push(TIER_LABELS[t]);gColors.push(['#7F77DD','#D85A30','#378ADD','#1D9E75'][t])}})}
-else if(aaGroupBy==='crit'){[0,1,2].forEach(function(c){var it=AA.filter(function(a){return a.crit===c});if(it.length){groups.push(it);gLabels.push(CRIT_LABELS[c]);gColors.push(['#E24B4A','#BA7517','#1D9E75'][c])}})}
-else{['pendiente','en curso','por confirmar','hecho','bloqueado'].forEach(function(st){var it=AA.filter(function(c){return getAASt(c.id)===st});if(it.length){groups.push(it);gLabels.push(st);gColors.push(aaStColor(st)[1])}})}
-groups.forEach(function(items,gi){
-var done=items.filter(function(c){return getAASt(c.id)==='hecho'}).length;
-var pct=items.length?Math.round(done/items.length*100):0;
-var badgeBg=pct>=60?'var(--done)':pct>0?'var(--partial)':'var(--none)';
-var badgeTx=pct>=60?'var(--donet)':pct>0?'var(--partialt)':'var(--nonet)';
-h+='<div class="aa-std" id="aag'+gi+'"><div class="aa-std-h" onclick="this.parentElement.classList.toggle(\'open\')">';
-h+='<div style="width:10px;height:10px;border-radius:50%;background:'+gColors[gi]+';flex-shrink:0"></div>';
-h+='<div style="font-size:14px;font-weight:600;flex:1">'+gLabels[gi]+'</div>';
-h+='<div style="font-size:12px;padding:3px 10px;border-radius:6px;font-weight:600;background:'+badgeBg+';color:'+badgeTx+'">'+done+'/'+items.length+'</div>';
-h+='<div style="width:80px;height:6px;background:var(--bg2);border-radius:3px;overflow:hidden;margin:0 8px"><div style="width:'+pct+'%;height:100%;background:'+gColors[gi]+';border-radius:3px"></div></div>';
-h+='<span class="aa-std-arrow">&#9654;</span></div><div class="aa-std-body">';
-items.forEach(function(c){
-var st=getAASt(c.id);var sc=aaStColor(st);
-var isDone=st==='hecho';
-var rowSt=isDone?'opacity:0.5;':'';
-var nameSt=isDone?'text-decoration:line-through;color:var(--tx3);':'';
-h+='<div class="aa-commit" id="aac_'+c.id+'" style="'+rowSt+'"><div class="aa-commit-head" onclick="this.parentElement.classList.toggle(\'expanded\');this.parentElement.style.opacity=\'1\'">';
-h+='<div class="aa-commit-name" style="font-size:14px;'+nameSt+'"><span style="color:var(--tx3);font-size:11px">'+c.id+'</span> '+c.n+'</div>';
-h+='<div class="aa-commit-badges"><span style="font-size:10px;padding:2px 6px;border-radius:4px;font-weight:700;background:'+CRIT_BG[c.crit]+';color:'+CRIT_TX[c.crit]+'">'+CRIT_LABELS[c.crit]+'</span>';
-h+='<span style="font-size:10px;padding:2px 6px;border-radius:4px;font-weight:600;background:var(--bg2);color:var(--tx2)">'+TIER_LABELS[c.tier]+'</span>';
-h+='<span style="font-size:11px;padding:2px 8px;border-radius:4px;font-weight:600;background:'+sc[0]+';color:'+sc[1]+'">'+st+'</span></div></div>';
-h+='<div class="aa-detail" onclick="event.stopPropagation()"><div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px;font-size:13px">';
-h+='<div><b style="color:var(--tx2)">Plazo:</b> '+c.plazo+'</div><div><b style="color:var(--tx2)">Responsable:</b> '+c.resp+'</div><div><b style="color:var(--tx2)">iSER ref:</b> '+c.ref+'</div></div>';
-if(c.desc)h+='<div style="margin-bottom:10px;color:var(--tx2);font-size:13px">'+c.desc+'</div>';
-h+='<div style="display:flex;gap:8px;align-items:center;margin-bottom:10px"><b style="color:var(--tx2);font-size:13px">Estado:</b><select class="st-select" style="font-size:13px;padding:4px 8px" onchange="upAASt(\''+c.id+'\',this.value)">';
-AA_SOPTS.forEach(function(o){h+='<option'+(o===st?' selected':'')+'>'+o+'</option>'});
-h+='</select></div><div style="font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:4px">Notas de seguimiento:</div>';
-h+='<textarea class="aa-note-input" style="font-size:13px" id="aan_'+c.id+'" placeholder="Agregar nota..."></textarea>';
-h+='<button class="aa-note-save" style="font-size:12px" onclick="addAANote(\''+c.id+'\')">Guardar nota</button>';
-h+='<div class="aa-note-log" id="aanl_'+c.id+'">'+renderAANotes(c.id)+'</div></div></div>';
-});
-h+='</div></div>';
-});
-el.innerHTML=h;
-}
-
+/* ===================== SEGUIMIENTO ===================== */
+function buildAATrack2(){var el=document.getElementById('aaTrack');if(!el)return;var h='<div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center"><span style="font-size:14px;font-weight:600;color:var(--tx2)">Agrupar por:</span>';['std','tier','crit','status'].forEach(function(g){var labels={std:'Est\u00e1ndar',tier:'Nivel',crit:'Criticidad',status:'Estado'};var cls=aaGroupBy===g?'background:var(--tx);color:var(--bg3);border-color:var(--tx)':'background:transparent;color:var(--tx2)';h+='<button style="font-size:13px;padding:6px 14px;border:1px solid var(--bd);border-radius:6px;cursor:pointer;font-family:inherit;'+cls+'" onclick="window._aaSetGroup(\''+g+'\')">'+labels[g]+'</button>'});h+='</div>';var groups=[],gLabels=[],gColors=[];if(aaGroupBy==='std'){for(var s=0;s<9;s++){var it=AA.filter(function(c){return c.std===s});if(it.length){groups.push(it);gLabels.push(AA_STDN[s]);gColors.push(AA_STDC[s])}}}else if(aaGroupBy==='tier'){[0,1,2,3].forEach(function(t){var it=AA.filter(function(c){return c.tier===t});if(it.length){groups.push(it);gLabels.push(TIER_LABELS[t]);gColors.push(['#7F77DD','#D85A30','#378ADD','#1D9E75'][t])}})}else if(aaGroupBy==='crit'){[0,1,2].forEach(function(c){var it=AA.filter(function(a){return a.crit===c});if(it.length){groups.push(it);gLabels.push(CRIT_LABELS[c]);gColors.push(['#E24B4A','#BA7517','#1D9E75'][c])}})}else{['pendiente','en curso','por confirmar','hecho','bloqueado'].forEach(function(st){var it=AA.filter(function(c){return getAASt(c.id)===st});if(it.length){groups.push(it);gLabels.push(st);gColors.push(aaStColor(st)[1])}})}groups.forEach(function(items,gi){var done=items.filter(function(c){return getAASt(c.id)==='hecho'}).length;var pct=items.length?Math.round(done/items.length*100):0;var badgeBg=pct>=60?'var(--done)':pct>0?'var(--partial)':'var(--none)';var badgeTx=pct>=60?'var(--donet)':pct>0?'var(--partialt)':'var(--nonet)';h+='<div class="aa-std" id="aag'+gi+'"><div class="aa-std-h" onclick="this.parentElement.classList.toggle(\'open\')"><div style="width:10px;height:10px;border-radius:50%;background:'+gColors[gi]+';flex-shrink:0"></div><div style="font-size:14px;font-weight:600;flex:1">'+gLabels[gi]+'</div><div style="font-size:12px;padding:3px 10px;border-radius:6px;font-weight:600;background:'+badgeBg+';color:'+badgeTx+'">'+done+'/'+items.length+'</div><div style="width:80px;height:6px;background:var(--bg2);border-radius:3px;overflow:hidden;margin:0 8px"><div style="width:'+pct+'%;height:100%;background:'+gColors[gi]+';border-radius:3px"></div></div><span class="aa-std-arrow">&#9654;</span></div><div class="aa-std-body">';items.forEach(function(c){h+=commitHTML(c,'trk')});h+='</div></div>'});el.innerHTML=h}
 window._aaSetGroup=function(g){aaGroupBy=g;buildAATrack2()};
-window.upAASt=function(id,v){if(!aaState.commits[id])aaState.commits[id]={status:v,notes:[]};else aaState.commits[id].status=v;saveAAState();buildAATrack2();buildAAResumen()};
-window.addAANote=function(id){var inp=document.getElementById('aan_'+id);var t=inp.value.trim();if(!t)return;if(!aaState.commits[id])aaState.commits[id]={status:getAASt(id),notes:[]};if(!aaState.commits[id].notes)aaState.commits[id].notes=[];aaState.commits[id].notes.push({date:new Date().toLocaleDateString('es-CL'),text:t});saveAAState();inp.value='';document.getElementById('aanl_'+id).innerHTML=renderAANotes(id)};
-window.renderAANotes=function(id){var n=aaState.commits[id]?aaState.commits[id].notes:[];if(!n||!n.length)return'<div style="color:var(--tx3);font-style:italic;padding:3px 0;font-size:12px">Sin notas</div>';return n.slice().reverse().map(function(x){return'<div class="aa-note-entry" style="font-size:12px"><b>'+x.date+'</b> \u2014 '+x.text+'</div>'}).join('')};
+window.upAASt=function(id,v){if(!aaState.commits[id])aaState.commits[id]={status:v,notes:[]};else aaState.commits[id].status=v;saveAAState();buildAATrack2();buildAAResumen();buildAADesafios()};
+window.addAANote=function(id){var inputs=document.querySelectorAll('[id$="n_'+id+'"]');var inp=null;inputs.forEach(function(el){if(el.tagName==='TEXTAREA'&&el.value.trim())inp=el});if(!inp){inputs.forEach(function(el){if(el.tagName==='TEXTAREA')inp=inp||el})}if(!inp)return;var t=inp.value.trim();if(!t)return;if(!aaState.commits[id])aaState.commits[id]={status:getAASt(id),notes:[]};if(!aaState.commits[id].notes)aaState.commits[id].notes=[];aaState.commits[id].notes.push({date:new Date().toLocaleDateString('es-CL'),text:t});saveAAState();inp.value='';document.querySelectorAll('[id$="nl_'+id+'"]').forEach(function(el){el.innerHTML=renderAANotes(id)})};
+window.renderAANotes=function(id){var n=aaState.commits[id]?aaState.commits[id].notes:[];if(!n||!n.length)return'<div style="color:var(--tx3);font-style:italic;padding:3px 0;font-size:11px">Sin notas</div>';return n.slice().reverse().map(function(x){return'<div class="aa-note-entry" style="font-size:12px"><b>'+x.date+'</b> \u2014 '+x.text+'</div>'}).join('')};
 })();
-/* Migration: fix old localStorage values */
-if(typeof aaState!=='undefined'){
-if(aaState.metrics.aolPost===70)aaState.metrics.aolPost=29;
-if(typeof saveAAState==='function')saveAAState();
-}
-/* Re-run after overriding */
+if(typeof aaState!=='undefined'){if(aaState.metrics.aolPost===70)aaState.metrics.aolPost=29;if(typeof saveAAState==='function')saveAAState()}
 if(typeof aaState!=='undefined')buildAA();
