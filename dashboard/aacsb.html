@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AACSB — FEN UNAB</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fafaf8;--bg2:#f2f0eb;--bg3:#fff;--tx:#1a1a1a;--tx2:#666;--tx3:#999;--bd:#e5e3dc;--bd2:#d5d3cc;--accent:#7F77DD;--r:10px;
+--done:#EAF3DE;--donet:#27500A;--partial:#FAEEDA;--partialt:#633806;--none:#FCEBEB;--nonet:#791F1F;--info:#E6F1FB;--infot:#0C447C;--wait:#F3E8FF;--waitt:#6B21A8;--neutral:#f2f0eb;--neutralt:#666}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;color:var(--tx);line-height:1.6;background:var(--bg)}.app{max-width:960px;margin:0 auto;padding:1rem 1.25rem}
+header{padding:1.5rem 0 1rem}header h1{font-size:20px;font-weight:700;letter-spacing:-.3px}header p{font-size:13px;color:var(--tx2)}
+.sub-tabs{display:flex;gap:4px;margin-bottom:1rem;flex-wrap:wrap}.sub-tab{font-size:13px;padding:6px 14px;border:1px solid var(--bd);border-radius:6px;background:transparent;cursor:pointer;font-family:inherit;color:var(--tx2);transition:all .15s}.sub-tab:hover{background:var(--bg2)}.sub-tab.on{background:var(--tx);color:var(--bg3);border-color:var(--tx)}
+.aa-std{margin-bottom:8px;border:1px solid var(--bd);border-radius:10px;overflow:hidden;background:var(--bg3)}.aa-std-h{padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;user-select:none}.aa-std-h:hover{background:var(--bg2)}.aa-std-arrow{font-size:10px;color:var(--tx3);transition:transform .2s;display:inline-block}.aa-std.open .aa-std-arrow{transform:rotate(90deg)}.aa-std-body{display:none;padding:0 14px 14px}.aa-std.open .aa-std-body{display:block}
+.aa-commit{padding:10px 0;border-bottom:1px solid var(--bg2);font-size:13px}.aa-commit:last-child{border-bottom:none}.aa-commit-head{display:flex;align-items:flex-start;gap:8px;cursor:pointer}.aa-commit-name{flex:1;font-weight:500}.aa-commit-badges{display:flex;gap:4px;flex-shrink:0;flex-wrap:wrap;align-items:center}
+.aa-detail{display:none;margin-top:8px;padding:10px 12px;background:var(--bg2);border-radius:8px;font-size:12px;line-height:1.7}.aa-commit.expanded .aa-detail{display:block}
+.aa-note-input{width:100%;padding:6px 8px;border:1px solid var(--bd);border-radius:6px;font-size:12px;font-family:inherit;margin-top:4px;resize:vertical;min-height:28px}.aa-note-save{font-size:11px;padding:3px 10px;border:1px solid var(--bd2);border-radius:4px;background:var(--bg3);cursor:pointer;font-family:inherit;margin-top:4px}.aa-note-log{margin-top:6px;font-size:11px;color:var(--tx2);max-height:120px;overflow-y:auto}.aa-note-entry{padding:3px 0;border-bottom:1px dashed var(--bd);line-height:1.4}
+.st-select{font-size:12px;padding:4px 8px;border:1px solid var(--bd);border-radius:4px;background:var(--bg3);font-family:inherit;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+<h1>AACSB — Compromisos iSER</h1>
+<p>Facultad de Econom&iacute;a y Negocios · UNAB · 43 compromisos estrat&eacute;gicos · abril 2026</p>
+</header>
+<div class="sub-tabs" id="aaSubs">
+<button class="sub-tab on" onclick="setAAView('resumen',this)">Resumen</button>
+<button class="sub-tab" onclick="setAAView('track',this)">Seguimiento</button>
+<button class="sub-tab" data-des="1" onclick="setAAView('desafios',this)">Desaf&iacute;os</button>
+</div>
+<div id="aaResumen"></div>
+<div id="aaTrack" style="display:none"></div>
+<div id="aaDesafios" style="display:none"></div>
+<footer style="margin-top:2rem;padding:1rem 0;border-top:1px solid var(--bd);font-size:12px;color:var(--tx3);text-align:center">AACSB · FEN UNAB · v2.4 · Fuente: iSER Ch0–Ch9</footer>
+</div>
+<script>
+var AA_SOPTS=['pendiente','en curso','hecho','por confirmar','bloqueado'];
+var AA_STDN=['Std 1 \u00b7 Planificaci\u00f3n','Std 2 \u00b7 Recursos','Std 3 \u00b7 Faculty','Std 4 \u00b7 Curriculum','Std 5 \u00b7 AoL','Std 6 \u00b7 Progresi\u00f3n','Std 7 \u00b7 Efectividad','Std 8 \u00b7 Invest.','Std 9 \u00b7 VcM'];
+var AA_STDC=['#7F77DD','#1D9E75','#D85A30','#378ADD','#BA7517','#7F77DD','#1D9E75','#D85A30','#378ADD'];
+var CRIT_LABELS=['CR\u00cdTICO','IMPORTANTE','MEJORA'];
+var CRIT_BG=['var(--none)','var(--partial)','#E1F5EE'];
+var CRIT_TX=['var(--nonet)','var(--partialt)','#085041'];
+var TIER_LABELS=['\ud83c\udfdb INST.','\ud83c\udfaf DECANO','\ud83d\udccb DEPTO','\ud83d\udd27 DAC'];
+var AA=[
+{id:'T1-06',std:0,n:'Revisar declaraci\u00f3n de misi\u00f3n para incorporar engagement, innovation e impact',desc:'Mentoras lo pidieron en Desaf\u00edo 1.',plazo:'S1 2026',resp:'Decano / CF',ref:'Ch1 \u00a71.1',crit:0,tier:0,bst:'por confirmar'},
+{id:'T1-01',std:2,n:'Validar modelo Profesor Responsable / Dinamizador',desc:'Sin validaci\u00f3n, los SCH se atribuir\u00edan al Dinamizador.',plazo:'Urgente',resp:'Decano / VTD',ref:'Ch3 \u00a73.1.3',crit:0,tier:0,bst:'por confirmar'},
+{id:'T1-02',std:2,n:'Completar 6 contrataciones PhD pendientes (de 15)',desc:'9 ya ingresaron ene-2026.',plazo:'2026\u20132027',resp:'Decano / Dir. Depto',ref:'Ch3 \u00a73.1.4',crit:0,tier:0,bst:'en curso'},
+{id:'T1-03',std:2,n:'Aprobar Lineamientos Suficiencia y Cualificaci\u00f3n v2.0 en CF',desc:'Pol\u00edtica anti-predatorias, criterios SA/PA/SP/IP.',plazo:'Urgente',resp:'DAC / CF',ref:'Ch3 \u00a73.2.1',crit:0,tier:0,bst:'pendiente'},
+{id:'T1-04',std:2,n:'Formalizar Programa Desarrollo Acad\u00e9mico (pipeline doctoral)',desc:'Ruta mag\u00edster\u2192doctor.',plazo:'S1 2026',resp:'Decano / CF',ref:'Ch3 \u00a73.4.6',crit:0,tier:0,bst:'pendiente'},
+{id:'T1-05',std:2,n:'Capacitaci\u00f3n dinamizadores: cronograma abr\u2013may27',desc:'UOC y VTD.',plazo:'Cronograma',resp:'VTD / Dir. Escuelas',ref:'Ch3 \u00a73.1.3',crit:1,tier:0,bst:'en curso'},
+{id:'T1-07',std:3,n:'Marco institucional microcredenciales',desc:'',plazo:'S1 2026',resp:'VDP / FEN',ref:'Ch5 \u00a75.6',crit:1,tier:0,bst:'por confirmar'},
+{id:'T2-01',std:0,n:'Revisi\u00f3n estrat\u00e9gica PDE con stakeholders',desc:'Talleres tres sedes.',plazo:'S1 2026',resp:'Decano',ref:'Ch1 \u00a71.1',crit:0,tier:1,bst:'por confirmar'},
+{id:'T2-02',std:0,n:'Primera evaluaci\u00f3n formal KPIs del PDE',desc:'Power BI + Planner + sub-comit\u00e9s.',plazo:'S1 2026',resp:'DAC / Decano',ref:'Ch1 \u00a71.2',crit:0,tier:1,bst:'por confirmar'},
+{id:'T2-03',std:2,n:'Eje D: pipeline doctoral vs vacantes PhD',desc:'~16 acciones.',plazo:'2028\u20132030',resp:'Decano / Dir. Depto',ref:'Ch3 \u00a73.2.6',crit:0,tier:1,bst:'pendiente'},
+{id:'T2-04',std:7,n:'Formalizar \u00e1reas liderazgo intelectual',desc:'3 \u00e1reas definidas.',plazo:'S1 2026',resp:'Decano / IPE',ref:'Ch8 \u00a78.1.5',crit:0,tier:1,bst:'pendiente'},
+{id:'T2-05',std:5,n:'Indicadores por programa en fen.unab.cl',desc:'',plazo:'2026',resp:'DAC / Comunicaciones',ref:'Ch6 \u00a76.7.1',crit:1,tier:1,bst:'pendiente'},
+{id:'T2-06',std:0,n:'Reporte propio VcM de la FEN',desc:'',plazo:'No definido',resp:'Dir. Escuelas',ref:'Ch1 \u00a71.4',crit:1,tier:1,bst:'pendiente'},
+{id:'T2-07',std:8,n:'Unidad coordinaci\u00f3n VcM en FEN',desc:'',plazo:'Por definir',resp:'Decano',ref:'Ch9 \u00a79.1',crit:1,tier:1,bst:'pendiente'},
+{id:'T2-08',std:3,n:'Plan competencias digitales diferenciado',desc:'',plazo:'2026',resp:'Dir. Escuelas',ref:'Ch4 \u00a74.1.3',crit:1,tier:1,bst:'pendiente'},
+{id:'T2-09',std:1,n:'KPIs en negociaci\u00f3n presupuestaria',desc:'',plazo:'2026+',resp:'Decano',ref:'Ch2 \u00a72.4',crit:2,tier:1,bst:'pendiente'},
+{id:'T2-10',std:1,n:'Talleres alfabetizaci\u00f3n informacional',desc:'',plazo:'Ciclo acred.',resp:'DAC / Biblioteca',ref:'Ch2 \u00a72.2.3',crit:2,tier:1,bst:'pendiente'},
+{id:'T3-01',std:2,n:'Eje A: Reclasificar 6 regulares PhD A\u2192SA',desc:'Guzm\u00e1n, P\u00e9rez, D\u00edaz, Ram\u00edrez + Oelckers, Lima.',plazo:'2026',resp:'Dir. Depto / DAC',ref:'Ch3 \u00a73.2.6',crit:0,tier:2,bst:'en curso'},
+{id:'T3-02',std:2,n:'Piloto reclasificaci\u00f3n 15\u201320 adjuntos A\u2192IP/SP',desc:'',plazo:'Antes PRT',resp:'DAC / Dir. Escuelas',ref:'Ch3 \u00a73.2.6',crit:0,tier:2,bst:'pendiente'},
+{id:'T3-03',std:4,n:'Cobertura 100% assessment postgrado',desc:'Incorporar MECD.',plazo:'2026',resp:'DAC / Dir. Postgrado',ref:'Ch5 \u00a75.5',crit:0,tier:2,bst:'en curso'},
+{id:'T3-04',std:4,n:'Plan AoL integral postgrado',desc:'Closing the loop, medidas directas.',plazo:'2026',resp:'DAC',ref:'Ch5 \u00a75.8',crit:0,tier:2,bst:'pendiente'},
+{id:'T3-05',std:3,n:'Innovaci\u00f3n curricular Contador Auditor',desc:'~80% avance.',plazo:'2026',resp:'Dir. Escuela CA',ref:'Ch4 \u00a74.2.4',crit:1,tier:2,bst:'en curso'},
+{id:'T3-06',std:3,n:'Innovaci\u00f3n curricular IAE',desc:'',plazo:'2026',resp:'Dir. Escuela IAE',ref:'Ch4 \u00a74.2.4',crit:1,tier:2,bst:'en curso'},
+{id:'T3-07',std:3,n:'Innovaci\u00f3n curricular Turismo',desc:'Por iniciar.',plazo:'2026',resp:'Dir. Escuela ETH',ref:'Ch4 \u00a74.2.4',crit:1,tier:2,bst:'pendiente'},
+{id:'T3-08',std:4,n:'Cierre ciclo AAE nivel 3 todas las carreras',desc:'Transferir modelo ETH.',plazo:'S1 2026\u20132027',resp:'Dir. Escuelas / DAC',ref:'Ch5 \u00a75.5',crit:1,tier:2,bst:'en curso'},
+{id:'T3-09',std:7,n:'Casos de ense\u00f1anza entre practitioners',desc:'',plazo:'2026+',resp:'Dir. Escuelas / IPE',ref:'Ch8 \u00a78.1.6',crit:1,tier:2,bst:'pendiente'},
+{id:'T3-10',std:6,n:'Informes Relacionamiento \u2192 acci\u00f3n curricular en acta CE',desc:'',plazo:'S1 2026',resp:'Dir. Escuelas',ref:'Ch7 \u00a77.5',crit:1,tier:2,bst:'pendiente'},
+{id:'T3-11',std:7,n:'Elevar % Participating con CI a 45\u201350%',desc:'',plazo:'Pr\u00f3ximo ciclo',resp:'Dir. Depto / IPE',ref:'Ch8 \u00a78.1.6',crit:1,tier:2,bst:'en curso'},
+{id:'T3-12',std:0,n:'Integrar adjuntos en retroalimentaci\u00f3n PDE',desc:'',plazo:'No definido',resp:'Dir. Escuelas',ref:'Ch1 \u00a71.1',crit:2,tier:2,bst:'pendiente'},
+{id:'T3-13',std:2,n:'Formalizar contrataci\u00f3n adjuntos',desc:'',plazo:'En curso',resp:'Dir. Escuelas / DEA',ref:'Ch3 \u00a73.1.3',crit:2,tier:2,bst:'en curso'},
+{id:'T3-14',std:8,n:'Alinear VcM con Planes por programa',desc:'',plazo:'2026',resp:'Dir. Escuelas',ref:'Ch9 \u00a79.8',crit:2,tier:2,bst:'en curso'},
+{id:'T3-15',std:8,n:'Indicadores outcome beneficiarios VcM',desc:'',plazo:'En desarrollo',resp:'Hub / DAC',ref:'Ch9 \u00a79.8',crit:2,tier:2,bst:'pendiente'},
+{id:'T3-16',std:1,n:'100% planes con estrategia educaci\u00f3n digital',desc:'',plazo:'Meta 2027',resp:'Dir. Escuelas',ref:'Ch2 \u00a72.2.4',crit:2,tier:2,bst:'en curso'},
+{id:'T4-01',std:4,n:'Desagregar AoL por tipo de profesorado',desc:'Regular vs adjunto, P vs S.',plazo:'Antes PRT',resp:'DAC',ref:'Ch3 \u00a73.1.4, Ch5',crit:0,tier:3,bst:'pendiente'},
+{id:'T4-02',std:4,n:'Vincular medidas indirectas a competencias',desc:'',plazo:'En desarrollo',resp:'DAC',ref:'Ch5 \u00a75.2.2',crit:0,tier:3,bst:'pendiente'},
+{id:'T4-03',std:4,n:'Profundizar an\u00e1lisis por RA en todas las carreras',desc:'',plazo:'2026',resp:'DAC / Dir. Carreras',ref:'Ch5 \u00a75.5.4',crit:0,tier:3,bst:'en curso'},
+{id:'T4-04',std:0,n:'Sistema monitoreo PDE operando',desc:'Power BI + Planner + sub-comit\u00e9s.',plazo:'Marzo 2026',resp:'DAC',ref:'Ch1 \u00a71.2',crit:0,tier:3,bst:'en curso'},
+{id:'T4-05',std:6,n:'Protocolo evaluaci\u00f3n adjuntos',desc:'Meta 50% dic 2026.',plazo:'Jun 2026',resp:'DAC / Decano',ref:'Ch7 \u00a77.5',crit:1,tier:3,bst:'pendiente'},
+{id:'T4-06',std:6,n:'Formaci\u00f3n docente para adjuntos',desc:'Meta 30% inscritos dic 2026.',plazo:'Mar 2026',resp:'DAC / VRA',ref:'Ch7 \u00a77.5',crit:1,tier:3,bst:'pendiente'},
+{id:'T4-07',std:4,n:'Socializar AAE con docentes y estudiantes',desc:'',plazo:'2026',resp:'DAC / Dir. Carreras',ref:'Ch5 \u00a75.8',crit:1,tier:3,bst:'en curso'},
+{id:'T4-08',std:2,n:'Programa gesti\u00f3n de adjuntos',desc:'',plazo:'Antes PRT',resp:'DAC',ref:'Ch3 \u00a73.4',crit:1,tier:3,bst:'pendiente'},
+{id:'T4-09',std:4,n:'Cargar evidencias Gestor Documental SAIC',desc:'',plazo:'15 abr 2026',resp:'DAC',ref:'Ch5',crit:2,tier:3,bst:'pendiente'},
+{id:'T4-10',std:0,n:'Mapa alineaci\u00f3n UNAB\u2013FEN\u2013AACSB mantenido',desc:'',plazo:'Hecho (mantener)',resp:'DAC',ref:'Ch0, Ch1',crit:2,tier:3,bst:'hecho'}
+];
+var AA_BASELINE={sa:15.9,qual:40.5,part:47.5,pci:32.3,aolPre:100,aolPost:29};
+var AA_BASELINE_TARGETS={sa:40,qual:90,part:75,pci:50,aolPre:100,aolPost:100};
+var AA_METRIC_NAMES={sa:'SA ratio (PTDM)',qual:'Qualified ratio (PTDM)',part:'Participating ratio (SCH)',pci:'Participating con CI',aolPre:'AoL pregrado',aolPost:'AoL postgrado'};
+var AA_AOL_POST_NOTE='2 de 7 programas con AoL funcionando (MBA y Mag. Direcci\u00f3n de Personas). Los 5 restantes est\u00e1n planificados pero sin plan AAE ni datos a la fecha.';
+var aaState;
+function loadAAState(){try{var s=localStorage.getItem('dac_aa_v11');if(s)return JSON.parse(s)}catch(e){}var st={metrics:JSON.parse(JSON.stringify(AA_BASELINE)),commits:{}};AA.forEach(function(c){st.commits[c.id]={status:c.bst,notes:[]}});return st}
+function saveAAState(){localStorage.setItem('dac_aa_v11',JSON.stringify(aaState))}
+function getAASt(id){return aaState.commits[id]?aaState.commits[id].status:'pendiente'}
+function aaStColor(s){var m={hecho:['var(--done)','var(--donet)'],'en curso':['var(--info)','var(--infot)'],pendiente:['var(--none)','var(--nonet)'],'por confirmar':['var(--partial)','var(--partialt)'],bloqueado:['var(--wait)','var(--waitt)']};return m[s]||m.pendiente}
+aaState=loadAAState();
+</script>
+<script src="aacsb-v2.js"></script>
+</body>
+</html>
