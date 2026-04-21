@@ -1,5 +1,5 @@
 # CONTEXT.md — Asistente DAC FEN UNAB
-**Última actualización:** 11 abril 2026
+**Última actualización:** 21 abril 2026
 **Instrucción para Claude:** Lee este archivo al inicio de cada conversación sobre el cargo DAC. Contiene todo el estado actual del proyecto.
 
 ---
@@ -197,21 +197,22 @@ Ver Pestaña 4 del dashboard para listado completo con responsables, fechas, sta
 - **URL:** `https://ctroncoso-valverde.github.io/dac-fen/curso-saic/`
 - **Contenido:** 4 módulos + 4 quizzes interactivos (24 preguntas total)
 
-### Dashboard DAC v1.1 (COMPLETADO Y DESPLEGADO)
+### Dashboard DAC v2.0 (DESPLEGADO)
 - **Ubicación:** `/Repositorio/dac-fen/dashboard/index.html`
 - **URL:** `https://ctroncoso-valverde.github.io/dac-fen/dashboard/`
-- **8 pestañas:** Dimensiones, Línea base, Estado actual, Ciclo 2026, AACSB, Seg. estratégico, Reportería, Asistente
+- **Navegación v2.0:** Una sola fila de 7 pestañas organizadas por focos de gestión:
+  - **AACSB** | **Assessment** | **Progresión estudiantil** | **Acreditaciones** | **Gestión VRAC** | **Gestión FEN** | **Reportería**
 - **Archivos JS modulares:**
-  - `aacsb-v2.js` — Pestaña AACSB completa (Resumen + Seguimiento)
+  - `nav-v2.js` — Reestructuración de navegación v2.0 (carga último, overridea showTab)
+  - `aacsb-v2.js` — Pestaña AACSB completa (Resumen + Seguimiento + Desafíos)
   - `ciclo-v2.js` — Descripciones y cross-references para tareas del Ciclo 2026
   - `faculty-inject.js` — Sub-pestaña Faculty data (desencripta snapshot, vista read-only de 330 académicos)
-- **Pestaña AACSB (2+1 sub-pestañas):**
-  - **Resumen:** Métricas Base → A la fecha con tarjetas coloridas, barras de progreso, deltas. Criticidad Base→Pendientes. Anillos por estándar.
-  - **Seguimiento:** 43 compromisos iSER con selector "Agrupar por" (Estándar/Nivel/Criticidad/Estado), barras de progreso por grupo, compromisos hecho en gris tachado, notas cronológicas.
-  - **Faculty data:** Desencripta `snapshot_aacsb.enc` con RUT, muestra KPIs, ratios por disciplina, tabla filtrable de académicos con detalle expandible (evidencias, exp. laboral). Auto-actualiza métricas en Seguimiento.
+  - `aa-patch.js` — Correcciones tier labels, responsables, descripciones 43 compromisos
+  - `dac-patch.js` — Descripciones 62 tareas DAC, tags búsqueda, bitácora con notas
+  - `search-patch.js` — Búsqueda global Cmd+K
 - **Líneas base AACSB:** SA 15.9%, Qual 40.5%, Part 47.5%, P con CI 32.3%, AoL pre 100%, AoL post 29%
 - **AoL postgrado (29%):** 2 de 7 programas con AoL funcionando (MBA y Mag. Dirección de Personas). 5 restantes planificados sin plan AAE.
-- **Datos:** localStorage keys `dac_state_v11`, `dac_strat_v11`, `dac_cycle_v11`, `dac_aa_v11`
+- **Datos:** localStorage keys `dac_state_v11`, `dac_strat_v11`, `dac_cycle_v11`, `dac_aa_v11`, `dac_pesos_v20`, `dac_notes_v11`
 
 ### Herramienta de encriptación snapshot (COMPLETADO)
 - **Ubicación:** `/Repositorio/dac-fen/dashboard/snapshot-encrypt.html`
@@ -239,26 +240,67 @@ Ver Pestaña 4 del dashboard para listado completo con responsables, fechas, sta
 
 ---
 
-## 9. PENDIENTES DEL DASHBOARD (al 11 abril 2026)
+## 9. FOCOS DE GESTIÓN 2026 (fuente: Reunión Vicerrectora 06/01/2026)
 
-### Pendientes originales (puntos 1-6 del usuario)
-1. **Interlocutores por cargo:** Confirmar algunos cargos. Revisar https://calidad.unab.cl/vicerrectoria-de-aseguramiento-de-la-calidad/
-2. **SAIC en actas:** CE para informar periódicamente, CF cada 3 meses. Sugerencia: trimestral en CF coincidiendo con reuniones Encargado SAIC.
+Los objetivos del cargo DAC para 2026 fueron definidos por la Vicerrectora VRAC en reunión del 6 de enero de 2026. Estos focos son la base de evaluación del DAC y organizan la navegación del dashboard v2.0.
+
+| Foco | Peso | Personas clave |
+|------|------|----------------|
+| AACSB | 40% | Gabriele (postgrado), Análisis Institucional |
+| Assessment | 25% | Mª Francisca (pregrado), Gabriela (postgrado) |
+| Progresión estudiantil | 25% | Fernando Rojas, Juan Díaz |
+| MSCHE (ahora en "Acreditaciones") | 10% | Francisco Aracena |
+
+**Nota:** Las 5 dimensiones del cargo (D1-D5) describen el alcance completo del trabajo DAC. Los 4 focos son lo que la Vicerrectora evalúa. El dashboard prioriza los focos pero no pierde las dimensiones (viven en "Gestión VRAC").
+
+---
+
+## 10. ESTRUCTURA DASHBOARD v2.0 (aprobada 21 abril 2026)
+
+### Navegación principal (1 fila, 7 pestañas)
+
+| Pestaña | Contenido | Peso | Estado |
+|---------|-----------|------|--------|
+| AACSB | Compromisos iSER, métricas, focos estratégicos | 40% | Funcional, en reestructuración de sub-tabs |
+| Assessment | Pregrado + Postgrado (sub-tabs) | 25% | Placeholder |
+| Progresión estudiantil | Asignaturas críticas, alertas, retención | 25% | Placeholder |
+| Acreditaciones | Institucionales (MSCHE, CNA) + FEN (futuras) | 10% | Placeholder |
+| Gestión VRAC | Sub-tabs: Gestión (Dim/Base/Estado) + Ciclo 2026 | — | Funcional |
+| Gestión FEN | Sub-tab: Seg. estratégico (24 iniciativas Planner) | — | Funcional |
+| Reportería | Export PPTX por audiencia (Decano, CF, VRAC) | — | Placeholder |
+
+**Eliminado:** Pestaña "Asistente" (requería API key, difícil mantener en GitHub Pages).
+**Pesos editables:** Cada foco muestra badge "Peso: X% editar" dentro de la pestaña. Guardado en localStorage `dac_pesos_v20`.
+
+### Sub-pestañas AACSB (aprobado en diseño, pendiente implementar)
+
+Estructura acordada de 4 sub-pestañas (reemplaza la actual de Resumen/Seguimiento/Desafíos/Faculty data):
+
+1. **Resumen** — Métricas clave (SA, Qual, Part, PCI, AoL) con barras base→actual. Anillos por estándar clickeables (saltan a Seguimiento). Sin "compromisos por criticidad".
+2. **Estándares** — Sub-vistas: "Línea base iSER" (foto congelada al momento de redactar) + "Sub-criterios AACSB 2020" (checklist normativo con semáforo: cumple/parcial/no cumple/no aplica).
+3. **Focos estratégicos** — Sub-tabs: Faculty (incluye Faculty data con login RUT + tabla 330 académicos), AoL, Research, Estrategia. Es lo que hoy existe como "Desafíos" pero con Faculty data integrado en Faculty.
+4. **Seguimiento** — 43 compromisos iSER agrupables por estándar/nivel/criticidad/estado. Los cubiertos por un foco llevan badge "→ Faculty" / "→ AoL" etc.
+
+**Estado:** Diseño aprobado en mock. Código pendiente de implementar.
+
+---
+
+## 11. PENDIENTES DEL DASHBOARD (al 21 abril 2026)
+
+### Pendientes originales (puntos 1-6)
+1. **Interlocutores por cargo:** Confirmar algunos cargos.
+2. **SAIC en actas:** CE para informar periódicamente, CF cada 3 meses.
 3. **Matrices de calidad:** Explicar qué son y dónde encontrarlas.
-4. **AoL postgrado:** Plan concreto de cómo incorporar los 5 programas faltantes. Ya incluido como T3-04 en compromisos AACSB.
-5. **Gestor Documental SAIC:** Explicar qué es, cómo opera, qué info tiene.
-6. **Fuentes más grandes en todo el dashboard:** Parcialmente hecho (nav, AACSB). Falta aplicar consistentemente a todas las pestañas.
+4. **AoL postgrado:** Plan concreto para 5 programas faltantes (T3-04).
+5. **Gestor Documental SAIC:** Explicar qué es, cómo opera.
+6. **Fuentes más grandes:** Parcialmente hecho.
 
-### Pendientes de UX identificados en sesión
-- Color/diseño visual del Resumen AACSB: mock aprobado con tarjetas coloridas, pendiente de verificar en producción
-- Ciclo 2026: descripciones + cross-references recién implementados, pendiente de verificar
-- Reportería (tab 6): placeholder, por construir
-- Asistente (tab 7): placeholder, requiere API key Anthropic
-
-### Futuras pestañas dedicadas (acordado pero no construido)
-- **Pestaña Assessment:** Análisis detallado por programa de postgrado (tabla con Plan AAE, datos, brecha, acciones, closing the loop)
-- **Pestaña Progresión:** Seguimiento progresión estudiantil
-- MSCHE no se incluye como pestaña (tareas fuera del control directo del DAC)
+### Pendientes por pestaña
+- **AACSB:** Reestructurar sub-tabs según diseño aprobado (Resumen/Estándares/Focos estratégicos/Seguimiento). Requiere: construir pestaña "Estándares" (sub-criterios AACSB 2020), mover Faculty data dentro de Faculty, eliminar criticidad de Resumen, hacer anillos clickeables.
+- **Assessment:** Construir contenido. Sub-tabs Pregrado (planes AAE, monitoreo, calendario) + Postgrado (7 programas, brechas, closing the loop).
+- **Progresión estudiantil:** Construir contenido. Asignaturas críticas, alertas, retención por carrera.
+- **Acreditaciones:** Construir contenido. Sub-tabs Institucionales (MSCHE, CNA) + FEN (futuras).
+- **Reportería:** Construir. Generación PPTX por audiencia. Incluye botón "Exportar resumen PPTX" accesible también desde otras pestañas.
 
 ### Datos de AoL postgrado verificados (fuente: iSER Ch5 + informes autoevaluación)
 | Programa | Plan AAE | Datos | Closing the loop |
@@ -335,11 +377,15 @@ dac-fen/
 ├── curso-saic/
 │   └── index.html          ← 4 módulos SAIC + quizzes (DESPLEGADO)
 └── dashboard/
-    ├── index.html          ← dashboard DAC v1.1 (HTML + JS principal)
-    ├── aacsb-v2.js         ← Resumen + Seguimiento AACSB (sobrescribe funciones viejas)
+    ├── index.html          ← dashboard DAC v2.0 (HTML + JS principal)
+    ├── nav-v2.js           ← Reestructuración navegación v2.0 (carga último)
+    ├── aacsb-v2.js         ← Resumen + Seguimiento + Desafíos AACSB
     ├── ciclo-v2.js         ← Descripciones + cross-refs para Ciclo 2026
     ├── faculty-inject.js   ← Sub-pestaña Faculty data (desencripta snapshot)
-    ├── snapshot-encrypt.html ← Herramienta encriptación (standalone, abre local)
+    ├── aa-patch.js         ← Correcciones tier, responsables, descripciones
+    ├── dac-patch.js        ← Descripciones 62 tareas, tags, bitácora
+    ├── search-patch.js     ← Búsqueda global Cmd+K
+    ├── snapshot-encrypt.html ← Herramienta encriptación (standalone)
     └── snapshot_aacsb.enc  ← Datos encriptados (se regenera con snapshot-encrypt)
 ```
 
