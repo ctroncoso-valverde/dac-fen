@@ -53,7 +53,7 @@ nav button{font-size:14px;padding:12px 16px}.sub-tab{font-size:13px;padding:6px 
 <div class="hdr-actions"><button onclick="exportState()">📥 Exportar JSON</button><button onclick="document.getElementById('importFile').click()">📤 Importar JSON</button><button onclick="genContextMD()">📄 Generar CONTEXT.md</button><input type="file" id="importFile" accept=".json" style="display:none" onchange="importState(event)"></div>
 </header>
 <nav id="mainNav"></nav>
-<div class="panel on" id="tab0"><p style="font-size:13px;color:var(--tx2);margin-bottom:14px">Referencia rápida del cargo DAC — 5 dimensiones, productos y los interlocutores clave.</p><div id="dimCards"></div></div>
+<div class="panel" id="tab0"><p style="font-size:13px;color:var(--tx2);margin-bottom:14px">Referencia rápida del cargo DAC — 5 dimensiones, productos y los interlocutores clave.</p><div id="dimCards"></div></div>
 <div class="panel" id="tab1"><div class="lock-bar"><span id="lockIcon">🔒</span><span>Línea base — abril 2026</span><button onclick="toggleLock()"><span id="lockBtn">Desbloquear</span></button></div><div id="baselineDims"></div><div class="insight insight-r"><b>Foto al asumir:</b> de 62 productos/tareas, 11 con avance (todos en D4). D1/D2/D3/D5 en cero — sin inducción al SAIC.</div></div>
 <div class="panel" id="tab2"><div class="rings-row" id="ringsRow"></div><div class="bars-section"><h3>Comparativa: línea base vs. estado actual</h3><div id="barsContainer"></div></div><div id="currentDims"></div><div class="insight insight-g" id="progressInsight"></div></div>
 <div class="panel" id="tab3"><div class="sub-tabs"><button class="sub-tab on" onclick="setCycleView('heat',this)">Heatmap</button><button class="sub-tab" onclick="setCycleView('detail',this)">Detalle por mes</button></div><div id="cycleHeat"><div class="heat-wrap"><div class="heat" id="heatGrid"></div></div><div class="leg"><span>Intensidad = n° tareas</span><span>·</span><span>Hover = tooltip</span><span>·</span><span>Click = expandir</span></div><div class="cycle-detail" id="heatDetail"><p style="color:var(--tx3);font-size:12px;font-style:italic">Haz click en una celda para ver el detalle.</p></div></div><div id="cycleDetail" style="display:none"></div></div>
@@ -301,5 +301,6 @@ buildNav();buildDimCards();buildBaseline();buildCurrent();buildHeat();buildAA();
 <script src="aa-patch.js"></script>
 <script src="dac-patch.js"></script>
 <script src="search-patch.js"></script>
+<script src="nav-v2.js"></script>
 </body>
 </html>
